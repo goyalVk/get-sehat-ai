@@ -163,7 +163,7 @@ Node.js, AI integration, SaaS platforms, RBAC systems.
 ## Links
 
 - **Live product:** https://get-sehat-ai.vercel.app/
-- **V2 branch:** https://github.com/goyalVk/get-sehat-ai/tree/v2-auth
+- **GitHub:** https://github.com/goyalVk/get-sehat-ai
 - **Contact:** vkgoyal.vk85@gmail.com
 
 ---
