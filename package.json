@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
+    "firebase": "^12.11.0",
     "mongoose": "^9.3.3",
     "next": "16.2.2",
     "pdf-lib": "^1.17.1",

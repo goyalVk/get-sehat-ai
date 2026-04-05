@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import Report from '@/models/report'
 import { buildHealthPrompt } from '@/lib/healthPrompt'
+import { cookies } from 'next/headers'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -28,6 +29,19 @@ function calculateTokenUsage(usage) {
   return { inputTokens, outputTokens, totalTokens, estimatedCost }
 }
 
+function validateReportDate(dateStr) {
+  if (!dateStr) return null
+  const date = new Date(dateStr)
+  const now = new Date()
+  const fiveYearsAgo = new Date()
+  fiveYearsAgo.setFullYear(now.getFullYear() - 5)
+  if (isNaN(date.getTime()) || date > now || date < fiveYearsAgo) {
+    console.log('Invalid date detected:', dateStr, '— setting to null')
+    return null
+  }
+  return date
+}
+
 export async function POST(req) {
   await connectDB()
   let reportId = null
@@ -36,42 +50,57 @@ export async function POST(req) {
     const formData = await req.formData()
     const file = formData.get('file')
 
-    // Validations
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
     }
 
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp'
+    ]
+
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Invalid file type. Upload PDF or image.' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Invalid file type. Upload PDF or image.' },
+        { status: 400 }
+      )
     }
 
     if (file.size > 20 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File too large. Max 20MB allowed.' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'File too large. Max 20MB allowed.' },
+        { status: 400 }
+      )
     }
 
     if (file.type !== 'application/pdf' && file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Image too large. Max 5MB.' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Image too large. Max 5MB.' },
+        { status: 400 }
+      )
     }
 
-    // DB mein processing record banao
+    const cookieStore = await cookies()
+    const userId = cookieStore.get('userId')?.value
+
     const report = await Report.create({
       fileName: file.name,
       fileType: file.type,
       fileSize: file.size,
+      userId: userId || null,
       status: 'processing'
     })
     reportId = report._id.toString()
 
-    // File buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
     const base64 = buffer.toString('base64')
 
-    // Timer start
     const startTime = Date.now()
 
-    // AI Analysis
     let interpretation
     let tokenUsage
 
@@ -87,7 +116,32 @@ export async function POST(req) {
 
     const analysisTimeMs = Date.now() - startTime
 
-    // Sirf EK baar save karo — sab fields ek saath
+    // Date validate karo
+    const labData = interpretation.lab || {}
+    labData.collectedAt = validateReportDate(labData.collectedAt)
+    labData.reportedAt  = validateReportDate(labData.reportedAt)
+
+    // Duplicate check — same user, same report type, same collection date
+    if (labData.collectedAt && userId) {
+      const startOfDay = new Date(labData.collectedAt)
+      startOfDay.setHours(0, 0, 0, 0)
+      const endOfDay = new Date(labData.collectedAt)
+      endOfDay.setHours(23, 59, 59, 999)
+
+      const existing = await Report.findOne({
+        userId,
+        reportType: interpretation.report_type,
+        'lab.collectedAt': { $gte: startOfDay, $lte: endOfDay },
+        status: 'completed'
+      })
+
+      if (existing) {
+        await Report.findByIdAndDelete(existing._id)
+        console.log('Duplicate report removed:', existing._id)
+      }
+    }
+
+    // Sirf ek baar save karo
     await Report.findByIdAndUpdate(reportId, {
       status:         'completed',
       result:         interpretation,
@@ -96,10 +150,11 @@ export async function POST(req) {
       parameters:     interpretation.parameters     || [],
       urgentFlags:    interpretation.urgent_flags   || [],
       patient:        interpretation.patient        || {},
-      lab:            interpretation.lab            || {},
+      lab:            labData,
+      fileSize:       file.size,
       tokensUsed:     tokenUsage,
       analysisTimeMs,
-      modelUsed:      'claude-sonnet-4-20250514'
+      modelUsed:      'claude-haiku-4-5-20251001'
     })
 
     return NextResponse.json({
@@ -127,7 +182,7 @@ export async function POST(req) {
 
 async function analyzeWithPDF(base64) {
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 8000,
     messages: [{
       role: 'user',
@@ -155,7 +210,7 @@ async function analyzeWithPDF(base64) {
 
 async function analyzeWithVision(base64, mediaType) {
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 8000,
     messages: [{
       role: 'user',
