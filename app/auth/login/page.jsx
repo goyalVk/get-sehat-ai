@@ -1,11 +1,12 @@
 'use client'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { auth } from '@/lib/firebase'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import Link from 'next/link'
 
-export default function LoginPage() {
+// SearchParams alag component mein nikalo
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/dashboard'
@@ -65,7 +66,12 @@ export default function LoginPage() {
       const user = result.user
       const res = await fetch('/api/auth/verify', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: user.phoneNumber, firebaseUid: user.uid, token: await user.getIdToken(), name: name.trim() })
+        body: JSON.stringify({
+          phone: user.phoneNumber,
+          firebaseUid: user.uid,
+          token: await user.getIdToken(),
+          name: name.trim()
+        })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -151,6 +157,7 @@ export default function LoginPage() {
                   Change number
                 </button>
               </div>
+
               <input type="tel" maxLength={6} value={otp}
                 onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
                 onKeyDown={e => e.key === 'Enter' && verifyOTP()}
@@ -193,5 +200,19 @@ export default function LoginPage() {
         <div id="recaptcha-container" />
       </div>
     </main>
+  )
+}
+
+// Main page — Suspense wrap karo
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <main style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 32, height: 32, border: '2px solid #0d9488', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      </main>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
