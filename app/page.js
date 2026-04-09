@@ -19,29 +19,27 @@ export default function Home() {
         </div>
 
         <h1 style={{
-          fontSize: 52, fontWeight: 400, lineHeight: 1.15,
-          color: '#0f172a', marginBottom: 20,
-          fontFamily: "'DM Serif Display', serif"
-        }}>
-          500 million Indians<br />
-          get medical reports.<br />
-          <span style={{ color: '#0d9488' }}>Almost none understand them.</span><br />
-          <span style={{ color: '#cbd5e1' }}>Until now.</span>
+  fontSize: 52, fontWeight: 400, lineHeight: 1.15,
+  color: '#0f172a', marginBottom: 20,
+  fontFamily: "'DM Serif Display', serif"
+}}>
+  Woh medical report<br />
+  jo samajh nahi aayi —<br />
+  <span style={{ color: '#0d9488' }}>ab samjho.</span>
         </h1>
 
         <p style={{
-          fontSize: 20, color: '#475569', marginBottom: 12,
+          fontSize: 22, color: '#475569', marginBottom: 12,
           fontFamily: "'DM Serif Display', serif", lineHeight: 1.5
         }}>
-          That report in your hands?<br />
-          It's trying to tell you something.<br />
-          <span style={{ color: '#0d9488' }}>We speak its language.</span>
+          Sehat24 —<br />
+          <span style={{ color: '#0d9488' }}>Apni sehat, apni bhasha mein.</span>
         </p>
 
         <p style={{ fontSize: 15, color: '#94a3b8', marginBottom: 8, lineHeight: 1.7, maxWidth: 560, margin: '0 auto 8px' }}>
-          Every report your doctor has ever given you —
-          blood tests, scan reports, MRI findings, X-Rays.
-          We explain it all in plain language, in the language you think in.
+          Blood test, MRI, X-Ray — koi bhi report upload karo.
+          30 seconds mein Hindi mein sab explain ho jaata hai.
+          Bilkul free.
         </p>
 
         <p style={{ fontSize: 13, color: '#0d9488', fontWeight: 600, marginBottom: 32 }}>
