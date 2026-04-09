@@ -256,7 +256,7 @@ export default function HistoryPage() {
       <nav className="bg-white border-b border-stone-100 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/dashboard" className="text-lg font-semibold text-teal-700">
-            GetSehat AI
+            Sehat24
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="text-sm text-stone-500 hover:text-stone-700">

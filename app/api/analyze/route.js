@@ -4,6 +4,7 @@ import { connectDB } from '@/lib/mongodb'
 import Report from '@/models/report'
 import { buildHealthPrompt } from '@/lib/healthPrompt'
 import { cookies } from 'next/headers'
+import User from '@/models/user'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -12,15 +13,23 @@ function parseClaudeResponse(rawText) {
   text = text.replace(/^```json\s*/i, '')
   text = text.replace(/^```\s*/i, '')
   text = text.replace(/\s*```$/i, '')
-  return JSON.parse(text.trim())
+  text = text.trim()
+
+  // Truncation check
+  if (!text.endsWith('}')) {
+    console.error('Claude response truncated — last 100 chars:', text.slice(-100))
+    throw new Error('AI response was cut off. Please try again with a smaller report.')
+  }
+
+  return JSON.parse(text)
 }
 
 function calculateTokenUsage(usage) {
-  const inputTokens  = usage.input_tokens  || 0
-  const outputTokens = usage.output_tokens || 0
-  const totalTokens  = inputTokens + outputTokens
-  const inputCost    = (inputTokens  / 1_000_000) * 0.80
-  const outputCost   = (outputTokens / 1_000_000) * 4.00
+  const inputTokens   = usage.input_tokens  || 0
+  const outputTokens  = usage.output_tokens || 0
+  const totalTokens   = inputTokens + outputTokens
+  const inputCost     = (inputTokens  / 1_000_000) * 0.80
+  const outputCost    = (outputTokens / 1_000_000) * 4.00
   const estimatedCost = inputCost + outputCost
 
   console.log(`Tokens — Input: ${inputTokens}, Output: ${outputTokens}, Total: ${totalTokens}`)
@@ -42,6 +51,14 @@ function validateReportDate(dateStr) {
   return date
 }
 
+function normalizeParameters(parameters) {
+  if (!parameters) return []
+  return parameters.map(param => ({
+    ...param,
+    status: param.status?.toLowerCase().trim() || 'normal'
+  }))
+}
+
 export async function POST(req) {
   await connectDB()
   let reportId = null
@@ -51,7 +68,10 @@ export async function POST(req) {
     const file = formData.get('file')
 
     if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'No file uploaded' },
+        { status: 400 }
+      )
     }
 
     const allowedTypes = [
@@ -83,35 +103,53 @@ export async function POST(req) {
       )
     }
 
+    // Cookie se userId nikalo
     const cookieStore = await cookies()
     const userId = cookieStore.get('userId')?.value
 
+    // Free limit check
+    if (userId) {
+      const user = await User.findById(userId)
+
+      if (!user) {
+        console.log('User not found — skipping limit check')
+      } else if (user.plan === 'free' && user.reportsUsed >= user.reportsLimit) {
+        return NextResponse.json({
+          error: 'Free limit reached. Please upgrade to continue.',
+          limitReached: true
+        }, { status: 403 })
+      }
+    }
+
+    // Report create karo
     const report = await Report.create({
       fileName: file.name,
       fileType: file.type,
       fileSize: file.size,
-      userId: userId || null,
-      status: 'processing'
+      userId:   userId || null,
+      status:   'processing'
     })
     reportId = report._id.toString()
 
-    const bytes = await file.arrayBuffer()
+    // File buffer
+    const bytes  = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
     const base64 = buffer.toString('base64')
 
     const startTime = Date.now()
 
+    // AI Analysis
     let interpretation
     let tokenUsage
 
     if (file.type === 'application/pdf') {
-      const result = await analyzeWithPDF(base64)
+      const result   = await analyzeWithPDF(base64)
       interpretation = result.interpretation
-      tokenUsage = result.tokenUsage
+      tokenUsage     = result.tokenUsage
     } else {
-      const result = await analyzeWithVision(base64, file.type)
+      const result   = await analyzeWithVision(base64, file.type)
       interpretation = result.interpretation
-      tokenUsage = result.tokenUsage
+      tokenUsage     = result.tokenUsage
     }
 
     const analysisTimeMs = Date.now() - startTime
@@ -121,7 +159,7 @@ export async function POST(req) {
     labData.collectedAt = validateReportDate(labData.collectedAt)
     labData.reportedAt  = validateReportDate(labData.reportedAt)
 
-    // Duplicate check — same user, same report type, same collection date
+    // Duplicate check
     if (labData.collectedAt && userId) {
       const startOfDay = new Date(labData.collectedAt)
       startOfDay.setHours(0, 0, 0, 0)
@@ -141,21 +179,28 @@ export async function POST(req) {
       }
     }
 
-    // Sirf ek baar save karo
+    // Result save karo
     await Report.findByIdAndUpdate(reportId, {
       status:         'completed',
       result:         interpretation,
-      reportType:     interpretation.report_type    || null,
+      reportType:     interpretation.report_type     || null,
       reportCategory: interpretation.report_category || 'other',
-      parameters:     interpretation.parameters     || [],
-      urgentFlags:    interpretation.urgent_flags   || [],
-      patient:        interpretation.patient        || {},
+      parameters:     normalizeParameters(interpretation.parameters),
+      urgentFlags:    interpretation.urgent_flags    || [],
+      patient:        interpretation.patient         || {},
       lab:            labData,
       fileSize:       file.size,
       tokensUsed:     tokenUsage,
       analysisTimeMs,
       modelUsed:      'claude-haiku-4-5-20251001'
     })
+
+    // ✅ reportsUsed increment karo — analysis SUCCESS ke BAAD
+    if (userId) {
+      await User.findByIdAndUpdate(userId, {
+        $inc: { reportsUsed: 1 }
+      })
+    }
 
     return NextResponse.json({
       success: true,
@@ -168,7 +213,7 @@ export async function POST(req) {
 
     if (reportId) {
       await Report.findByIdAndUpdate(reportId, {
-        status: 'failed',
+        status:       'failed',
         errorMessage: err.message
       })
     }
@@ -182,7 +227,7 @@ export async function POST(req) {
 
 async function analyzeWithPDF(base64) {
   const response = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
+    model:      'claude-haiku-4-5-20251001',
     max_tokens: 8000,
     messages: [{
       role: 'user',
@@ -190,9 +235,9 @@ async function analyzeWithPDF(base64) {
         {
           type: 'document',
           source: {
-            type: 'base64',
+            type:       'base64',
             media_type: 'application/pdf',
-            data: base64
+            data:       base64
           }
         },
         {
@@ -204,13 +249,13 @@ async function analyzeWithPDF(base64) {
   })
 
   const interpretation = parseClaudeResponse(response.content[0].text)
-  const tokenUsage = calculateTokenUsage(response.usage)
+  const tokenUsage     = calculateTokenUsage(response.usage)
   return { interpretation, tokenUsage }
 }
 
 async function analyzeWithVision(base64, mediaType) {
   const response = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
+    model:      'claude-haiku-4-5-20251001',
     max_tokens: 8000,
     messages: [{
       role: 'user',
@@ -218,9 +263,9 @@ async function analyzeWithVision(base64, mediaType) {
         {
           type: 'image',
           source: {
-            type: 'base64',
+            type:       'base64',
             media_type: mediaType,
-            data: base64
+            data:       base64
           }
         },
         {
@@ -232,6 +277,6 @@ async function analyzeWithVision(base64, mediaType) {
   })
 
   const interpretation = parseClaudeResponse(response.content[0].text)
-  const tokenUsage = calculateTokenUsage(response.usage)
+  const tokenUsage     = calculateTokenUsage(response.usage)
   return { interpretation, tokenUsage }
 }

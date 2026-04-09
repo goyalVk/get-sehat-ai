@@ -7,7 +7,7 @@ export async function POST(req) {
   await connectDB()
 
   try {
-    const { phone, firebaseUid, token } = await req.json()
+    const { phone, firebaseUid, token, name } = await req.json()
 
     if (!phone || !firebaseUid) {
       return NextResponse.json(
@@ -16,30 +16,22 @@ export async function POST(req) {
       )
     }
 
-    // User dhundo ya banao
     let user = await User.findOne({ firebaseUid })
 
     if (!user) {
-      // Naya user
+      // New user — name save karo
       user = await User.create({
         phone,
         firebaseUid,
+        firstName: name || null,
         plan: 'free',
         reportsUsed: 0,
         reportsLimit: 3
       })
     }
 
-    // Simple session cookie set karo
     const cookieStore = await cookies()
     cookieStore.set('userId', user._id.toString(), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      path: '/'
-    })
-
-    cookieStore.set('firebaseToken', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 30,
@@ -51,6 +43,7 @@ export async function POST(req) {
       user: {
         id: user._id,
         phone: user.phone,
+        name: user.firstName,
         plan: user.plan,
         reportsUsed: user.reportsUsed,
         reportsLimit: user.reportsLimit
