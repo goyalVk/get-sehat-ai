@@ -69,7 +69,7 @@ export default function Navbar() {
               {[
                 { href: '/dashboard', label: 'Dashboard' },
                 { href: '/upload',    label: 'Upload'    },
-                { href: '/history',   label: 'History'   },
+                { href: '/history',   label: 'History'   }
               ].map(link => (
                 <Link key={link.href} href={link.href} style={{
                   color: pathname === link.href ? '#0d9488' : '#64748b',

@@ -317,6 +317,7 @@ export default function Dashboard() {
                 { href: '/upload', icon: '📤', label: 'Upload Report' },
                 { href: '/history', icon: '📈', label: 'View Trends' },
                 { href: '/profile', icon: '👤', label: 'My Profile' },
+                { href: '/chat', icon: '💊', label: 'Medicine Chat' },
                 // { href: '#', icon: '💬', label: 'Share Report', onClick: true },
               ].map((action, i) => (
                 action.onClick ? (
