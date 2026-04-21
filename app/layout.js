@@ -1,7 +1,7 @@
 import { Plus_Jakarta_Sans } from 'next/font/google'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import ChatWidget from '@/components/ChatWidget'
+import ChatWidget from '@/components/chatWidget'
 import Script from 'next/script'
 
 const jakarta = Plus_Jakarta_Sans({
