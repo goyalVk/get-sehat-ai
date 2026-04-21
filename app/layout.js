@@ -11,7 +11,6 @@ const jakarta = Plus_Jakarta_Sans({
   variable: '--font-jakarta'
 })
 
-// ── Replace with your actual GA4 ID ──
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-XXXXXXXXXX'
 
 export const metadata = {
@@ -25,176 +24,149 @@ export const metadata = {
   description: 'Blood test, MRI, X-Ray — koi bhi medical report upload karo. 30 seconds mein Hindi mein sab explain ho jaata hai. Ayurvedic herbs, medicine info, report history — bilkul free. India ka #1 AI health report analyzer.',
 
   keywords: [
-    'blood test hindi mein',
-    'medical report explain',
-    'lab report samjhna',
-    'sehat24',
-    'health report analyzer india',
-    'CBC report hindi',
-    'MRI report explain hindi',
-    'medicine side effects hindi',
-    'ayurvedic herbs india',
-    'free health ai india',
-    'report ka matlab hindi mein',
+    'blood test hindi mein', 'medical report explain',
+    'lab report samjhna', 'sehat24',
+    'health report analyzer india', 'CBC report hindi',
+    'MRI report explain hindi', 'medicine side effects hindi',
+    'ayurvedic herbs india', 'free health ai india',
   ],
 
-  authors:  [{ name: 'Sehat24', url: 'https://www.sehat24.com' }],
-  creator:  'Sehat24',
-  publisher:'Sehat24',
+  authors:   [{ name: 'Sehat24', url: 'https://www.sehat24.com' }],
+  creator:   'Sehat24',
+  publisher: 'Sehat24',
 
   robots: {
-    index:          true,
-    follow:         true,
+    index: true, follow: true,
     googleBot: {
-      index:               true,
-      follow:              true,
+      index: true, follow: true,
       'max-video-preview': -1,
       'max-image-preview': 'large',
-      'max-snippet':       -1,
+      'max-snippet': -1,
     },
   },
 
   openGraph: {
-    type:        'website',
-    locale:      'hi_IN',
-    url:         'https://www.sehat24.com',
-    siteName:    'Sehat24',
-    title:       'Sehat24 — Medical Report Hindi Mein Samjho | Free',
-    description: 'Blood test, MRI, X-Ray — koi bhi report upload karo. 30 seconds mein Hindi mein sab explain. Ayurvedic herbs + Medicine AI Chat. Bilkul free.',
-    images: [{
-      url:    '/og-image.png',
-      width:  1200,
-      height: 630,
-      alt:    'Sehat24 — India ka AI Health Companion',
-    }],
+    type: 'website', locale: 'hi_IN',
+    url: 'https://www.sehat24.com',
+    siteName: 'Sehat24',
+    title: 'Sehat24 — Medical Report Hindi Mein Samjho | Free',
+    description: 'Blood test, MRI, X-Ray — koi bhi report upload karo. 30 seconds mein Hindi mein sab explain. Bilkul free.',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Sehat24 — India ka AI Health Companion' }],
   },
 
   twitter: {
-    card:        'summary_large_image',
-    site:        '@sehat24ai',
-    creator:     '@sehat24ai',
-    title:       'Sehat24 — Medical Report Hindi Mein Samjho',
-    description: 'Blood test, MRI, X-Ray — 30 seconds mein Hindi mein explain. Free. India ka AI health companion.',
-    images:      ['/og-image.png'],
+    card: 'summary_large_image',
+    site: '@sehat24ai', creator: '@sehat24ai',
+    title: 'Sehat24 — Medical Report Hindi Mein Samjho',
+    description: 'Blood test, MRI, X-Ray — 30 seconds mein Hindi mein explain. Free.',
+    images: ['/og-image.png'],
   },
 
-  alternates: {
-    canonical: 'https://www.sehat24.com',
-  },
+  alternates: { canonical: 'https://www.sehat24.com' },
 
   verification: {
-    // Google Search Console verification — replace with your code
-    google: 'REPLACE_WITH_GOOGLE_SEARCH_CONSOLE_CODE',
+    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || 'REPLACE_WITH_GOOGLE_SEARCH_CONSOLE_CODE',
   },
 
+  // ── Favicon fix — sab sizes ──
   icons: {
-    icon:      [
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    icon: [
+      { url: '/favicon.ico',        sizes: 'any' },
+      { url: '/favicon-16x16.png',  sizes: '16x16',  type: 'image/png' },
+      { url: '/favicon-32x32.png',  sizes: '32x32',  type: 'image/png' },
+      { url: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple:     '/apple-touch-icon.png',
-    shortcut:  '/favicon.ico',
+    apple:   [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
   },
 
   manifest: '/site.webmanifest',
+
+  // ── PWA theme color ──
+  other: {
+    'mobile-web-app-capable':      'yes',
+    'apple-mobile-web-app-capable':'yes',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
+    'apple-mobile-web-app-title':  'Sehat24',
+    'application-name':            'Sehat24',
+    'msapplication-TileColor':     '#0d9488',
+    'msapplication-config':        '/browserconfig.xml',
+    'theme-color':                 '#0d9488',
+  },
 
   category: 'health',
 }
 
 // ── Structured Data ──
 const organizationSchema = {
-  '@context':   'https://schema.org',
-  '@type':      'Organization',
-  name:         'Sehat24',
-  url:          'https://www.sehat24.com',
-  logo:         'https://www.sehat24.com/logo.png',
-  description:  'India ka AI health companion — medical reports Hindi mein explain karta hai.',
+  '@context': 'https://schema.org', '@type': 'Organization',
+  name: 'Sehat24', url: 'https://www.sehat24.com',
+  logo: 'https://www.sehat24.com/android-chrome-512x512.png',
+  description: 'India ka AI health companion — medical reports Hindi mein explain karta hai.',
   foundingDate: '2024',
-  contactPoint: {
-    '@type':            'ContactPoint',
-    telephone:          '+91-8076170877',
-    contactType:        'customer support',
-    availableLanguage:  ['Hindi', 'English'],
-  },
-  sameAs: [
-    'https://instagram.com/sehat24ai',
-    'https://x.com/sehat24ai',
-  ],
-  address: {
-    '@type':           'PostalAddress',
-    addressCountry:    'IN',
-    addressLocality:   'Delhi NCR',
-  }
+  contactPoint: { '@type': 'ContactPoint', telephone: '+91-8076170877', contactType: 'customer support', availableLanguage: ['Hindi', 'English'] },
+  sameAs: ['https://instagram.com/sehat24ai', 'https://x.com/sehat24ai'],
+  address: { '@type': 'PostalAddress', addressCountry: 'IN', addressLocality: 'Delhi NCR' }
 }
 
 const websiteSchema = {
-  '@context':        'https://schema.org',
-  '@type':           'WebSite',
-  name:              'Sehat24',
-  url:               'https://www.sehat24.com',
-  description:       'Free AI medical report analyzer for India — Hindi mein explanation.',
-  inLanguage:        ['hi', 'en'],
-  potentialAction: {
-    '@type':       'SearchAction',
-    target:        'https://www.sehat24.com/chat?q={search_term_string}',
-    'query-input': 'required name=search_term_string',
-  },
+  '@context': 'https://schema.org', '@type': 'WebSite',
+  name: 'Sehat24', url: 'https://www.sehat24.com',
+  description: 'Free AI medical report analyzer for India — Hindi mein explanation.',
+  inLanguage: ['hi', 'en'],
+  potentialAction: { '@type': 'SearchAction', target: 'https://www.sehat24.com/chat?q={search_term_string}', 'query-input': 'required name=search_term_string' }
 }
 
 const softwareAppSchema = {
-  '@context':          'https://schema.org',
-  '@type':             'SoftwareApplication',
-  name:                'Sehat24',
-  applicationCategory:'HealthApplication',
-  operatingSystem:     'Web, iOS, Android',
-  offers: {
-    '@type':    'Offer',
-    price:      '0',
-    priceCurrency: 'INR',
-  },
+  '@context': 'https://schema.org', '@type': 'SoftwareApplication',
+  name: 'Sehat24', applicationCategory: 'HealthApplication',
+  operatingSystem: 'Web, iOS, Android',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
   description: 'AI-powered medical report analyzer for Indian patients. Explains blood tests, MRI, X-Ray reports in Hindi.',
-  url:         'https://www.sehat24.com',
-  aggregateRating: {
-    '@type':       'AggregateRating',
-    ratingValue:   '4.8',
-    ratingCount:   '127',
-    bestRating:    '5',
-    worstRating:   '1',
-  },
+  url: 'https://www.sehat24.com',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="hi" className={jakarta.variable}>
       <head>
-        {/* Preconnect for performance */}
+        {/* ── Viewport — mobile ke liye critical ── */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+
+        {/* ── Theme color — browser UI teal hoga ── */}
+        <meta name="theme-color" content="#0d9488" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d9488" />
+
+        {/* ── PWA — Add to Home Screen ── */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Sehat24" />
+
+        {/* ── Apple splash screens ── */}
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+        {/* ── Preconnect ── */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
 
-        {/* Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }}
-        />
+        {/* ── Structured Data ── */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }} />
       </head>
 
-      <body>
-        {/* ── Google Analytics 4 ── */}
+      <body style={{ margin: 0, padding: 0, overflowX: 'hidden' }}>
+
+        {/* ── GA4 ── */}
         {GA_ID !== 'G-XXXXXXXXXX' && (
           <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-              strategy="afterInteractive"
-            />
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
             <Script id="google-analytics" strategy="afterInteractive">
               {`
                 window.dataLayer = window.dataLayer || [];
@@ -204,7 +176,6 @@ export default function RootLayout({ children }) {
                   page_path: window.location.pathname,
                   send_page_view: true,
                   anonymize_ip: true,
-                  cookie_flags: 'SameSite=None;Secure'
                 });
               `}
             </Script>
@@ -212,7 +183,9 @@ export default function RootLayout({ children }) {
         )}
 
         <Navbar />
-        {children}
+        <main style={{ minHeight: '100vh' }}>
+          {children}
+        </main>
         <Footer />
         <ChatWidget />
       </body>

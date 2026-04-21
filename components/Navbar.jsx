@@ -28,137 +28,166 @@ export default function Navbar() {
   const isAuthPage = pathname?.startsWith('/auth')
 
   return (
-    <nav style={{
-      background: 'white', borderBottom: '1px solid #f1f5f9',
-      padding: '0 24px', height: 64,
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      position: 'sticky', top: 0, zIndex: 50,
-      fontFamily: "'Plus Jakarta Sans', sans-serif"
-    }}>
-      {/* Logo */}
-      <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 20, color: '#0d9488', fontFamily: "'DM Serif Display', serif", fontWeight: 400 }}>
-          Sehat24
-        </span>
-        <span style={{
-          fontSize: 10, fontWeight: 700, color: '#0d9488',
-          background: '#f0fdfa', border: '1px solid #99f6e4',
-          padding: '2px 7px', borderRadius: 20, letterSpacing: '0.05em'
-        }}>BETA</span>
-      </Link>
+    <>
+      <style>{`
+        .nav-wrap {
+          background: white;
+          border-bottom: 1px solid #f1f5f9;
+          padding: 0 24px;
+          height: 56px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .nav-links {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .nav-link {
+          color: #64748b;
+          font-size: 13px;
+          font-weight: 500;
+          text-decoration: none;
+          padding: 6px 10px;
+          border-radius: 8px;
+          transition: all 0.15s;
+          white-space: nowrap;
+        }
+        .nav-link.active {
+          color: #0d9488;
+          background: #f0fdfa;
+          font-weight: 600;
+        }
+        .nav-link:hover { background: #f8fafc; }
 
-      {/* Right side */}
-      {!isAuthPage && checked && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          {user ? (
-            <>
-              {[
-                { href: '/dashboard', label: 'Dashboard' },
-                { href: '/upload',    label: 'Upload'    },
-                { href: '/chat',      label: '💊 Medicine'},
-                { href: '/history',   label: 'History'   },
-              ].map(link => (
-                <Link key={link.href} href={link.href} style={{
-                  color: pathname === link.href ? '#0d9488' : '#64748b',
-                  fontSize: 13, fontWeight: pathname === link.href ? 600 : 500,
-                  textDecoration: 'none', padding: '6px 12px', borderRadius: 8,
-                  background: pathname === link.href ? '#f0fdfa' : 'transparent',
-                  transition: 'all 0.15s'
-                }}>
-                  {link.label}
-                </Link>
-              ))}
+        /* ── Mobile ── */
+        @media (max-width: 640px) {
+          .nav-wrap { padding: 0 14px; height: 52px; }
+          .nav-link { padding: 6px 7px; font-size: 12px; }
+          .nav-link-label { display: none; }
+          .nav-link-icon  { display: inline; }
+          .nav-logo-text  { font-size: 17px !important; }
+          .nav-beta-badge { display: none; }
+        }
+        @media (min-width: 641px) {
+          .nav-link-icon { display: none; }
+        }
+      `}</style>
 
-              {/* Avatar */}
-              <div style={{ position: 'relative', marginLeft: 4 }}>
-                <button onClick={() => setMenuOpen(!menuOpen)} style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #0d9488, #0891b2)',
-                  border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'white', fontSize: 13, fontWeight: 700,
-                  fontFamily: "'Plus Jakarta Sans', sans-serif"
-                }}>
-                  {firstName.charAt(0).toUpperCase() || 'U'}
-                </button>
+      <nav className="nav-wrap">
+        {/* Logo */}
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <span className="nav-logo-text" style={{ fontSize: 20, color: '#0d9488', fontFamily: "'DM Serif Display', serif", fontWeight: 400 }}>
+            Sehat24
+          </span>
+          <span className="nav-beta-badge" style={{ fontSize: 10, fontWeight: 700, color: '#0d9488', background: '#f0fdfa', border: '1px solid #99f6e4', padding: '2px 7px', borderRadius: 20 }}>
+            BETA
+          </span>
+        </Link>
 
-                {menuOpen && (
-                  <div style={{
-                    position: 'absolute', right: 0, top: 44,
-                    background: 'white', borderRadius: 14,
-                    border: '1px solid #f1f5f9',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-                    minWidth: 180, overflow: 'hidden', zIndex: 100
+        {/* Right side */}
+        {!isAuthPage && checked && (
+          <div className="nav-links">
+            {user ? (
+              <>
+                {[
+                  { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
+                  { href: '/upload',    label: 'Upload',    icon: '📋' },
+                  { href: '/chat',      label: 'Medicine',  icon: '💊' },
+                  { href: '/history',   label: 'History',   icon: '📈' },
+                ].map(link => (
+                  <Link key={link.href} href={link.href}
+                    className={`nav-link ${pathname === link.href ? 'active' : ''}`}>
+                    <span className="nav-link-icon">{link.icon}</span>
+                    <span className="nav-link-label">{link.label}</span>
+                  </Link>
+                ))}
+
+                {/* Avatar */}
+                <div style={{ position: 'relative', marginLeft: 4 }}>
+                  <button onClick={() => setMenuOpen(!menuOpen)} style={{
+                    width: 34, height: 34, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #0d9488, #0891b2)',
+                    border: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'white', fontSize: 13, fontWeight: 700,
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    flexShrink: 0
                   }}>
-                    <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9' }}>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>
-                        {user.firstName ? `${user.firstName} ${user.lastName || ''}` : 'My Account'}
-                      </p>
-                      <p style={{ fontSize: 12, color: '#94a3b8' }}>{user.phone}</p>
+                    {firstName.charAt(0).toUpperCase() || 'U'}
+                  </button>
+
+                  {menuOpen && (
+                    <div style={{
+                      position: 'absolute', right: 0, top: 42,
+                      background: 'white', borderRadius: 14,
+                      border: '1px solid #f1f5f9',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                      minWidth: 180, overflow: 'hidden', zIndex: 100
+                    }}>
+                      <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9' }}>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', margin: 0 }}>
+                          {user.firstName ? `${user.firstName}` : 'My Account'}
+                        </p>
+                        <p style={{ fontSize: 12, color: '#94a3b8', margin: 0 }}>{user.phone}</p>
+                      </div>
+                      {[
+                        { href: '/profile', label: '👤 Profile' },
+                        { href: '/history', label: '📈 History' },
+                      ].map(item => (
+                        <Link key={item.href} href={item.href}
+                          onClick={() => setMenuOpen(false)}
+                          style={{ display: 'block', padding: '10px 16px', fontSize: 13, color: '#334155', textDecoration: 'none', fontWeight: 500 }}
+                          onMouseEnter={e => e.target.style.background = '#f8fafc'}
+                          onMouseLeave={e => e.target.style.background = 'transparent'}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                      <button onClick={() => { setMenuOpen(false); logout() }} style={{
+                        width: '100%', padding: '10px 16px',
+                        fontSize: 13, color: '#ef4444',
+                        background: 'transparent', border: 'none',
+                        textAlign: 'left', cursor: 'pointer',
+                        fontWeight: 500,
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        borderTop: '1px solid #f1f5f9'
+                      }}>
+                        🚪 Logout
+                      </button>
                     </div>
-                    {[
-                      { href: '/profile', label: '👤 Profile' },
-                      { href: '/history', label: '📈 History' },
-                    ].map(item => (
-                      <Link key={item.href} href={item.href}
-                        onClick={() => setMenuOpen(false)}
-                        style={{
-                          display: 'block', padding: '10px 16px',
-                          fontSize: 13, color: '#334155',
-                          textDecoration: 'none', fontWeight: 500
-                        }}
-                        onMouseEnter={e => e.target.style.background = '#f8fafc'}
-                        onMouseLeave={e => e.target.style.background = 'transparent'}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                    <button onClick={() => { setMenuOpen(false); logout() }} style={{
-                      width: '100%', padding: '10px 16px',
-                      fontSize: 13, color: '#ef4444',
-                      background: 'transparent', border: 'none',
-                      textAlign: 'left', cursor: 'pointer', fontWeight: 500,
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      borderTop: '1px solid #f1f5f9'
-                    }}
-                      onMouseEnter={e => e.target.style.background = '#fef2f2'}
-                      onMouseLeave={e => e.target.style.background = 'transparent'}
-                    >
-                      🚪 Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Guest nav — Chat visible */}
-              <Link href="/chat" style={{
-                color: pathname === '/chat' ? '#0d9488' : '#64748b',
-                fontSize: 13, fontWeight: 500,
-                textDecoration: 'none', padding: '6px 12px', borderRadius: 8,
-                background: pathname === '/chat' ? '#f0fdfa' : 'transparent',
-              }}>
-                💊 Medicine
-              </Link>
-              <Link href="/auth/login" style={{
-                color: '#64748b', fontSize: 13, fontWeight: 500,
-                textDecoration: 'none', padding: '6px 12px', borderRadius: 8
-              }}>
-                Login
-              </Link>
-              <Link href="/upload" style={{
-                background: '#0d9488', color: 'white',
-                fontSize: 13, fontWeight: 600,
-                textDecoration: 'none', padding: '8px 16px',
-                borderRadius: 10, transition: 'background 0.15s'
-              }}>
-                Try Free →
-              </Link>
-            </>
-          )}
-        </div>
-      )}
-    </nav>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <Link href="/chat" className={`nav-link ${pathname === '/chat' ? 'active' : ''}`}>
+                  <span className="nav-link-icon">💊</span>
+                  <span className="nav-link-label">Medicine</span>
+                </Link>
+                <Link href="/auth/login" className="nav-link">
+                  <span className="nav-link-icon">👤</span>
+                  <span className="nav-link-label">Login</span>
+                </Link>
+                <Link href="/upload" style={{
+                  background: '#0d9488', color: 'white',
+                  fontSize: 13, fontWeight: 600,
+                  textDecoration: 'none', padding: '7px 14px',
+                  borderRadius: 10, whiteSpace: 'nowrap', flexShrink: 0
+                }}>
+                  <span className="nav-link-icon">📋</span>
+                  <span className="nav-link-label">Try Free →</span>
+                </Link>
+              </>
+            )}
+          </div>
+        )}
+      </nav>
+    </>
   )
 }

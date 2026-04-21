@@ -1,4 +1,545 @@
 @import "tailwindcss";
 
+/* ── Base fonts ── */
 body { font-family: 'DM Sans', sans-serif; }
 .serif { font-family: 'DM Serif Display', serif; }
+
+/* ══════════════════════════════════
+   GLOBAL RESET
+══════════════════════════════════ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── iOS input zoom fix ── */
+/* Prevents iOS from zooming in when tapping inputs */
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* ── Thin scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #0d9488; border-radius: 2px; }
+
+/* ══════════════════════════════════
+   PWA + SAFE AREA (iPhone notch)
+══════════════════════════════════ */
+body {
+  padding-left:  env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+@media (display-mode: standalone) {
+  body { background: #f8fafc; }
+  nav  { padding-top: max(12px, env(safe-area-inset-top)) !important; }
+}
+
+/* ══════════════════════════════════
+   HOMEPAGE RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Hero headline */
+  .t-h1 {
+    font-size: 36px !important;
+    line-height: 1.12 !important;
+    letter-spacing: -0.5px !important;
+  }
+
+  .t-h2 {
+    font-size: 26px !important;
+    line-height: 1.25 !important;
+  }
+
+  .t-h3 {
+    font-size: 18px !important;
+  }
+
+  /* Hero section padding */
+  .r-hero-pad {
+    padding: 72px 20px 52px !important;
+  }
+
+  /* Section padding */
+  .r-pad {
+    padding: 52px 20px !important;
+  }
+
+  /* Grid → single column */
+  .r-col  { grid-template-columns: 1fr !important; }
+
+  /* Stats → 2 column */
+  .r-col-2 { grid-template-columns: 1fr 1fr !important; }
+
+  /* Hide decorative floating elements */
+  .r-hide { display: none !important; }
+
+  /* CTA buttons stack */
+  .hero-cta-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .hero-cta-row a,
+  .hero-cta-row button {
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  /* Trust strip — vertical */
+  .hero-trust {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .divider { display: none !important; }
+
+  /* How it works — single column */
+  .how-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Report tags wrap */
+  .report-tags {
+    justify-content: flex-start !important;
+  }
+
+  /* Vision grid */
+  .vision-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Competitor grid */
+  .competitor-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Medicine chat demo hide */
+  .medicine-demo {
+    display: none !important;
+  }
+
+  /* FAQ section */
+  .faq-wrap {
+    padding: 0 4px !important;
+  }
+
+  /* Stats grid */
+  .stats-grid-home {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+}
+
+/* ══════════════════════════════════
+   NAVBAR RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 640px) {
+  nav {
+    padding: 0 14px !important;
+    height: 56px !important;
+  }
+
+  /* Hide text labels in nav — show only important items */
+  .nav-label-hide {
+    display: none !important;
+  }
+}
+
+/* ══════════════════════════════════
+   DASHBOARD RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 640px) {
+  .dash-wrap {
+    padding: 16px 14px !important;
+  }
+
+  /* Health score + stats — stack vertically */
+  .top-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Stats — 2x2 grid */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Quick actions — 4 equal columns */
+  .quick-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .quick-action {
+    padding: 10px 4px !important;
+  }
+
+  .quick-action span:last-child {
+    font-size: 10px !important;
+  }
+
+  /* Report cards */
+  .report-card {
+    padding: 12px 14px !important;
+  }
+
+  /* Dashboard title */
+  .dash-title {
+    font-size: 20px !important;
+  }
+
+  /* Footer row stack */
+  .footer-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .footer-row button,
+  .footer-row a {
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  /* Reports header */
+  .reports-header {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+}
+
+/* ══════════════════════════════════
+   UPLOAD PAGE RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Upload container */
+  .upload-container {
+    padding: 24px 16px !important;
+  }
+
+  /* Drop zone */
+  .upload-dropzone {
+    padding: 32px 20px !important;
+    border-radius: 16px !important;
+  }
+
+  /* Camera + sample buttons */
+  .upload-btn-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+}
+
+/* ══════════════════════════════════
+   RESULTS PAGE RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Results container */
+  .results-page > div {
+    padding: 16px 14px 40px !important;
+  }
+
+  /* Header card */
+  .results-page .fade-up:first-child {
+    padding: 18px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  /* Stats pills wrap */
+  .pill {
+    font-size: 10px !important;
+    padding: 3px 7px !important;
+  }
+
+  /* Parameter cards */
+  .param-card {
+    padding: 14px 12px !important;
+  }
+
+  /* Value + unit inline */
+  .param-value-row {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  /* Action buttons — stack */
+  .results-action-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .results-action-row a,
+  .results-action-row button {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  /* PDF buttons */
+  .pdf-btn-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  /* Herb cards — single column */
+  .herb-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Lifestyle grid — single column */
+  .lifestyle-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ══════════════════════════════════
+   HISTORY PAGE RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 640px) {
+  /* History container */
+  .history-container {
+    padding: 16px 14px !important;
+  }
+
+  /* Summary stats — single row scroll */
+  .history-stats {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+  }
+
+  .history-stats > div {
+    min-width: 110px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Timeline pills scroll */
+  .timeline-pills {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+  }
+
+  .report-pill {
+    flex-shrink: 0 !important;
+  }
+
+  /* Trend values scroll */
+  .trend-values {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+  }
+
+  /* Overall summary grid */
+  .overall-grid {
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Download button full width */
+  .dl-btn {
+    width: 100% !important;
+  }
+}
+
+/* ══════════════════════════════════
+   CHAT PAGE RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Chat header */
+  .chat-header {
+    padding: 10px 14px !important;
+  }
+
+  /* Messages */
+  .chat-messages {
+    padding: 14px 14px !important;
+    gap: 10px !important;
+  }
+
+  /* Bubble max width */
+  .msg-bubble > div {
+    max-width: 88% !important;
+    font-size: 13px !important;
+  }
+
+  /* Input area */
+  .chat-input-area {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+
+  /* Attach button smaller */
+  .attach-btn {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  /* Send button smaller */
+  .send-btn {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
+
+/* ══════════════════════════════════
+   LOGIN PAGE RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 640px) {
+  .login-container {
+    padding: 32px 16px !important;
+  }
+
+  .login-card {
+    padding: 22px 18px !important;
+    border-radius: 16px !important;
+  }
+}
+
+/* ══════════════════════════════════
+   FLOATING WIDGET RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Widget window smaller on mobile */
+  .widget-window {
+    width: calc(100vw - 32px) !important;
+    right: 16px !important;
+    bottom: 88px !important;
+    height: 420px !important;
+  }
+
+  /* Floating buttons position */
+  .widget-fab {
+    bottom: 20px !important;
+    right: 20px !important;
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .whatsapp-fab {
+    bottom: 20px !important;
+    left: 20px !important;
+    width: 46px !important;
+    height: 46px !important;
+  }
+}
+
+/* ══════════════════════════════════
+   FOOTER RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Footer 3-col → single col */
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  .footer-bottom {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 8px !important;
+  }
+}
+
+/* ══════════════════════════════════
+   SMALL PHONES (320px - 375px)
+══════════════════════════════════ */
+@media (max-width: 375px) {
+  .t-h1 { font-size: 30px !important; }
+  .t-h2 { font-size: 22px !important; }
+
+  .quick-action span:first-child { font-size: 18px !important; }
+  .quick-action span:last-child  { font-size: 9px !important; }
+
+  .pill {
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+  }
+
+  /* Stats smaller */
+  .stat-card { padding: 14px 12px !important; }
+}
+
+
+/* ══ UNIVERSAL MOBILE FIX ══ */
+@media (max-width: 768px) {
+
+  /* Har page ka main container */
+  main, section, div[style*="maxWidth"] {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Grids auto-collapse */
+  div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Font sizes */
+  div[style*="fontSize: 52"],
+  div[style*="fontSize: 60"],
+  div[style*="fontSize: 64"] {
+    font-size: 34px !important;
+  }
+
+  div[style*="fontSize: 40"],
+  div[style*="fontSize: 44"],
+  div[style*="fontSize: 48"] {
+    font-size: 28px !important;
+  }
+
+  div[style*="fontSize: 36"] {
+    font-size: 24px !important;
+  }
+
+  /* Padding reduce */
+  div[style*="padding: '80px"],
+  div[style*="padding: '96px"] {
+    padding: 40px 16px !important;
+  }
+
+  /* Flex wrap */
+  div[style*="display: 'flex'"] {
+    flex-wrap: wrap !important;
+  }
+
+  /* Full width buttons */
+  a[style*="padding: '16px"],
+  button[style*="padding: '16px"] {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
