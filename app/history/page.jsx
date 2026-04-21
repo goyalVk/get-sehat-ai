@@ -3,184 +3,113 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+// ── Status-based trend logic — FIXED ──
+function getTrendInfo(trend) {
+  if (trend.length < 2) return null
+
+  const latest         = trend[trend.length - 1]
+  const previous       = trend[trend.length - 2]
+  const latestNormal   = latest.status?.toLowerCase() === 'normal'
+  const previousNormal = previous.status?.toLowerCase() === 'normal'
+
+  if (latestNormal && previousNormal)
+    return { type: 'stable', label: '→ Stable', color: '#d97706', bg: '#fffbeb', border: '#fde68a' }
+
+  if (latestNormal && !previousNormal)
+    return { type: 'improving', label: '↓ Improving', color: '#16a34a', bg: '#f0fdf4', border: '#86efac' }
+
+  if (!latestNormal && previousNormal)
+    return { type: 'worsening', label: '↑ Worsening', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' }
+
+  const diff = latest.value - previous.value
+  const pct  = Math.abs((diff / previous.value) * 100).toFixed(1)
+  if (diff === 0) return { type: 'stable',    label: '→ Stable',     color: '#d97706', bg: '#fffbeb', border: '#fde68a', pct }
+  if (diff < 0)   return { type: 'improving', label: '↓ Improving',  color: '#16a34a', bg: '#f0fdf4', border: '#86efac', pct }
+  return              { type: 'worsening', label: '↑ Worsening',  color: '#dc2626', bg: '#fef2f2', border: '#fecaca', pct }
+}
+
+// ── Advice — only for abnormal ──
 function getTrendAdvice(paramName, trend) {
   if (trend.length < 2) return null
 
-  const latest   = trend[trend.length - 1]
-  const previous = trend[trend.length - 2]
+  const latest         = trend[trend.length - 1]
+  const previous       = trend[trend.length - 2]
+  const latestNormal   = latest.status?.toLowerCase() === 'normal'
+  const previousNormal = previous.status?.toLowerCase() === 'normal'
+
+  if (latestNormal && previousNormal) return null
+
   const diff = latest.value - previous.value
   const pct  = Math.abs((diff / previous.value) * 100).toFixed(1)
-  const improving = diff < 0
+
+  if (latestNormal && !previousNormal)
+    return { text: `${paramName} ab normal range mein aa gaya — bahut achha! 🎉`, type: 'good' }
+
+  if (!latestNormal && previousNormal)
+    return { text: `${paramName} normal range se bahar aa gaya — doctor se milein.`, type: 'warning' }
 
   const adviceMap = {
-    'hba1c': {
-      improving: `HbA1c ${pct}% kam hua — bahut achha! Diet aur exercise continue karo. Next test 3 mahine baad.`,
-      worsening: `HbA1c ${pct}% badha — diabetes risk hai. Mithai, chawal, maida kam karo. Doctor se milna zaroori hai.`,
-      stable:    `HbA1c stable hai. Lifestyle maintain karo — roz 30 min walk aur kam sugar.`
-    },
-    'glucose': {
-      improving: `Blood sugar control improve hua — ${pct}% kam. Yeh achi nishani hai!`,
-      worsening: `Blood sugar ${pct}% badha. Meethi cheezein aur processed food avoid karo.`,
-      stable:    `Blood sugar stable. Balanced diet aur exercise maintain karo.`
-    },
-    'cholesterol': {
-      improving: `Cholesterol ${pct}% kam hua — heart ke liye achha! Oily food avoid karte raho.`,
-      worsening: `Cholesterol ${pct}% badha. Ghee, butter, fried food kam karo. Walking shuru karo.`,
-      stable:    `Cholesterol stable. Healthy diet continue karo.`
-    },
-    'hdl': {
-      improving: `Good cholesterol (HDL) badha — yeh heart ke liye bahut achha hai!`,
-      worsening: `Good cholesterol (HDL) kam hua. Exercise badhao — HDL sirf exercise se improve hota hai.`,
-      stable:    `HDL stable hai.`
-    },
-    'ldl': {
-      improving: `Bad cholesterol (LDL) kam hua — ${pct}% improvement. Heart risk kam ho raha hai.`,
-      worsening: `Bad cholesterol (LDL) ${pct}% badha. Fatty food aur red meat avoid karo.`,
-      stable:    `LDL stable. Diet dhyan rakho.`
-    },
-    'creatinine': {
-      improving: `Kidney function improve ho rahi hai — creatinine ${pct}% kam. Paani zyada piyo.`,
-      worsening: `Kidney marker ${pct}% badha — nephrology consultation lo. Paani 3L+ daily piyo.`,
-      stable:    `Kidney function stable. Hydration maintain karo.`
-    },
-    'hemoglobin': {
-      improving: `Hemoglobin ${pct}% badha — anemia improve ho raha hai! Iron rich food continue karo.`,
-      worsening: `Hemoglobin ${pct}% kam — anemia ka risk. Palak, chana, khajoor, meat badhao.`,
-      stable:    `Hemoglobin stable. Iron rich diet maintain karo.`
-    },
-    'tsh': {
-      improving: `Thyroid levels normal ki taraf aa rahe hain — medicine sahi kaam kar rahi hai.`,
-      worsening: `Thyroid levels change hue — doctor se dose adjust karwao.`,
-      stable:    `Thyroid stable. Regular checkup continue karo.`
-    },
-    'vitamin d': {
-      improving: `Vitamin D ${pct}% improve hua! Supplementation aur dhoop kaam aa rahi hai.`,
-      worsening: `Vitamin D aur kam hua. Roz 15-20 min dhoop mein baitho. Supplement lo.`,
-      stable:    `Vitamin D stable. Supplementation continue karo.`
-    },
-    'uric acid': {
-      improving: `Uric acid ${pct}% kam hua. Diet changes kaam kar rahi hain!`,
-      worsening: `Uric acid ${pct}% badha. Red meat, seafood, alcohol avoid karo.`,
-      stable:    `Uric acid stable. Paani zyada piyo.`
-    },
-    'default': {
-      improving: `${paramName} mein ${pct}% improvement — achha trend hai! Lifestyle maintain karo.`,
-      worsening: `${paramName} mein ${pct}% change — doctor se discuss karo.`,
-      stable:    `${paramName} stable hai.`
-    }
+    'hba1c':       { up: `HbA1c ${pct}% badha — sugar control pe dhyan do. Meetha, chawal kam karo.`, down: `HbA1c ${pct}% kam hua — diet continue karo!` },
+    'glucose':     { up: `Blood sugar badha. Processed food avoid karo.`, down: `Blood sugar ${pct}% improve hua!` },
+    'cholesterol': { up: `Cholesterol ${pct}% badha. Fried food, ghee kam karo.`, down: `Cholesterol ${pct}% kam hua — heart ke liye achha!` },
+    'hdl':         { up: `Good cholesterol badha — excellent!`, down: `Good cholesterol kam hua. Exercise badhao.` },
+    'ldl':         { up: `Bad cholesterol ${pct}% badha. Fatty food avoid karo.`, down: `Bad cholesterol ${pct}% kam hua — great!` },
+    'hemoglobin':  { up: `Hemoglobin ${pct}% badha — improving!`, down: `Hemoglobin ${pct}% kam. Palak, chana, khajoor badhao.` },
+    'creatinine':  { up: `Kidney marker badha. Paani 3L+ piyo. Doctor se milein.`, down: `Kidney function improve ho rahi hai!` },
+    'tsh':         { up: `Thyroid change hua. Doctor se dose check karwao.`, down: `Thyroid normal ki taraf aa raha hai.` },
+    'vitamin d':   { up: `Vitamin D improve hua!`, down: `Vitamin D kam hua. Dhoop + supplement lo.` },
+    'uric acid':   { up: `Uric acid ${pct}% badha. Red meat, seafood avoid karo.`, down: `Uric acid ${pct}% kam hua — achha!` },
   }
 
-  const key = Object.keys(adviceMap).find(k =>
-    paramName.toLowerCase().includes(k)
-  ) || 'default'
+  const key = Object.keys(adviceMap).find(k => paramName.toLowerCase().includes(k))
+  if (!key) return diff > 0
+    ? { text: `${paramName} ${pct}% badha — doctor se discuss karo.`, type: 'warning' }
+    : { text: `${paramName} ${pct}% improve hua — achha trend!`, type: 'good' }
 
-  const advice = adviceMap[key]
-  if (diff === 0) return { text: advice.stable,    type: 'stable' }
-  if (improving)  return { text: advice.improving, type: 'improving' }
-  return { text: advice.worsening, type: 'worsening' }
+  return diff > 0
+    ? { text: adviceMap[key].up,   type: 'warning' }
+    : { text: adviceMap[key].down, type: 'good' }
 }
 
-function getAccumulatedAdvice(reports) {
-  if (!reports || reports.length === 0) return null
-  const latest   = reports[reports.length - 1]
-  const abnormal = latest.parameters?.filter(p => p.status !== 'normal') || []
-  const critical = latest.parameters?.filter(p => p.status === 'critical') || []
-
-  const advice = { critical: [], diet: [], lifestyle: [], nextTest: null }
-
-  critical.forEach(p => {
-    advice.critical.push(`${p.name} ke liye turant doctor se milo`)
+// ── Mini Sparkline ──
+function Sparkline({ trend, color }) {
+  if (trend.length < 2) return null
+  const values = trend.map(t => t.value)
+  const min = Math.min(...values), max = Math.max(...values)
+  const range = max - min || 1
+  const W = 100, H = 36, PAD = 4
+  const points = values.map((v, i) => {
+    const x = PAD + (i / (values.length - 1)) * (W - PAD * 2)
+    const y = H - PAD - ((v - min) / range) * (H - PAD * 2)
+    return `${x},${y}`
   })
-
-  abnormal.forEach(p => {
-    const name = p.name?.toLowerCase() || ''
-
-    if (name.includes('hba1c') || name.includes('glucose') || name.includes('sugar')) {
-      advice.diet.push('Chawal, roti, mithai, maida kam karo')
-      advice.diet.push('Brown rice, oats, daliya try karo')
-      advice.lifestyle.push('Roz 30-45 min walk — blood sugar ke liye sabse effective')
-      advice.nextTest = '3 mahine baad HbA1c dobara karwao'
-    }
-    if (name.includes('cholesterol') || name.includes('ldl') || name.includes('triglyceride')) {
-      advice.diet.push('Fried food, ghee, butter, red meat avoid karo')
-      advice.diet.push('Almonds, walnuts, olive oil include karo')
-      advice.lifestyle.push('Smoking aur alcohol band karo — cholesterol directly affect hota hai')
-      advice.nextTest = advice.nextTest || '3 mahine baad lipid profile dobara karwao'
-    }
-    if (name.includes('hemoglobin') || name.includes('rbc') || name.includes('hb')) {
-      advice.diet.push('Palak, chana, rajma, khajoor, pomegranate roz khao')
-      advice.diet.push('Iron absorption ke liye Vitamin C — nimbu paani, amla')
-      advice.lifestyle.push('Chai aur coffee khane ke saath mat lo — iron absorb nahi hota')
-      advice.nextTest = advice.nextTest || '6 hafte baad CBC dobara karwao'
-    }
-    if (name.includes('creatinine') || name.includes('urea') || name.includes('egfr')) {
-      advice.diet.push('Protein thoda kam karo — dal, paneer, meat controlled rakkho')
-      advice.diet.push('Roz 3-4 liter paani piyo')
-      advice.lifestyle.push('Painkillers (ibuprofen, diclofenac) avoid karo — kidney damage karte hain')
-      advice.nextTest = advice.nextTest || '1 mahine baad KFT dobara karwao'
-    }
-    if (name.includes('tsh') || name.includes('thyroid')) {
-      advice.diet.push('Iodized namak use karo')
-      advice.lifestyle.push('Medicine roz same time pe lo — kabhi skip mat karo')
-      advice.nextTest = advice.nextTest || '3 mahine baad thyroid dobara karwao'
-    }
-    if (name.includes('vitamin d')) {
-      advice.diet.push('Egg yolk, fatty fish, fortified milk include karo')
-      advice.lifestyle.push('Roz subah 7-9 baje 15-20 min dhoop mein baitho')
-      advice.nextTest = advice.nextTest || '3 mahine baad Vitamin D dobara karwao'
-    }
-    if (name.includes('b12')) {
-      advice.diet.push('Agar vegetarian ho toh B12 supplement zaroor lo')
-      advice.diet.push('Milk, eggs, paneer, fish include karo')
-      advice.nextTest = advice.nextTest || '3 mahine baad B12 dobara karwao'
-    }
-    if (name.includes('uric acid')) {
-      advice.diet.push('Red meat, seafood, alcohol avoid karo')
-      advice.diet.push('Roz 3-4 liter paani piyo')
-      advice.lifestyle.push('Weight kam karo — uric acid directly weight se linked hai')
-      advice.nextTest = advice.nextTest || '3 mahine baad uric acid dobara karwao'
-    }
-    if (name.includes('sgpt') || name.includes('sgot') || name.includes('bilirubin')) {
-      advice.diet.push('Alcohol bilkul band karo')
-      advice.diet.push('Oily, fried, spicy food avoid karo')
-      advice.lifestyle.push('Unnecessary medicines aur supplements avoid karo')
-      advice.nextTest = advice.nextTest || '6 hafte baad LFT dobara karwao'
-    }
-  })
-
-  advice.diet      = [...new Set(advice.diet)]
-  advice.lifestyle = [...new Set(advice.lifestyle)]
-  return advice
+  return (
+    <svg width={W} height={H}>
+      <polyline points={points.join(' ')} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.4" />
+      {trend.map((_, i) => {
+        const [x, y] = points[i].split(',').map(Number)
+        const isLast = i === trend.length - 1
+        return <circle key={i} cx={x} cy={y} r={isLast ? 4 : 2.5} fill={isLast ? color : 'white'} stroke={color} strokeWidth={isLast ? 0 : 1.5} />
+      })}
+    </svg>
+  )
 }
 
-const adviceStyle = {
-  improving: 'bg-green-50 border-green-100 text-green-800',
-  worsening: 'bg-red-50 border-red-100 text-red-800',
-  stable:    'bg-amber-50 border-amber-100 text-amber-800',
-}
-
-const adviceIcon = {
-  improving: '✓',
-  worsening: '⚠',
-  stable:    '→',
-}
-
-const statusColor = (status) => {
-  const map = {
-    normal:   'bg-green-100 text-green-700',
-    low:      'bg-amber-100 text-amber-700',
-    high:     'bg-red-100 text-red-700',
-    critical: 'bg-red-600 text-white',
+const statusStyle = (s) => {
+  switch(s?.toLowerCase()) {
+    case 'high':     return { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
+    case 'low':      return { bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
+    case 'critical': return { bg: '#dc2626', color: '#ffffff', border: '#dc2626' }
+    default:         return { bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0' }
   }
-  return map[status] || 'bg-stone-100 text-stone-600'
 }
 
 export default function HistoryPage() {
   const router = useRouter()
-  const [grouped, setGrouped]         = useState({})
-  const [loading, setLoading]         = useState(true)
-  const [selected, setSelected]       = useState(null)
-  const [totalReports, setTotalReports] = useState(0)
+  const [grouped, setGrouped]   = useState({})
+  const [loading, setLoading]   = useState(true)
+  const [expanded, setExpanded] = useState({})
+  const [total, setTotal]       = useState(0)
 
   useEffect(() => { fetchData() }, [])
 
@@ -191,16 +120,27 @@ export default function HistoryPage() {
 
       const res  = await fetch('/api/reports')
       const data = await res.json()
-      const all  = data.reports || []
-      setTotalReports(all.length)
+      const all  = (data.reports || []).filter(r => r.status === 'completed')
+      setTotal(all.length)
 
       const groups = {}
-      all.forEach(report => {
-        const type = report.reportType || 'Other'
+      all.forEach(r => {
+        const type = r.reportType || 'Other'
         if (!groups[type]) groups[type] = []
-        groups[type].push(report)
+        groups[type].push(r)
       })
+
+      Object.keys(groups).forEach(k => {
+        groups[k].sort((a, b) => {
+          const da = a.lab?.collectedAt ? new Date(a.lab.collectedAt) : new Date(a.createdAt)
+          const db = b.lab?.collectedAt ? new Date(b.lab.collectedAt) : new Date(b.createdAt)
+          return da - db
+        })
+      })
+
       setGrouped(groups)
+      const firstMulti = Object.keys(groups).find(k => groups[k].length > 1)
+      if (firstMulti) setExpanded({ [firstMulti]: true })
     } catch {
       router.push('/auth/login')
     } finally {
@@ -208,362 +148,548 @@ export default function HistoryPage() {
     }
   }
 
-  const getReportDate = (report) => {
-    if (report.lab?.collectedAt) return new Date(report.lab.collectedAt)
-    return new Date(report.createdAt)
-  }
+  const getDate = (r) => r.lab?.collectedAt ? new Date(r.lab.collectedAt) : new Date(r.createdAt)
 
-  const getTrend = (reports, paramName) => {
-    return reports
-      .map(r => {
-        const param = r.parameters?.find(
-          p => p.name?.toLowerCase() === paramName?.toLowerCase()
-        )
-        if (!param) return null
-        return {
-          value:    parseFloat(param.value),
-          unit:     param.unit,
-          status:   param.status,
-          date:     getReportDate(r),
-          reportId: r._id
-        }
-      })
-      .filter(Boolean)
-      .sort((a, b) => a.date - b.date)
-  }
+  const getTrend = (reports, paramName) =>
+    reports.map(r => {
+      const p = r.parameters?.find(p => p.name?.toLowerCase() === paramName?.toLowerCase())
+      if (!p) return null
+      return {
+        value:           parseFloat(p.value),
+        unit:            p.unit,
+        status:          p.status,
+        date:            getDate(r),
+        reference_range: p.reference_range || null
+      }
+    }).filter(Boolean)
 
-  const getTrendArrow = (values) => {
-    if (values.length < 2) return null
-    const last = values[values.length - 1].value
-    const prev = values[values.length - 2].value
-    if (last < prev) return { arrow: '↓', color: 'text-green-600', label: 'Improving' }
-    if (last > prev) return { arrow: '↑', color: 'text-red-500',   label: 'Worsening' }
-    return { arrow: '→', color: 'text-amber-500', label: 'Stable' }
-  }
+  if (loading) return (
+    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+      <div style={{ width: 36, height: 36, border: '3px solid #0d9488', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </main>
+  )
 
-  if (loading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
-      </main>
-    )
-  }
+  const typeCount  = Object.keys(grouped).length
+  const trendCount = Object.values(grouped).filter(g => g.length > 1).length
 
   return (
-    <main className="min-h-screen bg-stone-50">
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Plus Jakarta Sans',sans-serif}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .fade-up{animation:fadeUp 0.4s ease forwards;opacity:0}
+        .report-pill:hover{border-color:#0d9488!important;transform:translateY(-1px)}
+        .expand-btn:hover{background:#f0fdfa!important}
+        .param-row:hover{background:#f0f0f0!important}
+        .dl-btn:hover{border-color:#0d9488!important;color:#0d9488!important}
+      `}</style>
 
-      {/* Navbar */}
-      <nav className="bg-white border-b border-stone-100 px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/dashboard" className="text-lg font-semibold text-teal-700">
-            Sehat24
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-sm text-stone-500 hover:text-stone-700">
-              Dashboard
-            </Link>
-            <Link href="/upload"
-              className="bg-teal-600 text-white px-4 py-2 rounded-xl text-sm font-medium">
-              + New Report
-            </Link>
+      <main style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 24px 60px' }}>
+
+          {/* Header */}
+          <div className="fade-up" style={{ marginBottom: 28 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+              <div>
+                <p style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600, marginBottom: 4 }}>Health Intelligence</p>
+                <h1 style={{ fontSize: 28, fontWeight: 400, color: '#0f172a', fontFamily: "'DM Serif Display', serif" }}>Report History & Trends</h1>
+              </div>
+              <Link href="/upload" style={{ background: '#0d9488', color: 'white', padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                + New Report
+              </Link>
+            </div>
+
+            {/* Summary Stats */}
+            <div style={{ display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' }}>
+              {[
+                { label: 'Total Reports',    value: total,      icon: '📋', bg: '#f0fdfa', color: '#0d9488',  border: '#99f6e4' },
+                { label: 'Report Types',     value: typeCount,  icon: '🔬', bg: '#eff6ff', color: '#1d4ed8',  border: '#bfdbfe' },
+                { label: 'Trends Available', value: trendCount, icon: '📈', bg: trendCount > 0 ? '#f0fdf4' : '#f8fafc', color: trendCount > 0 ? '#16a34a' : '#94a3b8', border: trendCount > 0 ? '#86efac' : '#e2e8f0' },
+              ].map((s, i) => (
+                <div key={i} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 14, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 140 }}>
+                  <span style={{ fontSize: 22 }}>{s.icon}</span>
+                  <div>
+                    <p style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
+                    <p style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{s.label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </nav>
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
+          {/* Empty State */}
+          {total === 0 && (
+            <div style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', padding: '60px 24px', textAlign: 'center' }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Koi report nahi abhi</h3>
+              <p style={{ fontSize: 14, color: '#94a3b8', marginBottom: 24 }}>Pehli report upload karo — Hindi mein sab explain hoga</p>
+              <Link href="/upload" style={{ background: '#0d9488', color: 'white', padding: '12px 28px', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                Report Upload Karo →
+              </Link>
+            </div>
+          )}
 
-        <div className="flex items-start justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-semibold text-stone-800 serif mb-1">
-              Report History
-            </h1>
-            <p className="text-stone-500 text-sm">
-              {totalReports} report{totalReports !== 1 ? 's' : ''} •
-              Sample collection date se sorted
-            </p>
-          </div>
-        </div>
-
-        {totalReports === 0 ? (
-          <div className="bg-white rounded-2xl border border-stone-100 p-12 text-center">
-            <div className="text-4xl mb-4">📊</div>
-            <p className="text-stone-500 mb-4">Abhi tak koi report nahi</p>
-            <Link href="/upload"
-              className="bg-teal-600 text-white px-6 py-3 rounded-xl text-sm font-medium">
-              Report upload karo
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {Object.entries(grouped).map(([type, typeReports]) => {
-
-              const sortedReports = [...typeReports].sort(
-                (a, b) => getReportDate(a) - getReportDate(b)
-              )
-
-              const allParams = new Set()
-              sortedReports.forEach(r =>
-                r.parameters?.forEach(p => { if (p.name) allParams.add(p.name) })
-              )
-
-              const latestReport = sortedReports[sortedReports.length - 1]
-              const abnormalCount = latestReport?.parameters
-                ?.filter(p => p.status !== 'normal')?.length || 0
+          {/* Report Groups */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {Object.entries(grouped).map(([type, reports], gi) => {
+              const latest     = reports[reports.length - 1]
+              const isExpanded = expanded[type]
+              const hasTrend   = reports.length > 1
+              const abnormal   = latest?.parameters?.filter(p => p.status !== 'normal') || []
+              const allParams  = [...new Set(reports.flatMap(r => r.parameters?.map(p => p.name) || []))]
+              const trendParams = allParams.filter(name => getTrend(reports, name).length > 1)
 
               return (
-                <div key={type}
-                  className="bg-white rounded-2xl border border-stone-100 overflow-hidden">
+                <div key={type} className="fade-up" style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', overflow: 'hidden', animationDelay: `${gi * 0.08}s` }}>
 
-                  {/* Header */}
-                  <div className="px-6 py-4 border-b border-stone-50">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h2 className="font-semibold text-stone-800 mb-1">{type}</h2>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-stone-400">
-                            {sortedReports.length} test{sortedReports.length > 1 ? 's' : ''}
-                          </span>
-                          {abnormalCount > 0 && (
-                            <span className="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded-full">
-                              ⚠ {abnormalCount} abnormal (latest)
+                  {/* Group Header */}
+                  <div style={{ padding: '20px 24px', borderBottom: isExpanded ? '1px solid #f1f5f9' : 'none' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+                          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{type}</h2>
+                          {hasTrend && (
+                            <span style={{ background: '#f0fdf4', border: '1px solid #86efac', color: '#16a34a', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>
+                              📈 TREND AVAILABLE
                             </span>
                           )}
-                          {sortedReports.length > 1 && (
-                            <span className="text-xs bg-teal-50 text-teal-600 px-2 py-0.5 rounded-full">
-                              Trend available
+                          {abnormal.length > 0 && (
+                            <span style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>
+                              ⚠ {abnormal.length} Abnormal
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Timeline Pills */}
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                          {reports.map((r, i) => {
+                            const d = getDate(r)
+                            const isLatest = i === reports.length - 1
+                            return (
+                              <Link key={r._id} href={`/results/${r._id}`} className="report-pill" style={{
+                                background: isLatest ? '#f0fdfa' : '#f8fafc',
+                                border: `1px solid ${isLatest ? '#99f6e4' : '#e2e8f0'}`,
+                                borderRadius: 10, padding: '6px 12px',
+                                textDecoration: 'none', transition: 'all 0.2s',
+                                display: 'flex', alignItems: 'center', gap: 6
+                              }}>
+                                {isLatest && <span style={{ width: 6, height: 6, background: '#0d9488', borderRadius: '50%', flexShrink: 0 }} />}
+                                <div>
+                                  <p style={{ fontSize: 11, fontWeight: 600, color: isLatest ? '#0d9488' : '#475569' }}>
+                                    {d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })}
+                                  </p>
+                                  {isLatest && <p style={{ fontSize: 9, color: '#0d9488' }}>Latest</p>}
+                                </div>
+                              </Link>
+                            )
+                          })}
+                          {reports.length > 1 && (
+                            <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                              {reports.length} reports • {Math.round((getDate(reports[reports.length-1]) - getDate(reports[0])) / (1000*60*60*24*30))} months tracked
                             </span>
                           )}
                         </div>
                       </div>
-                      <button
-                        onClick={() => setSelected(selected === type ? null : type)}
-                        className="text-sm text-teal-600 hover:text-teal-700 font-medium"
-                      >
-                        {selected === type ? 'Hide ↑' : 'Trend dekho ↓'}
+
+                      <button className="expand-btn" onClick={() => setExpanded(prev => ({ ...prev, [type]: !prev[type] }))} style={{
+                        background: isExpanded ? '#f0fdfa' : 'white',
+                        border: `1px solid ${isExpanded ? '#99f6e4' : '#e2e8f0'}`,
+                        borderRadius: 12, padding: '8px 16px',
+                        fontSize: 12, fontWeight: 700,
+                        color: isExpanded ? '#0d9488' : '#64748b',
+                        cursor: 'pointer', transition: 'all 0.2s',
+                        display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0
+                      }}>
+                        {hasTrend ? '📈' : '📋'} {isExpanded ? 'Close ↑' : hasTrend ? 'Trend Dekho ↓' : 'Details ↓'}
                       </button>
                     </div>
                   </div>
 
-                  {/* Timeline */}
-                  <div className="px-6 py-4">
-                    <p className="text-xs text-stone-400 mb-3 uppercase tracking-wide">
-                      Test Timeline (Sample Collection Date)
-                    </p>
-                    <div className="flex gap-3 overflow-x-auto pb-2">
-                      {sortedReports.map((report, i) => {
-                        const isLatest = i === sortedReports.length - 1
-                        const hasCollectionDate = !!report.lab?.collectedAt
+                  {/* Expanded Section */}
+                  {isExpanded && (
+                    <div style={{ padding: '24px' }}>
 
-                        const displayDate = hasCollectionDate
-                          ? new Date(report.lab.collectedAt).toLocaleDateString('en-IN', {
-                              day: 'numeric', month: 'short', year: 'numeric'
-                            })
-                          : new Date(report.createdAt).toLocaleDateString('en-IN', {
-                              day: 'numeric', month: 'short', year: 'numeric'
-                            })
+                      {!hasTrend ? (
+                        /* Single report */
+                        <div>
+                          <p style={{ fontSize: 12, fontWeight: 700, color: '#64748b', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>Latest Report Summary</p>
 
-                        return (
-                          <Link
-                            key={report._id}
-                            href={`/results/${report._id}`}
-                            className={`flex-shrink-0 rounded-xl p-4 border transition-colors min-w-[160px]
-                              ${isLatest
-                                ? 'bg-teal-50 border-teal-200'
-                                : 'bg-stone-50 border-stone-100 hover:border-teal-200'
-                              }`}
-                          >
-                            {isLatest && (
-                              <span className="text-xs bg-teal-600 text-white px-2 py-0.5 rounded-full mb-2 inline-block">
-                                Latest
-                              </span>
-                            )}
-                            <p className="text-xs font-medium text-stone-500 mb-0.5">
-                              Report {i + 1}
-                            </p>
-                            <p className="text-sm font-semibold text-stone-800">
-                              {displayDate}
-                            </p>
-                            <p className="text-xs text-stone-400 mt-0.5">
-                              {hasCollectionDate ? 'Sample collected' : 'Uploaded date'}
-                            </p>
-                            {report.lab?.labName && (
-                              <p className="text-xs text-stone-400 mt-1 truncate">
-                                {report.lab.labName}
-                              </p>
-                            )}
-                            {report.urgentFlags?.length > 0 && (
-                              <p className="text-xs text-red-500 mt-1">
-                                ⚠ {report.urgentFlags.length} urgent
-                              </p>
-                            )}
-                          </Link>
-                        )
-                      })}
-                    </div>
-                  </div>
+                          {/* AI Summary */}
+                          {latest?.result?.summary && (
+                            <div style={{ background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 12, padding: '14px 18px', marginBottom: 16 }}>
+                              <p style={{ fontSize: 10, fontWeight: 700, color: '#0d9488', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>AI Summary</p>
+                              <p style={{ fontSize: 13, color: '#134e4a', lineHeight: 1.7 }}>{latest.result.summary}</p>
+                            </div>
+                          )}
 
-                  {/* Trend + Advice — expanded */}
-                  {selected === type && (
-                    <div className="border-t border-stone-50">
-                      {sortedReports.length < 2 ? (
-                        <div className="px-6 py-6 text-center">
-                          <p className="text-sm text-stone-400">
-                            Trend dekhne ke liye ek aur{' '}
-                            <span className="font-medium">{type}</span> report upload karo
-                          </p>
-                          <Link href="/upload"
-                            className="text-sm text-teal-600 underline mt-2 inline-block">
-                            Upload karo →
-                          </Link>
-                        </div>
-                      ) : (
-                        <div className="px-6 py-6">
-
-                          {/* Parameter trends */}
-                          <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-4">
-                            Parameter wise Trends
-                          </p>
-                          <div className="space-y-4 mb-8">
-                            {[...allParams].map(paramName => {
-                              const trend = getTrend(sortedReports, paramName)
-                              if (trend.length < 2) return null
-
-                              const arrow  = getTrendArrow(trend)
-                              const advice = getTrendAdvice(paramName, trend)
-                              const latest = trend[trend.length - 1]
-
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {latest?.parameters?.map((p, i) => {
+                              const st = statusStyle(p.status)
                               return (
-                                <div key={paramName}
-                                  className="bg-stone-50 rounded-2xl p-4">
-
-                                  <div className="flex items-center justify-between mb-3">
-                                    <div>
-                                      <span className="text-sm font-semibold text-stone-800">
-                                        {paramName}
-                                      </span>
-                                      <span className={`text-xs px-2 py-0.5 rounded-full ml-2 font-medium ${statusColor(latest.status)}`}>
-                                        {latest.status}
-                                      </span>
-                                    </div>
-                                    {arrow && (
-                                      <span className={`text-sm font-bold ${arrow.color}`}>
-                                        {arrow.arrow} {arrow.label}
+                                <div key={i} className="param-row" style={{
+                                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                  padding: '10px 14px', borderRadius: 10,
+                                  background: p.status !== 'normal' ? st.bg : '#f8fafc',
+                                  border: `1px solid ${p.status !== 'normal' ? st.border : '#f1f5f9'}`,
+                                  transition: 'all 0.15s'
+                                }}>
+                                  <div>
+                                    <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{p.name}</span>
+                                    {p.reference_range && p.reference_range !== 'Not specified' && (
+                                      <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 8 }}>
+                                        Normal: {p.reference_range} {p.unit}
                                       </span>
                                     )}
                                   </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    <span style={{ fontSize: 14, fontWeight: 800, color: st.color }}>{p.value} <span style={{ fontSize: 11, fontWeight: 500, color: '#94a3b8' }}>{p.unit}</span></span>
+                                    <span style={{ background: st.color, color: 'white', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>
+                                      {(p.status || 'normal').toUpperCase()}
+                                    </span>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                          <div style={{ marginTop: 16, background: '#f0fdfa', border: '1px solid #99f6e4', borderRadius: 12, padding: '12px 16px' }}>
+                            <p style={{ fontSize: 12, color: '#0d9488', fontWeight: 600 }}>
+                              💡 Ek aur {type} report upload karo — trend comparison shuru hoga!
+                            </p>
+                          </div>
+                        </div>
 
-                                  {/* Values */}
-                                  <div className="flex items-center gap-2 flex-wrap mb-3">
-                                    {trend.map((item, i) => (
-                                      <div key={i} className="flex items-center gap-2">
-                                        <div className="text-center">
-                                          <span className={`text-xs px-2.5 py-1 rounded-lg font-semibold ${statusColor(item.status)}`}>
-                                            {item.value} {item.unit}
+                      ) : (
+                        /* Multiple reports — TREND UI */
+                        <div>
+
+                          {/* AI Summary — Latest */}
+                          {latest?.result?.summary && (
+                            <div style={{ background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
+                              <p style={{ fontSize: 10, fontWeight: 700, color: '#0d9488', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+                                AI Summary — Latest Report
+                              </p>
+                              <p style={{ fontSize: 13, color: '#134e4a', lineHeight: 1.7 }}>{latest.result.summary}</p>
+                            </div>
+                          )}
+
+                          <p style={{ fontSize: 12, fontWeight: 700, color: '#64748b', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 16 }}>
+                            Parameter Trends — {trendParams.length} tracked
+                          </p>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {trendParams.map((paramName) => {
+                              const trend     = getTrend(reports, paramName)
+                              const trendInfo = getTrendInfo(trend)
+                              if (!trendInfo) return null
+
+                              const { type: tType, label, color: trendColor, bg: trendBg, border: trendBorder, pct } = trendInfo
+                              const advice   = getTrendAdvice(paramName, trend)
+                              const latest   = trend[trend.length - 1]
+                              const refRange = latest.reference_range
+
+                              return (
+                                <div key={paramName} style={{
+                                  background: trendBg, border: `1px solid ${trendBorder}`,
+                                  borderRadius: 16, padding: '16px 20px',
+                                  borderLeft: `4px solid ${trendColor}`
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                                    <div style={{ flex: 1 }}>
+
+                                      {/* Param name + trend badge */}
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+                                        <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{paramName}</span>
+                                        <span style={{ background: trendColor, color: 'white', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>
+                                          {label}
+                                        </span>
+                                        {pct && (
+                                          <span style={{ fontSize: 12, color: trendColor, fontWeight: 600 }}>
+                                            {tType === 'improving' ? '▼' : tType === 'worsening' ? '▲' : ''} {pct}%
                                           </span>
-                                          <p className="text-xs text-stone-400 mt-1">
-                                            {item.date.toLocaleDateString('en-IN', {
-                                              day: 'numeric', month: 'short', year: '2-digit'
-                                            })}
-                                          </p>
-                                        </div>
-                                        {i < trend.length - 1 && (
-                                          <span className="text-stone-300 text-sm mb-4">→</span>
                                         )}
                                       </div>
-                                    ))}
-                                  </div>
 
-                                  {/* Per parameter advice */}
-                                  {advice && (
-                                    <div className={`border rounded-xl px-4 py-3 text-sm flex gap-2 items-start ${adviceStyle[advice.type]}`}>
-                                      <span className="flex-shrink-0 font-bold">
-                                        {adviceIcon[advice.type]}
-                                      </span>
-                                      <p>{advice.text}</p>
+                                      {/* Normal Range */}
+                                      {refRange && refRange !== 'Not specified' && (
+                                        <div style={{
+                                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                                          background: 'white', borderRadius: 8, padding: '4px 10px',
+                                          border: `1px solid ${trendBorder}`, marginBottom: 10
+                                        }}>
+                                          <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Normal Range:</span>
+                                          <span style={{ fontSize: 11, color: trendColor, fontWeight: 700 }}>
+                                            {refRange} {latest.unit}
+                                          </span>
+                                        </div>
+                                      )}
+
+                                      {/* Value Timeline */}
+                                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+                                        {trend.map((item, ti) => {
+                                          const ist    = statusStyle(item.status)
+                                          const isLast = ti === trend.length - 1
+                                          return (
+                                            <div key={ti} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                              <div style={{ textAlign: 'center' }}>
+                                                <div style={{
+                                                  background: isLast ? ist.color : 'white',
+                                                  border: `2px solid ${ist.color}`,
+                                                  color: isLast ? 'white' : ist.color,
+                                                  borderRadius: 8, padding: '4px 10px',
+                                                  fontSize: 13, fontWeight: 800
+                                                }}>
+                                                  {item.value}
+                                                  <span style={{ fontSize: 10, fontWeight: 500, marginLeft: 2 }}>{item.unit}</span>
+                                                </div>
+                                                {item.reference_range && item.reference_range !== 'Not specified' && (
+                                                  <p style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>
+                                                    ({item.reference_range})
+                                                  </p>
+                                                )}
+                                                <p style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>
+                                                  {item.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })}
+                                                </p>
+                                                {isLast && <p style={{ fontSize: 9, color: trendColor, fontWeight: 700 }}>Latest</p>}
+                                              </div>
+                                              {ti < trend.length - 1 && (
+                                                <span style={{ color: trendColor, fontSize: 16, marginBottom: 24, fontWeight: 700 }}>→</span>
+                                              )}
+                                            </div>
+                                          )
+                                        })}
+                                      </div>
+
+                                      {/* Advice */}
+                                      {advice && (
+                                        <div style={{ background: 'white', borderRadius: 10, padding: '10px 14px', fontSize: 12, color: '#334155', lineHeight: 1.6, border: `1px solid ${trendBorder}` }}>
+                                          💡 {advice.text}
+                                        </div>
+                                      )}
                                     </div>
-                                  )}
+
+                                    {/* Sparkline */}
+                                    <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                                      <Sparkline trend={trend} color={trendColor} />
+                                      <p style={{ fontSize: 10, color: '#94a3b8' }}>{trend.length} tests</p>
+                                    </div>
+                                  </div>
                                 </div>
                               )
                             })}
                           </div>
 
-                          {/* Accumulated Advice */}
+                          {/* Overall Health Summary */}
                           {(() => {
-                            const advice = getAccumulatedAdvice(sortedReports)
-                            if (!advice) return null
-                            const hasContent = advice.critical.length > 0 ||
-                              advice.diet.length > 0 ||
-                              advice.lifestyle.length > 0
-                            if (!hasContent) return null
+                            const allTrends = trendParams.map(name => {
+                              const t = getTrend(reports, name)
+                              const info = getTrendInfo(t)
+                              if (!info) return null
+                              return { name, type: info.type }
+                            }).filter(Boolean)
+
+                            const improvingCount = allTrends.filter(t => t.type === 'improving').length
+                            const worseningCount = allTrends.filter(t => t.type === 'worsening').length
+                            const stableCount    = allTrends.filter(t => t.type === 'stable').length
 
                             return (
-                              <div className="border-t border-stone-100 pt-6">
-                                <h3 className="text-sm font-semibold text-stone-700 mb-4 uppercase tracking-wide">
-                                  Accumulated Advice — Latest Report ke Basis Pe
-                                </h3>
-
-                                {advice.critical.length > 0 && (
-                                  <div className="bg-red-50 border border-red-100 rounded-2xl p-4 mb-4">
-                                    <p className="text-sm font-semibold text-red-700 mb-2">⚠ Urgent</p>
-                                    {advice.critical.map((item, i) => (
-                                      <p key={i} className="text-sm text-red-700 mb-1">• {item}</p>
-                                    ))}
+                              <div style={{ marginTop: 20, background: 'white', borderRadius: 16, padding: '20px', border: '1px solid #f1f5f9' }}>
+                                <p style={{ fontSize: 12, fontWeight: 700, color: '#64748b', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>
+                                  Overall Health Trend
+                                </p>
+                                <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
+                                  {[
+                                    { label: 'Improving', value: improvingCount, color: '#16a34a', bg: '#f0fdf4', border: '#86efac' },
+                                    { label: 'Worsening', value: worseningCount, color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+                                    { label: 'Stable',    value: stableCount,    color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+                                  ].map((s, i) => (
+                                    <div key={i} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 12, padding: '12px 20px', textAlign: 'center', flex: 1, minWidth: 80 }}>
+                                      <p style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
+                                      <p style={{ fontSize: 11, color: s.color, marginTop: 4 }}>{s.label}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                                {worseningCount > 0 && (
+                                  <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: '10px 14px', marginBottom: 8 }}>
+                                    <p style={{ fontSize: 13, color: '#991b1b', fontWeight: 600 }}>
+                                      ⚠️ {worseningCount} parameter{worseningCount > 1 ? 's' : ''} worsen ho {worseningCount > 1 ? 'rahe hain' : 'raha hai'} — doctor se milein
+                                    </p>
                                   </div>
                                 )}
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  {advice.diet.length > 0 && (
-                                    <div className="bg-green-50 border border-green-100 rounded-2xl p-4">
-                                      <p className="text-sm font-semibold text-green-800 mb-3">
-                                        🥗 Kya Khayein / Kya Nahi
-                                      </p>
-                                      {advice.diet.map((item, i) => (
-                                        <p key={i} className="text-sm text-green-800 mb-2 flex gap-2">
-                                          <span className="flex-shrink-0 text-green-400">•</span>
-                                          {item}
-                                        </p>
-                                      ))}
-                                    </div>
-                                  )}
-
-                                  {advice.lifestyle.length > 0 && (
-                                    <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
-                                      <p className="text-sm font-semibold text-blue-800 mb-3">
-                                        🏃 Lifestyle Changes
-                                      </p>
-                                      {advice.lifestyle.map((item, i) => (
-                                        <p key={i} className="text-sm text-blue-800 mb-2 flex gap-2">
-                                          <span className="flex-shrink-0 text-blue-400">•</span>
-                                          {item}
-                                        </p>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-
-                                {advice.nextTest && (
-                                  <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mt-4">
-                                    <p className="text-sm font-semibold text-amber-800 mb-1">
-                                      📅 Next Test Reminder
+                                {improvingCount > 0 && (
+                                  <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10, padding: '10px 14px' }}>
+                                    <p style={{ fontSize: 13, color: '#166534', fontWeight: 600 }}>
+                                      ✅ {improvingCount} parameter{improvingCount > 1 ? 's' : ''} improve ho {improvingCount > 1 ? 'rahe hain' : 'raha hai'} — keep going!
                                     </p>
-                                    <p className="text-sm text-amber-800">{advice.nextTest}</p>
                                   </div>
                                 )}
                               </div>
                             )
                           })()}
 
+                          {/* Next Test Reminder */}
+                          <div style={{ marginTop: 14, background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 14, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: 20 }}>📅</span>
+                            <div style={{ flex: 1 }}>
+                              <p style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 2 }}>Next Test Reminder</p>
+                              <p style={{ fontSize: 12, color: '#78350f' }}>
+                                Regular {type} track karte raho — trends sirf tabhi dikhenge jab multiple reports hongi.
+                              </p>
+                            </div>
+                            <Link href="/upload" style={{ flexShrink: 0, background: '#d97706', color: 'white', padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
+                              Add Report
+                            </Link>
+                          </div>
+
+                          {/* Download Trend Report */}
+                          <button className="dl-btn"
+                            onClick={async () => {
+                              try {
+                                const { jsPDF } = await import('jspdf')
+                                const html2canvas = (await import('html2canvas')).default
+
+                                // Hidden template banao
+                                const container = document.createElement('div')
+                                container.style.cssText = 'position:fixed;top:-9999px;left:0;width:794px;background:white;font-family:Arial,sans-serif;padding:0;'
+
+                                container.innerHTML = `
+                                  <div style="background:linear-gradient(135deg,#0d9488,#0891b2);padding:28px 40px;color:white">
+                                    <div style="font-size:24px;font-weight:900;margin-bottom:4px">Sehat24</div>
+                                    <div style="font-size:12px;opacity:0.8;margin-bottom:12px">sehat24.com — India ka AI Health Companion</div>
+                                    <div style="font-size:18px;font-weight:700">${type} — Trend Report</div>
+                                    <div style="font-size:11px;opacity:0.7;margin-top:4px">
+                                      ${reports.length} reports • ${getDate(reports[0]).toLocaleDateString('en-IN')} to ${getDate(reports[reports.length-1]).toLocaleDateString('en-IN')}
+                                    </div>
+                                  </div>
+
+                                  <div style="padding:24px 40px">
+
+                                    ${latest?.result?.summary ? `
+                                    <div style="background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border:1px solid #99f6e4;border-radius:12px;padding:16px;margin-bottom:20px">
+                                      <div style="font-size:10px;font-weight:700;color:#0d9488;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">AI Summary — Latest Report</div>
+                                      <div style="font-size:13px;color:#134e4a;line-height:1.7">${latest.result.summary}</div>
+                                    </div>` : ''}
+
+                                    <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #f1f5f9">
+                                      Parameter Trends
+                                    </div>
+
+                                    ${trendParams.map(pName => {
+                                      const t    = getTrend(reports, pName)
+                                      const info = getTrendInfo(t)
+                                      if (!info) return ''
+                                      const ref  = t[t.length-1]?.reference_range
+                                      const unit = t[t.length-1]?.unit
+                                      return `
+                                      <div style="background:${info.bg};border:1px solid ${info.border};border-radius:12px;padding:14px 16px;margin-bottom:10px;border-left:4px solid ${info.color}">
+                                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                                          <span style="font-size:13px;font-weight:700;color:#0f172a">${pName}</span>
+                                          <span style="background:${info.color};color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">${info.label}</span>
+                                        </div>
+                                        ${ref && ref !== 'Not specified' ? `
+                                        <div style="font-size:11px;color:#64748b;margin-bottom:8px">
+                                          Normal Range: <span style="color:${info.color};font-weight:700">${ref} ${unit}</span>
+                                        </div>` : ''}
+                                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                                          ${t.map((item, ti) => `
+                                            <div style="display:flex;align-items:center;gap:8px">
+                                              <div style="text-align:center">
+                                                <div style="background:${ti === t.length-1 ? (item.status !== 'normal' ? '#dc2626' : '#16a34a') : 'white'};border:2px solid ${item.status !== 'normal' ? '#dc2626' : '#16a34a'};color:${ti === t.length-1 ? 'white' : (item.status !== 'normal' ? '#dc2626' : '#16a34a')};border-radius:8px;padding:4px 10px;font-size:13px;font-weight:800">
+                                                  ${item.value} <span style="font-size:10px;font-weight:500">${item.unit}</span>
+                                                </div>
+                                                <div style="font-size:9px;color:#94a3b8;margin-top:2px">(${item.reference_range || ''})</div>
+                                                <div style="font-size:10px;color:#64748b;margin-top:2px">${item.date.toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'2-digit'})}</div>
+                                                ${ti === t.length-1 ? `<div style="font-size:9px;color:${info.color};font-weight:700">Latest</div>` : ''}
+                                              </div>
+                                              ${ti < t.length-1 ? `<span style="color:${info.color};font-size:16px;font-weight:700;margin-bottom:18px">→</span>` : ''}
+                                            </div>
+                                          `).join('')}
+                                        </div>
+                                      </div>`
+                                    }).join('')}
+
+                                    <div style="margin-top:20px;background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;padding:14px 18px">
+                                      <div style="font-size:11px;font-weight:700;color:#dc2626;margin-bottom:6px">🛡️ Medical Disclaimer</div>
+                                      <div style="font-size:11px;color:#7f1d1d;line-height:1.7">
+                                        Yeh report sirf samajhne ke liye hai. Doctor ka replacement nahi hai. Koi bhi decision doctor ki salah ke baad lein.
+                                      </div>
+                                    </div>
+
+                                    <div style="margin-top:16px;padding-top:12px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between">
+                                      <span style="font-size:11px;color:#0d9488;font-weight:700">Sehat24 🇮🇳</span>
+                                      <span style="font-size:10px;color:#94a3b8">sehat24.com</span>
+                                      <span style="font-size:10px;color:#94a3b8">${new Date().toLocaleDateString('en-IN')}</span>
+                                    </div>
+                                  </div>
+                                `
+
+                                document.body.appendChild(container)
+                                await new Promise(r => setTimeout(r, 200))
+
+                                const canvas = await html2canvas(container, {
+                                  scale: 2, useCORS: true, backgroundColor: '#ffffff',
+                                  width: 794, windowWidth: 794
+                                })
+
+                                document.body.removeChild(container)
+
+                                const pdf  = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'a4' })
+                                const pdfW = pdf.internal.pageSize.getWidth()
+                                const pdfH = pdf.internal.pageSize.getHeight()
+                                const imgH = (canvas.height * pdfW) / canvas.width
+
+                                let pos = 0
+                                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, pos, pdfW, imgH)
+                                let remaining = imgH - pdfH
+                                while (remaining > 0) {
+                                  pos -= pdfH; pdf.addPage()
+                                  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, pos, pdfW, imgH)
+                                  remaining -= pdfH
+                                }
+
+                                pdf.save(`Sehat24-${type.replace(/\s+/g,'-')}-Trend-${new Date().toISOString().split('T')[0]}.pdf`)
+
+                              } catch(err) {
+                                console.error(err)
+                                alert('PDF generate karne mein error. Dobara try karo.')
+                              }
+                                }}
+                            style={{
+                              width: '100%', marginTop: 12, padding: '12px',
+                              background: 'white', border: '1.5px solid #e2e8f0',
+                              borderRadius: 12, fontSize: 13, fontWeight: 600,
+                              color: '#64748b', cursor: 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                              fontFamily: "'Plus Jakarta Sans', sans-serif", transition: 'all 0.2s'
+                            }}
+                          >
+                            📥 Download {type} Trend Report
+                          </button>
                         </div>
                       )}
                     </div>
                   )}
-
                 </div>
               )
             })}
           </div>
-        )}
-      </div>
-    </main>
+
+          {/* Bottom CTA */}
+          {total > 0 && (
+            <div style={{ marginTop: 24, background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 20, padding: '24px', textAlign: 'center' }}>
+              <p style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>Aur reports upload karo — better trends milenge</p>
+              <p style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>Jitni zyada reports, utna accurate health picture</p>
+              <Link href="/upload" style={{ display: 'inline-block', background: '#0d9488', color: 'white', padding: '12px 32px', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                + New Report Upload Karo
+              </Link>
+            </div>
+          )}
+
+        </div>
+      </main>
+    </>
   )
 }

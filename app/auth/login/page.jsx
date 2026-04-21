@@ -1,86 +1,156 @@
 'use client'
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { auth } from '@/lib/firebase'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import Link from 'next/link'
+import { events } from '@/components/Analytics'
 
-// SearchParams alag component mein nikalo
 function LoginForm() {
-  const router = useRouter()
+  const router       = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirect') || '/dashboard'
+  const redirectTo   = searchParams.get('redirect') || '/dashboard'
 
   const [phone, setPhone]       = useState('')
   const [name, setName]         = useState('')
   const [otp, setOtp]           = useState('')
   const [step, setStep]         = useState('phone')
   const [loading, setLoading]   = useState(false)
+  const [loadingMsg, setLoadingMsg] = useState('')
   const [error, setError]       = useState('')
   const [confirm, setConfirm]   = useState(null)
   const [isNewUser, setIsNewUser] = useState(false)
+  const recaptchaInitialized    = useRef(false)
 
-  const setupRecaptcha = () => {
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear()
-      window.recaptchaVerifier = null
+  // ── Pre-initialize recaptcha on mount ──
+  useEffect(() => {
+    const init = async () => {
+      try {
+        if (recaptchaInitialized.current) return
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          size: 'invisible',
+          callback: () => {},
+          'expired-callback': () => {
+            recaptchaInitialized.current = false
+            window.recaptchaVerifier = null
+          }
+        })
+        await window.recaptchaVerifier.render()
+        recaptchaInitialized.current = true
+      } catch (err) {
+        console.error('Recaptcha init error:', err)
+      }
     }
+    init()
+    return () => {
+      if (window.recaptchaVerifier) {
+        try { window.recaptchaVerifier.clear() } catch {}
+        window.recaptchaVerifier = null
+        recaptchaInitialized.current = false
+      }
+    }
+  }, [])
+
+  const resetRecaptcha = async () => {
+    try {
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear()
+        window.recaptchaVerifier = null
+      }
+    } catch {}
+    recaptchaInitialized.current = false
     window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
       size: 'invisible',
       callback: () => {},
-      'expired-callback': () => { window.recaptchaVerifier = null }
+      'expired-callback': () => {
+        recaptchaInitialized.current = false
+        window.recaptchaVerifier = null
+      }
     })
-    return window.recaptchaVerifier.render()
+    await window.recaptchaVerifier.render()
+    recaptchaInitialized.current = true
   }
 
   const sendOTP = async () => {
     setError('')
-    if (!phone || phone.length !== 10) { setError('Valid 10 digit mobile number enter karo'); return }
+    if (!phone || phone.length !== 10) {
+      setError('Valid 10 digit mobile number enter karo')
+      return
+    }
+    events.signupStarted()
     setLoading(true)
+    setLoadingMsg('OTP bhej rahe hain...')
     try {
-      await setupRecaptcha()
-      const confirmation = await signInWithPhoneNumber(auth, `+91${phone}`, window.recaptchaVerifier)
+      // ── Ensure recaptcha ready ──
+      if (!recaptchaInitialized.current || !window.recaptchaVerifier) {
+        await resetRecaptcha()
+      }
+
+      // ── Run OTP + check-user in parallel ──
+      const [confirmation, checkRes] = await Promise.all([
+        signInWithPhoneNumber(auth, `+91${phone}`, window.recaptchaVerifier),
+        fetch('/api/auth/check-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: `+91${phone}` })
+        })
+      ])
+
       setConfirm(confirmation)
-      const checkRes = await fetch('/api/auth/check-user', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: `+91${phone}` })
-      })
       const checkData = await checkRes.json()
       setIsNewUser(!checkData.exists)
       setStep('otp')
+
     } catch (err) {
       console.error('OTP Error:', err.code, err.message)
-      window.recaptchaVerifier = null
-      setError('OTP bhejne mein error. Dobara try karo.')
+      await resetRecaptcha().catch(() => {})
+      if (err.code === 'auth/too-many-requests') {
+        setError('Bahut zyada requests. Thodi der baad try karo.')
+      } else if (err.code === 'auth/invalid-phone-number') {
+        setError('Phone number galat hai. Dobara check karo.')
+      } else {
+        setError('OTP bhejne mein error. Dobara try karo.')
+      }
     }
     setLoading(false)
+    setLoadingMsg('')
   }
 
   const verifyOTP = async () => {
+    
     setError('')
     if (!otp || otp.length !== 6) { setError('6 digit OTP enter karo'); return }
     if (isNewUser && !name.trim()) { setError('Apna naam enter karo'); return }
     setLoading(true)
+    setLoadingMsg('Verify ho raha hai...')
     try {
       const result = await confirm.confirm(otp)
-      const user = result.user
-      const res = await fetch('/api/auth/verify', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const user   = result.user
+      const res    = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone: user.phoneNumber,
+          phone:       user.phoneNumber,
           firebaseUid: user.uid,
-          token: await user.getIdToken(),
-          name: name.trim()
+          token:       await user.getIdToken(),
+          name:        name.trim()
         })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      router.push(redirectTo)
+      if (isNewUser) {
+      events.signupCompleted()
+    } else {
+      events.loginCompleted()
+    }
+
+    router.push(redirectTo)
     } catch (err) {
       console.error(err)
-      setError('OTP galat hai. Dobara try karo.')
+      setError('OTP galat hai ya expire ho gaya. Dobara try karo.')
     }
     setLoading(false)
+    setLoadingMsg('')
   }
 
   return (
@@ -111,25 +181,36 @@ function LoginForm() {
                 <span style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '12px 14px', fontSize: 14, color: '#64748b' }}>
                   +91
                 </span>
-                <input type="tel" maxLength={10} value={phone}
+                <input
+                  type="tel" maxLength={10} value={phone}
                   onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
                   onKeyDown={e => e.key === 'Enter' && sendOTP()}
                   placeholder="10 digit number"
+                  autoFocus
                   style={{
                     flex: 1, border: '1px solid #e2e8f0', borderRadius: 12,
                     padding: '12px 16px', fontSize: 14, outline: 'none',
                     fontFamily: "'Plus Jakarta Sans', sans-serif"
-                  }} />
+                  }}
+                />
               </div>
+
               {error && <p style={{ fontSize: 12, color: '#dc2626', marginBottom: 12 }}>{error}</p>}
+
               <button onClick={sendOTP} disabled={loading} style={{
                 width: '100%', background: '#0d9488', color: 'white',
                 border: 'none', borderRadius: 12, padding: '14px',
-                fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
-                opacity: loading ? 0.6 : 1
+                opacity: loading ? 0.8 : 1,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
               }}>
-                {loading ? 'Sending OTP...' : 'Send OTP →'}
+                {loading ? (
+                  <>
+                    <div style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                    {loadingMsg || 'OTP bhej rahe hain...'}
+                  </>
+                ) : 'Send OTP →'}
               </button>
             </div>
           ) : (
@@ -139,46 +220,59 @@ function LoginForm() {
                   <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>
                     Your Name
                   </label>
-                  <input type="text" value={name}
+                  <input
+                    type="text" value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="Rahul Sharma"
                     style={{
                       width: '100%', border: '1px solid #e2e8f0', borderRadius: 12,
                       padding: '12px 16px', fontSize: 14, outline: 'none',
                       fontFamily: "'Plus Jakarta Sans', sans-serif", boxSizing: 'border-box'
-                    }} />
+                    }}
+                  />
                 </div>
               )}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Enter OTP</label>
-                <button onClick={() => { setStep('phone'); setOtp(''); setError('') }}
-                  style={{ fontSize: 12, color: '#0d9488', background: 'none', border: 'none', cursor: 'pointer' }}>
+                <button
+                  onClick={() => { setStep('phone'); setOtp(''); setError('') }}
+                  style={{ fontSize: 12, color: '#0d9488', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
                   Change number
                 </button>
               </div>
 
-              <input type="tel" maxLength={6} value={otp}
+              <input
+                type="tel" maxLength={6} value={otp}
                 onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
                 onKeyDown={e => e.key === 'Enter' && verifyOTP()}
                 placeholder="6 digit OTP"
+                autoFocus
                 style={{
                   width: '100%', border: '1px solid #e2e8f0', borderRadius: 12,
                   padding: '14px 16px', fontSize: 20, outline: 'none', marginBottom: 16,
                   letterSpacing: 8, textAlign: 'center', fontFamily: 'monospace',
                   boxSizing: 'border-box'
-                }} />
+                }}
+              />
 
               {error && <p style={{ fontSize: 12, color: '#dc2626', marginBottom: 12 }}>{error}</p>}
 
               <button onClick={verifyOTP} disabled={loading} style={{
                 width: '100%', background: '#0d9488', color: 'white',
                 border: 'none', borderRadius: 12, padding: '14px',
-                fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
-                opacity: loading ? 0.6 : 1, marginBottom: 10
+                opacity: loading ? 0.8 : 1, marginBottom: 10,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
               }}>
-                {loading ? 'Verifying...' : 'Verify & Continue →'}
+                {loading ? (
+                  <>
+                    <div style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                    {loadingMsg || 'Verify ho raha hai...'}
+                  </>
+                ) : 'Verify & Continue →'}
               </button>
 
               <button onClick={sendOTP} disabled={loading} style={{
@@ -197,13 +291,14 @@ function LoginForm() {
           <Link href="/terms" style={{ color: '#94a3b8' }}>Terms</Link> and{' '}
           <Link href="/privacy" style={{ color: '#94a3b8' }}>Privacy Policy</Link>
         </p>
+
         <div id="recaptcha-container" />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     </main>
   )
 }
 
-// Main page — Suspense wrap karo
 export default function LoginPage() {
   return (
     <Suspense fallback={

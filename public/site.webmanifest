@@ -1,0 +1,23 @@
+{
+  "name": "Sehat24 — Medical Report Hindi Mein",
+  "short_name": "Sehat24",
+  "description": "India ka AI health companion — medical reports Hindi mein explain karta hai.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0d9488",
+  "lang": "hi",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["health", "medical", "utilities"]
+}
