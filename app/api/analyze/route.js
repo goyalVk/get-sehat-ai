@@ -15,7 +15,6 @@ function parseClaudeResponse(rawText) {
   text = text.replace(/\s*```$/i, '')
   text = text.trim()
 
-  // Truncation check
   if (!text.endsWith('}')) {
     console.error('Claude response truncated — last 100 chars:', text.slice(-100))
     throw new Error('AI response was cut off. Please try again with a smaller report.')
@@ -59,6 +58,32 @@ function normalizeParameters(parameters) {
   }))
 }
 
+async function compressImage(buffer) {
+  const sharp = (await import('sharp')).default
+
+  // First attempt — quality 80
+  let compressed = await sharp(buffer)
+    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 80 })
+    .toBuffer()
+
+  // Still > 5MB? Quality 60
+  if (compressed.length > 5 * 1024 * 1024) {
+    compressed = await sharp(buffer)
+      .resize(1280, 1280, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 60 })
+      .toBuffer()
+  }
+
+  // Still > 5MB? Error throw karo
+  if (compressed.length > 5 * 1024 * 1024) {
+    throw new Error('File bahut badi hai — choti file upload karo 🙏')
+  }
+
+  console.log(`Image compressed: ${buffer.length} → ${compressed.length} bytes`)
+  return compressed
+}
+
 export async function POST(req) {
   await connectDB()
   let reportId = null
@@ -89,16 +114,10 @@ export async function POST(req) {
       )
     }
 
+    // PDF 20MB max check
     if (file.size > 20 * 1024 * 1024) {
       return NextResponse.json(
         { error: 'File too large. Max 20MB allowed.' },
-        { status: 400 }
-      )
-    }
-
-    if (file.type !== 'application/pdf' && file.size > 5 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: 'Image too large. Max 5MB.' },
         { status: 400 }
       )
     }
@@ -131,10 +150,20 @@ export async function POST(req) {
     })
     reportId = report._id.toString()
 
-    // File buffer
+    // File buffer banao
     const bytes  = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    const base64 = buffer.toString('base64')
+
+    // Image compress karo agar > 4MB
+    let finalBuffer = buffer
+    let effectiveMediaType = file.type
+
+    if (file.type !== 'application/pdf' && buffer.length > 4 * 1024 * 1024) {
+      finalBuffer = await compressImage(buffer)
+      effectiveMediaType = 'image/jpeg'
+    }
+
+    const base64 = finalBuffer.toString('base64')
 
     const startTime = Date.now()
 
@@ -147,7 +176,7 @@ export async function POST(req) {
       interpretation = result.interpretation
       tokenUsage     = result.tokenUsage
     } else {
-      const result   = await analyzeWithVision(base64, file.type)
+      const result   = await analyzeWithVision(base64, effectiveMediaType)
       interpretation = result.interpretation
       tokenUsage     = result.tokenUsage
     }
@@ -195,7 +224,7 @@ export async function POST(req) {
       modelUsed:      'claude-haiku-4-5-20251001'
     })
 
-    // ✅ reportsUsed increment karo — analysis SUCCESS ke BAAD
+    // reportsUsed increment karo
     if (userId) {
       await User.findByIdAndUpdate(userId, {
         $inc: { reportsUsed: 1 }
@@ -218,8 +247,13 @@ export async function POST(req) {
       })
     }
 
+    // Hindi error message
+    const userMessage = err.message.includes('bahut badi')
+      ? err.message
+      : 'Analysis failed. Please try again.'
+
     return NextResponse.json(
-      { error: 'Analysis failed. Please try again.' },
+      { error: userMessage },
       { status: 500 }
     )
   }
