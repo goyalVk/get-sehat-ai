@@ -160,8 +160,8 @@ export default function Footer() {
             <div>
               <p className="footer-col-title">Company</p>
               {[
-                { href: '/',        label: 'Home',           external: false },
-                { href: '/privacy', label: 'Privacy Policy', external: false },
+                { href: '/',        label: 'Home',             external: false },
+                { href: '/privacy', label: 'Privacy Policy',   external: false },
                 { href: '/terms',   label: 'Terms of Service', external: false },
                 { href: 'https://satvikhavan.com', label: '🌿 Satvi Khavan', external: true },
               ].map(link => (
@@ -180,6 +180,27 @@ export default function Footer() {
               satvikhavan.com →
             </a>
             <span style={{ fontSize: 12, color: '#475569' }}>WhatsApp: +91 8076170877</span>
+          </div>
+
+          {/* Product Hunt Badge */}
+          {/* Product Hunt Badge */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            marginBottom: '28px' 
+          }}>
+            <a 
+              href="https://www.producthunt.com/products/sehat24?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-sehat24" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <img 
+                alt="Sehat24 - Medical reports explained in simple Hindi. Free AI for India | Product Hunt" 
+                width="250" 
+                height="54" 
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1130481&theme=light&t=1777200869551"
+              />
+            </a>
           </div>
 
           <div className="footer-divider" />

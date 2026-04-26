@@ -365,7 +365,7 @@ export default function Home() {
       `}</style>
 
       <main style={{ background: 'var(--canvas)' }}>
-
+        
         {/* ══════════ HERO ══════════ */}
         <section style={{
           background: 'linear-gradient(160deg, #060d0d 0%, #0d1a1a 55%, #061a14 100%)',
@@ -461,6 +461,26 @@ export default function Home() {
               </Link>
             </div>
 
+            {/* Product Hunt Badge - Hero */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              marginBottom: '32px' 
+            }}>
+              <a 
+                href="https://www.producthunt.com/products/sehat24?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-sehat24" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <img 
+                  alt="Sehat24 - Medical reports explained in simple Hindi. Free AI for India | Product Hunt" 
+                  width="250" 
+                  height="54" 
+                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1130481&theme=light&t=1777200869551"
+                />
+              </a>
+            </div>
+
             {/* Trust strip */}
             <div className="a5" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -496,6 +516,9 @@ export default function Home() {
           {/* Bottom gradient fade */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, background: 'linear-gradient(transparent, var(--canvas))', pointerEvents: 'none' }} />
         </section>
+
+         
+
 
         {/* ══════════ LANGUAGE STRIP ══════════ */}
         <div style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-light)', padding: '18px 24px' }}>
