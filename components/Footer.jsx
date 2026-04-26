@@ -163,7 +163,7 @@ export default function Footer() {
                 { href: '/',        label: 'Home',             external: false },
                 { href: '/privacy', label: 'Privacy Policy',   external: false },
                 { href: '/terms',   label: 'Terms of Service', external: false },
-                { href: 'https://satvikhavan.com', label: '🌿 Satvi Khavan', external: true },
+                { href: 'https://satvikhavan.com', label: '🌿 Satvik Havan', external: true },
               ].map(link => (
                 link.external
                   ? <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className="footer-link">{link.label}</a>
@@ -172,7 +172,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Satvi Khavan promo */}
+          {/* Satvik Havan promo */}
           <div className="footer-promo">
             <span style={{ fontSize: 13, color: '#86efac' }}>🌿 Ayurvedic herbs chahiye?</span>
             <a href="https://satvikhavan.com" target="_blank" rel="noopener noreferrer"

@@ -859,21 +859,161 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══════════ FAQ ══════════ */}
-<section className="r-pad" style={{ padding: '80px 24px', background: 'var(--surface)' }}>
-  <div style={{ maxWidth: 680, margin: '0 auto' }}>
+        {/* Testimonial Section */}
+<section style={{
+  padding: '60px 24px',
+  maxWidth: 860,
+  margin: '0 auto'
+}}>
+  <p style={{
+    textAlign: 'center',
+    fontSize: 11,
+    fontWeight: 700,
+    color: '#2dd4bf',
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    marginBottom: 32
+  }}>
+    Real Logon Ki Baat 🗣️
+  </p>
 
-    <div style={{ textAlign: 'center', marginBottom: 52 }}>
-      <p className="t-overline" style={{ marginBottom: 12 }}>FAQ</p>
-      <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 300, color: 'var(--ink)' }}>
-        Aksar pooche jaane wale{' '}
-        <em style={{ fontStyle: 'italic', color: 'var(--teal-600)' }}>sawaal</em>
-      </h2>
+  <div style={{
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: 16
+  }}>
+
+    {/* Card 1 */}
+    <div style={{
+      background: '#1e293b',
+      border: '1px solid #2dd4bf',
+      borderRadius: 16,
+      padding: 24
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 16
+      }}>
+        <div style={{
+          width: 44,
+          height: 44,
+          borderRadius: '50%',
+          background: '#0f4f4f',
+          border: '2px solid #2dd4bf',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 20,
+          flexShrink: 0
+        }}>🔬</div>
+        <div>
+          <p style={{
+            fontSize: 15,
+            fontWeight: 700,
+            color: '#ffffff',
+            margin: 0
+          }}>Lab Technician</p>
+          <p style={{
+            fontSize: 12,
+            color: '#2dd4bf',
+            margin: 0
+          }}>Delhi, India · Verified User ✅</p>
+        </div>
+      </div>
+      <p style={{
+        fontSize: 14,
+        color: '#cbd5e1',
+        lineHeight: 1.8,
+        margin: '0 0 16px',
+        fontStyle: 'italic'
+      }}>
+        "Roz patients reports lekar aate hain aur
+        koi samajh nahi paata. Maine khud apni
+        full body report upload ki — 2 minute mein
+        Hindi mein sab clear ho gaya. Ab main apne
+        har patient ko Sehat24 recommend karta hoon."
+      </p>
+      <p style={{ color: '#f59e0b', fontSize: 16, margin: 0 }}>
+        ★★★★★
+      </p>
     </div>
 
-    <FAQSection />
+    {/* Card 2 */}
+    <div style={{
+      background: '#1e293b',
+      border: '1px solid #2dd4bf',
+      borderRadius: 16,
+      padding: 24
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 16
+      }}>
+        <div style={{
+          width: 44,
+          height: 44,
+          borderRadius: '50%',
+          background: '#0f4f4f',
+          border: '2px solid #2dd4bf',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 20,
+          flexShrink: 0
+        }}>👨‍👩‍👧</div>
+        <div>
+          <p style={{
+            fontSize: 15,
+            fontWeight: 700,
+            color: '#ffffff',
+            margin: 0
+          }}>Milan Kumar</p>
+          <p style={{
+            fontSize: 12,
+            color: '#2dd4bf',
+            margin: 0
+          }}>Noida, India · Verified User ✅</p>
+        </div>
+      </div>
+      <p style={{
+        fontSize: 14,
+        color: '#cbd5e1',
+        lineHeight: 1.8,
+        margin: '0 0 16px',
+        fontStyle: 'italic'
+      }}>
+        "Pichle 6 mahine ki reports 
+          compare karke pata chala 
+          sugar slowly badh rahi thi.
+          Sehat24 ne pakad liya"
+      </p>
+      <p style={{ color: '#f59e0b', fontSize: 16, margin: 0 }}>
+        ★★★★★
+      </p>
+    </div>
+
   </div>
 </section>
+
+        {/* ══════════ FAQ ══════════ */}
+      <section className="r-pad" style={{ padding: '80px 24px', background: 'var(--surface)' }}>
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+
+          <div style={{ textAlign: 'center', marginBottom: 52 }}>
+            <p className="t-overline" style={{ marginBottom: 12 }}>FAQ</p>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 300, color: 'var(--ink)' }}>
+              Aksar pooche jaane wale{' '}
+              <em style={{ fontStyle: 'italic', color: 'var(--teal-600)' }}>sawaal</em>
+            </h2>
+          </div>
+
+          <FAQSection />
+        </div>
+      </section>
 
         {/* ══════════ FINAL CTA ══════════ */}
         <section className="r-pad" style={{ padding: '112px 24px', background: 'var(--canvas)', textAlign: 'center' }}>
