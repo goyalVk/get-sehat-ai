@@ -127,7 +127,7 @@ export default function RootLayout({ children }) {
 
         {/* Critical CSS inline */}
         <style dangerouslySetInnerHTML={{ __html: `
-          body { margin: 0; padding: 0; overflow-x: hidden; background: #0f172a; }
+          body { margin: 0; padding: 0; background: #f8fafc; }
           * { box-sizing: border-box; }
         `}} />
 
