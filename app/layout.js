@@ -1,10 +1,8 @@
 import { Plus_Jakarta_Sans } from 'next/font/google'
-import ClientChatWidget from '@/components/ClientChatWidget'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import ClientChatWidget from '@/components/ClientChatWidget'
 import Script from 'next/script'
-
-
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -126,6 +124,13 @@ export default function RootLayout({ children }) {
         <meta name="apple-mobile-web-app-title" content="Sehat24" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
+
+        {/* Critical CSS inline */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          body { margin: 0; padding: 0; overflow-x: hidden; background: #0f172a; }
+          * { box-sizing: border-box; }
+        `}} />
+
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }} />
@@ -152,7 +157,7 @@ export default function RootLayout({ children }) {
         <Navbar />
         {children}
         <Footer />
-        <ClientChatWidget  />
+        <ClientChatWidget />
       </body>
     </html>
   )
