@@ -94,7 +94,7 @@ export default function ChatWidget() {
 
       {/* WhatsApp Support — bottom left */}
       
-        <a 
+        {/* <a 
         href="https://wa.me/918076170877?text=Namaste%20Sehat24!%20Mujhe%20help%20chahiye."
         target="_blank"
         rel="noopener noreferrer"
@@ -110,7 +110,7 @@ export default function ChatWidget() {
         }}
       >
         💬
-      </a>
+      </a> */}
 
       {/* 💊 Medicine Chat Button — bottom right */}
       <button

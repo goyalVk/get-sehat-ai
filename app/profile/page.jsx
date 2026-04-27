@@ -12,9 +12,7 @@ export default function ProfilePage() {
   const [error, setError]     = useState('')
 
   const [form, setForm] = useState({
-    firstName: '',
-    lastName:  '',
-    email:     '',
+    firstName: '', lastName: '', email: '',
   })
 
   useEffect(() => { fetchUser() }, [])
@@ -30,37 +28,26 @@ export default function ProfilePage() {
         lastName:  data.lastName  || '',
         email:     data.email     || '',
       })
-    } catch {
-      router.push('/auth/login')
-    } finally {
-      setLoading(false)
-    }
+    } catch { router.push('/auth/login') }
+    finally { setLoading(false) }
   }
 
   const saveProfile = async () => {
-    setSaving(true)
-    setError('')
-    setSaved(false)
-
+    setSaving(true); setError(''); setSaved(false)
     try {
       const res = await fetch('/api/auth/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       })
-
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-
       setSaved(true)
       setUser({ ...user, ...form })
       setTimeout(() => setSaved(false), 3000)
-
     } catch (err) {
       setError(err.message || 'Save nahi ho saka')
-    } finally {
-      setSaving(false)
-    }
+    } finally { setSaving(false) }
   }
 
   const logout = async () => {
@@ -70,8 +57,9 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+        <div style={{ width: 32, height: 32, border: '2px solid #0d9488', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </main>
     )
   }
@@ -80,65 +68,63 @@ export default function ProfilePage() {
     ? `${form.firstName[0]}${form.lastName[0]}`.toUpperCase()
     : user?.phone?.slice(-2) || 'U'
 
+  const reportsPercent = Math.min(
+    ((user?.reportsUsed || 0) / (user?.reportsLimit || 3)) * 100, 100
+  )
+
   return (
-    <main className="min-h-screen bg-stone-50">
+    <main style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
       {/* Navbar */}
-      <nav className="bg-white border-b border-stone-100 px-6 py-4">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <Link href="/dashboard" className="text-lg font-semibold text-teal-700">
+      <nav style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 24px' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Link href="/dashboard" style={{ fontSize: 18, fontWeight: 700, color: '#0d9488', textDecoration: 'none' }}>
             Sehat24
           </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-sm text-stone-500 hover:text-stone-700">
-              Dashboard
-            </Link>
-            <Link href="/history" className="text-sm text-stone-500 hover:text-stone-700">
-              History
-            </Link>
+          <div style={{ display: 'flex', gap: 20 }}>
+            <Link href="/dashboard" style={{ fontSize: 13, color: '#64748b', textDecoration: 'none' }}>Dashboard</Link>
+            <Link href="/history"   style={{ fontSize: 13, color: '#64748b', textDecoration: 'none' }}>History</Link>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-6 py-8">
+      <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 24px' }}>
 
-        <h1 className="text-2xl font-semibold text-stone-800 serif mb-8">
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1e293b', marginBottom: 32 }}>
           My Profile
         </h1>
 
         {/* Avatar */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center">
-            <span className="text-xl font-semibold text-teal-700">
-              {initials}
-            </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%',
+            background: '#e6faf8',
+            border: '2px solid #0d9488',
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <span style={{ fontSize: 20, fontWeight: 700, color: '#0d9488' }}>{initials}</span>
           </div>
           <div>
-            <p className="font-medium text-stone-800">
-              {form.firstName
-                ? `${form.firstName} ${form.lastName}`
-                : 'Update your name'
-              }
+            <p style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: 0 }}>
+              {form.firstName ? `${form.firstName} ${form.lastName}` : 'Update your name'}
             </p>
-            <p className="text-sm text-stone-400">{user?.phone}</p>
+            <p style={{ fontSize: 13, color: '#94a3b8', margin: '4px 0 0' }}>{user?.phone}</p>
           </div>
         </div>
 
-        {/* Plan card */}
-        <div className={`rounded-2xl p-5 mb-6 border ${
-          user?.plan === 'paid'
-            ? 'bg-teal-50 border-teal-100'
-            : 'bg-stone-50 border-stone-100'
-        }`}>
-          <div className="flex items-center justify-between">
+        {/* Plan Card */}
+        <div style={{
+          background: user?.plan === 'paid' ? '#e6faf8' : '#ffffff',
+          border: `1px solid ${user?.plan === 'paid' ? '#0d9488' : '#e2e8f0'}`,
+          borderRadius: 16, padding: 20, marginBottom: 20
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <p className="text-xs text-stone-400 mb-1">Current Plan</p>
-              <p className={`text-lg font-semibold capitalize ${
-                user?.plan === 'paid' ? 'text-teal-700' : 'text-stone-700'
-              }`}>
+              <p style={{ fontSize: 11, color: '#94a3b8', margin: '0 0 4px' }}>Current Plan</p>
+              <p style={{ fontSize: 18, fontWeight: 700, color: user?.plan === 'paid' ? '#0d9488' : '#1e293b', margin: 0 }}>
                 {user?.plan === 'paid' ? '✓ Paid Plan' : 'Free Plan'}
               </p>
-              <p className="text-xs text-stone-500 mt-1">
+              <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
                 {user?.plan === 'paid'
                   ? 'Unlimited reports'
                   : `${user?.reportsUsed || 0} / ${user?.reportsLimit || 3} reports used`
@@ -146,150 +132,160 @@ export default function ProfilePage() {
               </p>
             </div>
             {user?.plan !== 'paid' && (
-              <Link
-                href="/upgrade"
-                className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-              >
+              <Link href="/upgrade" style={{
+                background: '#0d9488', color: '#ffffff',
+                padding: '8px 16px', borderRadius: 12,
+                fontSize: 13, fontWeight: 600,
+                textDecoration: 'none'
+              }}>
                 Upgrade →
               </Link>
             )}
           </div>
 
-          {/* Free plan progress bar */}
           {user?.plan !== 'paid' && (
-            <div className="mt-3">
-              <div className="w-full bg-stone-200 rounded-full h-1.5">
-                <div
-                  className="bg-teal-500 h-1.5 rounded-full transition-all"
-                  style={{
-                    width: `${Math.min(
-                      ((user?.reportsUsed || 0) / (user?.reportsLimit || 3)) * 100,
-                      100
-                    )}%`
-                  }}
-                />
+            <div style={{ marginTop: 12 }}>
+              <div style={{ width: '100%', background: '#e2e8f0', borderRadius: 999, height: 6 }}>
+                <div style={{
+                  width: `${reportsPercent}%`,
+                  background: '#0d9488',
+                  height: 6, borderRadius: 999,
+                  transition: 'width 0.3s'
+                }} />
               </div>
             </div>
           )}
         </div>
 
-        {/* Profile form */}
-        <div className="bg-white rounded-2xl border border-stone-100 p-6 mb-6">
-          <h2 className="font-semibold text-stone-700 mb-5 text-sm uppercase tracking-wide">
+        {/* Profile Form */}
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 24, marginBottom: 20 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 20 }}>
             Personal Information
-          </h2>
+          </p>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="text-xs font-medium text-stone-500 block mb-1.5">
-                First Name
-              </label>
-              <input
-                type="text"
-                value={form.firstName}
-                onChange={e => setForm({ ...form, firstName: e.target.value })}
-                placeholder="Rahul"
-                className="w-full border border-stone-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-teal-400 transition-colors"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-stone-500 block mb-1.5">
-                Last Name
-              </label>
-              <input
-                type="text"
-                value={form.lastName}
-                onChange={e => setForm({ ...form, lastName: e.target.value })}
-                placeholder="Sharma"
-                className="w-full border border-stone-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-teal-400 transition-colors"
-              />
-            </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            {[
+              { label: 'First Name', key: 'firstName', placeholder: 'Rahul' },
+              { label: 'Last Name',  key: 'lastName',  placeholder: 'Sharma' },
+            ].map(({ label, key, placeholder }) => (
+              <div key={key}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>{label}</label>
+                <input
+                  type="text"
+                  value={form[key]}
+                  onChange={e => setForm({ ...form, [key]: e.target.value })}
+                  placeholder={placeholder}
+                  style={{
+                    width: '100%', background: '#f8fafc',
+                    border: '1px solid #e2e8f0', borderRadius: 12,
+                    padding: '12px 16px', fontSize: 14,
+                    color: '#1e293b', outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            ))}
           </div>
 
-          <div className="mb-4">
-            <label className="text-xs font-medium text-stone-500 block mb-1.5">
-              Mobile Number
-            </label>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>Mobile Number</label>
             <input
               type="text"
               value={user?.phone || ''}
               disabled
-              className="w-full border border-stone-100 rounded-xl px-4 py-3 text-sm bg-stone-50 text-stone-400 cursor-not-allowed"
+              style={{
+                width: '100%', background: '#f1f5f9',
+                border: '1px solid #e2e8f0', borderRadius: 12,
+                padding: '12px 16px', fontSize: 14,
+                color: '#94a3b8', cursor: 'not-allowed',
+                boxSizing: 'border-box'
+              }}
             />
-            <p className="text-xs text-stone-400 mt-1">
-              Mobile number change nahi ho sakta
-            </p>
+            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>Mobile number change nahi ho sakta</p>
           </div>
 
-          <div className="mb-6">
-            <label className="text-xs font-medium text-stone-500 block mb-1.5">
-              Email (Optional)
-            </label>
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>Email (Optional)</label>
             <input
               type="email"
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
               placeholder="rahul@gmail.com"
-              className="w-full border border-stone-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-teal-400 transition-colors"
+              style={{
+                width: '100%', background: '#f8fafc',
+                border: '1px solid #e2e8f0', borderRadius: 12,
+                padding: '12px 16px', fontSize: 14,
+                color: '#1e293b', outline: 'none',
+                boxSizing: 'border-box'
+              }}
             />
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-100 rounded-xl p-3 mb-4">
-              <p className="text-sm text-red-600">{error}</p>
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 12, padding: 12, marginBottom: 16 }}>
+              <p style={{ fontSize: 13, color: '#ef4444', margin: 0 }}>{error}</p>
             </div>
           )}
 
           {saved && (
-            <div className="bg-green-50 border border-green-100 rounded-xl p-3 mb-4">
-              <p className="text-sm text-green-600">✓ Profile saved successfully!</p>
+            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, padding: 12, marginBottom: 16 }}>
+              <p style={{ fontSize: 13, color: '#16a34a', margin: 0 }}>✓ Profile saved successfully!</p>
             </div>
           )}
 
           <button
             onClick={saveProfile}
             disabled={saving}
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3.5 rounded-xl font-medium text-sm transition-colors disabled:opacity-50"
+            style={{
+              width: '100%', background: saving ? '#0f766e' : '#0d9488',
+              color: '#ffffff', padding: '14px', borderRadius: 12,
+              fontSize: 14, fontWeight: 600, border: 'none',
+              cursor: saving ? 'not-allowed' : 'pointer',
+              transition: 'background 0.2s'
+            }}
           >
             {saving ? 'Saving...' : 'Save Profile'}
           </button>
         </div>
 
-        {/* Account section */}
-        <div className="bg-white rounded-2xl border border-stone-100 p-6">
-          <h2 className="font-semibold text-stone-700 mb-4 text-sm uppercase tracking-wide">
+        {/* Account Section */}
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 24 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>
             Account
-          </h2>
+          </p>
 
-          <div className="flex items-center justify-between py-3 border-b border-stone-50">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
             <div>
-              <p className="text-sm font-medium text-stone-700">Member since</p>
-              <p className="text-xs text-stone-400 mt-0.5">
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', margin: 0 }}>Member since</p>
+              <p style={{ fontSize: 12, color: '#94a3b8', margin: '4px 0 0' }}>
                 {user?.createdAt
-                  ? new Date(user.createdAt).toLocaleDateString('en-IN', {
-                      day: 'numeric', month: 'long', year: 'numeric'
-                    })
+                  ? new Date(user.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
                   : 'N/A'
                 }
               </p>
             </div>
           </div>
 
-          <div className="flex items-center justify-between py-3 border-b border-stone-50">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
             <div>
-              <p className="text-sm font-medium text-stone-700">Total Reports</p>
-              <p className="text-xs text-stone-400 mt-0.5">
-                Lifetime reports analyzed
-              </p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', margin: 0 }}>Total Reports</p>
+              <p style={{ fontSize: 12, color: '#94a3b8', margin: '4px 0 0' }}>Lifetime reports analyzed</p>
             </div>
-            <span className="text-lg font-semibold text-teal-600">
+            <span style={{ fontSize: 20, fontWeight: 700, color: '#0d9488' }}>
               {user?.reportsUsed || 0}
             </span>
           </div>
 
           <button
             onClick={logout}
-            className="w-full mt-4 py-3 border border-red-100 rounded-xl text-sm text-red-500 hover:bg-red-50 transition-colors"
+            style={{
+              width: '100%', marginTop: 16,
+              padding: '12px', borderRadius: 12,
+              border: '1px solid #fecaca',
+              background: 'transparent',
+              fontSize: 14, color: '#ef4444',
+              cursor: 'pointer'
+            }}
           >
             Logout
           </button>
