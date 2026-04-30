@@ -15,6 +15,7 @@ export async function POST(req) {
       .digest('hex')
 
     if (expectedSignature !== signature) {
+      console.log('Invalid signature ❌')
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 400 }
@@ -22,28 +23,50 @@ export async function POST(req) {
     }
 
     const event = JSON.parse(body)
+    console.log('Webhook event:', event.event)
 
-    // Payment captured
     if (event.event === 'payment.captured') {
       const payment = event.payload.payment.entity
-      const phone = payment.contact?.replace('+91', '')
+
+      // ── Phone number — sab formats handle karo ──
+      const rawPhone = payment.contact || ''
+      const cleanPhone = rawPhone.replace(/\s/g, '').trim()
+      const phoneWithout91 = cleanPhone
+        .replace('+91', '')
+        .replace(/^91/, '')
+
+      console.log('Raw phone:', rawPhone)
+      console.log('Clean phone:', cleanPhone)
+      console.log('Without 91:', phoneWithout91)
+      console.log('Amount: ₹', payment.amount / 100)
 
       await connectDB()
 
-      // Phone se user dhundho
-      const user = await User.findOne({ phone })
+      // ── Sab formats mein dhundho ──
+      const user = await User.findOne({
+        $or: [
+          { phone: cleanPhone },              // +919711221836
+          { phone: phoneWithout91 },          // 9711221836
+          { phone: '+91' + phoneWithout91 },  // +919711221836
+          { phone: '91' + phoneWithout91 },   // 919711221836
+        ]
+      })
 
       if (user) {
         await User.findByIdAndUpdate(user._id, {
-          plan:          'paid',
-          reportsLimit:  999999,
-          paidAt:        new Date(),
-          paymentId:     payment.id,
+          plan:               'paid',
+          reportsLimit:       999999,
+          reportsUsed:        0,
+          paidAt:             new Date(),
+          paymentId:          payment.id,
+          paymentAmount:      payment.amount / 100,
           subscriptionEndsAt: new Date(
             Date.now() + 30 * 24 * 60 * 60 * 1000
           )
         })
-        console.log('User upgraded:', phone)
+        console.log('✅ User upgraded:', user.phone)
+      } else {
+        console.log('❌ User not found for:', cleanPhone)
       }
     }
 
