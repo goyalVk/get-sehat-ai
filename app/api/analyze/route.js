@@ -5,26 +5,22 @@ import Report from '@/models/report'
 import { buildHealthPrompt } from '@/lib/healthPrompt'
 import { cookies } from 'next/headers'
 import User from '@/models/user'
+import { jsonrepair } from 'jsonrepair'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+
 
 function parseClaudeResponse(rawText) {
   let text = rawText.trim()
 
-  // Clean markdown
+  // Step 1 — Clean markdown
   text = text.replace(/^```json\s*/i, '')
   text = text.replace(/^```\s*/i, '')
   text = text.replace(/\s*```$/i, '')
   text = text.trim()
 
-  // Trailing commas
-  text = text.replace(/,\s*}/g, '}')
-  text = text.replace(/,\s*]/g, ']')
-
-  // Control characters
-  text = text.replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ')
-
-  // Last valid JSON
+  // Step 2 — First { se last } tak lo
   const firstBrace = text.indexOf('{')
   const lastBrace = text.lastIndexOf('}')
 
@@ -32,11 +28,12 @@ function parseClaudeResponse(rawText) {
     text = text.substring(firstBrace, lastBrace + 1)
   }
 
+  // Step 3 — jsonrepair se fix karo
   try {
-    return JSON.parse(text)
+    const repaired = jsonrepair(text)
+    return JSON.parse(repaired)
   } catch (e) {
-    console.error('JSON parse error:', e.message)
-    console.error('Text around error:', text.substring(5280, 5340))
+    console.error('JSON repair failed:', e.message)
     throw new Error(
       'Report analyze nahi ho saki — dobara try karo 🙏'
     )
