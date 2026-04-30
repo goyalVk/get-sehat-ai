@@ -68,10 +68,24 @@ export default function UploadPage() {
       const data = await res.json()
       if (!res.ok) {
         if (data.limitReached) {
-          setError('Aapke 3 free reports use ho gaye! Login karke aur reports dekho.')
-        } else {
-          setError(data.error || 'Kuch gadbad ho gayi. Dobara try karo.')
+          setError('✨ Aapki free report use ho gayi! Pro plan pe redirect ho rahe hain...')
+          setTimeout(() => {
+            router.push('/upgrade')
+          }, 2000)
+          setLoading(false)
+          return
         }
+
+        if (data.loginRequired) {
+          setError('Report analyze karne ke liye login karo 🙏')
+          setTimeout(() => {
+            router.push('/auth/login')
+          }, 2000)
+          setLoading(false)
+          return
+        }
+
+        setError(data.error || 'Kuch gadbad ho gayi. Dobara try karo.')
         setLoading(false)
         return
       }

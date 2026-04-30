@@ -1,6 +1,6 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 const statusConfig = {
@@ -22,25 +22,21 @@ const categoryIcons = {
   other:    '📄',
 }
 
-export default function Dashboard() {
+// ── Main Dashboard Content ──
+function DashboardContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const upgraded = searchParams.get('upgraded')
+
   const [user, setUser]         = useState(null)
   const [reports, setReports]   = useState([])
   const [loading, setLoading]   = useState(true)
   const [greeting, setGreeting] = useState('Good morning')
 
-  useEffect(() => {
-    const h = new Date().getHours()
-    if (h < 12) setGreeting('Good morning')
-    else if (h < 17) setGreeting('Good afternoon')
-    else setGreeting('Good evening')
-    fetchData()
-  }, [])
-
   const fetchData = async () => {
     try {
       const [userRes, reportsRes] = await Promise.all([
-        fetch('/api/auth/me'),
+        fetch('/api/auth/me', { cache: 'no-store' }),
         fetch('/api/reports')
       ])
       if (!userRes.ok) { router.push('/auth/login'); return }
@@ -54,6 +50,23 @@ export default function Dashboard() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    const h = new Date().getHours()
+    if (h < 12) setGreeting('Good morning')
+    else if (h < 17) setGreeting('Good afternoon')
+    else setGreeting('Good evening')
+    fetchData()
+  }, [])
+
+  useEffect(() => {
+    if (upgraded) {
+      const timer = setTimeout(() => {
+        fetchData()
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [upgraded])
 
   const deleteReport = async (reportId, e) => {
     e.preventDefault()
@@ -117,8 +130,6 @@ export default function Dashboard() {
         .delete-btn { width: 28px; height: 28px; border-radius: 8px; background: #fef2f2; border: 1px solid #fecaca; display: flex; align-items: center; justify-content: center; color: #dc2626; font-size: 16px; cursor: pointer; transition: all 0.15s; flex-shrink: 0; line-height: 1; }
         .delete-btn:hover { background: #fee2e2; transform: scale(1.1); }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-        /* ── Mobile styles ── */
         .dash-wrap { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
         .dash-title { font-size: 28px; }
         .top-grid { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
@@ -126,7 +137,6 @@ export default function Dashboard() {
         .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .footer-row { display: flex; justify-content: center; gap: 12px; margin-top: 32px; }
         .reports-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-
         @media (max-width: 640px) {
           .dash-wrap { padding: 20px 14px; }
           .dash-title { font-size: 20px !important; }
@@ -143,6 +153,30 @@ export default function Dashboard() {
 
       <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
         <div className="dash-wrap">
+
+          {/* Upgrade Success Banner */}
+          {upgraded && (
+            <div style={{
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              borderRadius: 16,
+              padding: '16px 20px',
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12
+            }}>
+              <span style={{ fontSize: 24 }}>🎉</span>
+              <div>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#16a34a' }}>
+                  Welcome to Sehat24 Pro!
+                </p>
+                <p style={{ fontSize: 13, color: '#166534', marginTop: 2 }}>
+                  Ab unlimited reports analyze karo — poori family ke liye 🩺
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Greeting */}
           <div className="fade-up" style={{ marginBottom: 28 }}>
@@ -302,11 +336,9 @@ export default function Dashboard() {
                     <div key={report._id} style={{ position: 'relative' }}>
                       <Link href={`/results/${report._id}`} className="report-card">
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-
                           <div style={{ width: 44, height: 44, borderRadius: 12, background: hasUrgent ? '#fef2f2' : '#f0fdfa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
                             {icon}
                           </div>
-
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
                               <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>
@@ -321,7 +353,6 @@ export default function Dashboard() {
                                 </span>
                               )}
                             </div>
-
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
                               <span style={{ fontSize: 12, color: isTestDate ? '#0d9488' : '#94a3b8', fontWeight: isTestDate ? 600 : 400 }}>
                                 {isTestDate ? '🗓' : '📁'} {testDate}
@@ -339,7 +370,6 @@ export default function Dashboard() {
                                 </>
                               )}
                             </div>
-
                             {report.parameters?.length > 0 && (
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                                 {[...abnormal.slice(0, 3), ...normal.slice(0, 2)].map((param, j) => (
@@ -358,7 +388,6 @@ export default function Dashboard() {
                               </div>
                             )}
                           </div>
-
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                             <button className="delete-btn" onClick={(e) => deleteReport(report._id, e)} title="Delete">×</button>
                             <div style={{ width: 28, height: 28, borderRadius: 8, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 14 }}>→</div>
@@ -385,5 +414,35 @@ export default function Dashboard() {
         </div>
       </main>
     </>
+  )
+}
+
+// ── Export With Suspense ──
+export default function Dashboard() {
+  return (
+    <Suspense fallback={
+      <main style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f8fafc'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 40, height: 40,
+            border: '3px solid #0d9488',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+            margin: '0 auto 12px'
+          }} />
+          <p style={{ color: '#94a3b8', fontSize: 14 }}>Loading...</p>
+        </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      </main>
+    }>
+      <DashboardContent />
+    </Suspense>
   )
 }

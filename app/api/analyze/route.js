@@ -186,13 +186,14 @@ export async function POST(req) {
 
       if (!user) {
         console.log('User not found — skipping limit check')
-      } else if (user.plan === 'free' && user.reportsUsed >= user.reportsLimit) {
-        return NextResponse.json({
-          error: 'Free limit reached. Please upgrade to continue.',
-          limitReached: true
-        }, { status: 403 })
+       } else if (user.plan === 'free' && user.reportsUsed >= user.reportsLimit) {
+          return NextResponse.json({
+            error: 'Aapki 1 free report use ho gayi 🙏 Pro upgrade karo — unlimited reports lo!',
+            limitReached: true,
+            upgradeUrl: 'https://rzp.io/rzp/f5GzI7Qj'
+          }, { status: 403 })
+        }
       }
-    }
 
     // Report create karo
     const report = await Report.create({
@@ -323,7 +324,7 @@ if (file.type !== 'application/pdf' && buffer.length > 1 * 1024 * 1024) {
 async function analyzeWithPDF(base64) {
   const response = await anthropic.messages.create({
     model:      'claude-haiku-4-5-20251001',
-    max_tokens: 8000,
+    max_tokens: 4000,
     messages: [{
       role: 'user',
       content: [
@@ -351,7 +352,7 @@ async function analyzeWithPDF(base64) {
 async function analyzeWithVision(base64, mediaType) {
   const response = await anthropic.messages.create({
     model:      'claude-haiku-4-5-20251001',
-    max_tokens: 8000,
+    max_tokens: 4000,
     messages: [{
       role: 'user',
       content: [

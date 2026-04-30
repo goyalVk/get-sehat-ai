@@ -13,7 +13,13 @@ const UserSchema = new mongoose.Schema(
     // Plan
     plan:         { type: String, enum: ['free', 'paid'], default: 'free' },
     reportsUsed:  { type: Number, default: 0 },
-    reportsLimit: { type: Number, default: 3 },
+    reportsLimit: { type: Number, default: 2 },
+
+    paidAt:             { type: Date,    default: null },
+    paymentId:          { type: String,  default: null },
+    paymentAmount:      { type: Number,  default: null },
+    paymentMethod:      { type: String,  default: null },
+    subscriptionEndsAt: { type: Date,    default: null },
     
     // Status
     isActive:     { type: Boolean, default: true },
