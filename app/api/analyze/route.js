@@ -10,17 +10,37 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 function parseClaudeResponse(rawText) {
   let text = rawText.trim()
+
+  // Clean markdown
   text = text.replace(/^```json\s*/i, '')
   text = text.replace(/^```\s*/i, '')
   text = text.replace(/\s*```$/i, '')
   text = text.trim()
 
-  if (!text.endsWith('}')) {
-    console.error('Claude response truncated — last 100 chars:', text.slice(-100))
-    throw new Error('AI response was cut off. Please try again with a smaller report.')
+  // Trailing commas
+  text = text.replace(/,\s*}/g, '}')
+  text = text.replace(/,\s*]/g, ']')
+
+  // Control characters
+  text = text.replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ')
+
+  // Last valid JSON
+  const firstBrace = text.indexOf('{')
+  const lastBrace = text.lastIndexOf('}')
+
+  if (firstBrace !== -1 && lastBrace !== -1) {
+    text = text.substring(firstBrace, lastBrace + 1)
   }
 
-  return JSON.parse(text)
+  try {
+    return JSON.parse(text)
+  } catch (e) {
+    console.error('JSON parse error:', e.message)
+    console.error('Text around error:', text.substring(5280, 5340))
+    throw new Error(
+      'Report analyze nahi ho saki — dobara try karo 🙏'
+    )
+  }
 }
 
 function calculateTokenUsage(usage) {
@@ -207,18 +227,28 @@ export async function POST(req) {
     reportId = report._id.toString()
 
     // File buffer banao
-    const bytes  = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+const bytes  = await file.arrayBuffer()
+const buffer = Buffer.from(bytes)
 
-    // Image compress karo agar > 4MB
-    let finalBuffer = buffer
-    let effectiveMediaType = file.type
+let finalBuffer = buffer
+let effectiveMediaType = file.type
 
-    // 1MB se badi koi bhi image compress karo
-if (file.type !== 'application/pdf' && buffer.length > 1 * 1024 * 1024) {
-      finalBuffer = await compressImage(buffer)
-      effectiveMediaType = 'image/jpeg'
-    }
+// ── 1MB se badi SARI images compress karo ──
+if (file.type !== 'application/pdf') {
+  if (buffer.length > 1 * 1024 * 1024) {
+    console.log('Compressing:', buffer.length, 'bytes')
+    finalBuffer = await compressImage(buffer)
+    effectiveMediaType = 'image/jpeg'
+    console.log('Compressed to:', finalBuffer.length, 'bytes')
+  }
+
+  // Final safety check
+  if (finalBuffer.length > 4.5 * 1024 * 1024) {
+    return NextResponse.json({
+      error: 'Image bahut badi hai — compress karke upload karo 🙏'
+    }, { status: 400 })
+  }
+}
 
     const base64 = finalBuffer.toString('base64')
     const startTime = Date.now()
