@@ -61,13 +61,11 @@ function normalizeParameters(parameters) {
 async function compressImage(buffer) {
   const sharp = (await import('sharp')).default
 
-  // First attempt — quality 80
   let compressed = await sharp(buffer)
     .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
     .jpeg({ quality: 80 })
     .toBuffer()
 
-  // Still > 5MB? Quality 60
   if (compressed.length > 5 * 1024 * 1024) {
     compressed = await sharp(buffer)
       .resize(1280, 1280, { fit: 'inside', withoutEnlargement: true })
@@ -75,7 +73,6 @@ async function compressImage(buffer) {
       .toBuffer()
   }
 
-  // Still > 5MB? Error throw karo
   if (compressed.length > 5 * 1024 * 1024) {
     throw new Error('File bahut badi hai — choti file upload karo 🙏')
   }
@@ -99,6 +96,47 @@ export async function POST(req) {
       )
     }
 
+    // ══════════════════════════════════════
+    // SAMPLE FILE CACHE — DB SE RESULT LO
+    // ══════════════════════════════════════
+    const SAMPLE_NAMES = [
+      'sample-cbc-report.pdf',
+      'sample_report.pdf',
+      'sample-report.pdf'
+    ]
+
+    const isSampleFile = SAMPLE_NAMES.includes(
+      file.name?.toLowerCase()
+    )
+
+    if (isSampleFile) {
+      console.log('Sample file detected...')
+
+      // Pehle DB mein saved result check karo
+      const cachedReport = await Report.findOne({
+        fileName: { $in: SAMPLE_NAMES },
+        status: 'completed',
+        isSample: true
+      }).sort({ createdAt: -1 })
+
+      if (cachedReport) {
+        // DB mein result hai — seedha do
+        console.log('Sample cache hit ✅ — 0 tokens used!')
+        return NextResponse.json({
+          success:   true,
+          reportId:  cachedReport._id.toString(),
+          data:      cachedReport.result,
+          fromCache: true
+        })
+      } //69f2d4a68c01082c314913f4
+      
+
+      // DB mein nahi hai — pehli baar analyze karo
+      // Aur isSample: true flag lagao save karte waqt
+      console.log('Sample not in cache — analyzing and saving...')
+    }
+    // ══════════════════════════════════════
+
     const allowedTypes = [
       'application/pdf',
       'image/jpeg',
@@ -114,7 +152,6 @@ export async function POST(req) {
       )
     }
 
-    // PDF 20MB max check
     if (file.size > 20 * 1024 * 1024) {
       return NextResponse.json(
         { error: 'File too large. Max 20MB allowed.' },
@@ -146,7 +183,8 @@ export async function POST(req) {
       fileType: file.type,
       fileSize: file.size,
       userId:   userId || null,
-      status:   'processing'
+      status:   'processing',
+      isSample: isSampleFile // ← Sample flag
     })
     reportId = report._id.toString()
 
@@ -164,7 +202,6 @@ export async function POST(req) {
     }
 
     const base64 = finalBuffer.toString('base64')
-
     const startTime = Date.now()
 
     // AI Analysis
@@ -221,8 +258,15 @@ export async function POST(req) {
       fileSize:       file.size,
       tokensUsed:     tokenUsage,
       analysisTimeMs,
-      modelUsed:      'claude-haiku-4-5-20251001'
+      modelUsed:      'claude-haiku-4-5-20251001',
+      isSample:       isSampleFile // ← Sample flag
     })
+
+    // Sample tha toh log karo
+    if (isSampleFile) {
+      console.log('✅ Sample analyzed & cached — next time DB se aayega!')
+      console.log('Sample Report ID:', reportId)
+    }
 
     // reportsUsed increment karo
     if (userId) {
@@ -247,7 +291,6 @@ export async function POST(req) {
       })
     }
 
-    // Hindi error message
     const userMessage = err.message.includes('bahut badi')
       ? err.message
       : 'Analysis failed. Please try again.'

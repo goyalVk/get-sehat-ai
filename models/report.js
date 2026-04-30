@@ -50,6 +50,7 @@ const ReportSchema = new mongoose.Schema(
       enum: ['processing', 'completed', 'failed'],
       default: 'processing'
     },
+    isSample: { type: Boolean, default: false },
     errorMessage: { type: String, default: null },
 
     // Patient info — PDF se AI extract karega
