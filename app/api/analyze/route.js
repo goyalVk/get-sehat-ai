@@ -337,9 +337,14 @@ if (file.type !== 'application/pdf') {
       })
     }
 
+    // Fix — Hinglish specific messages
     const userMessage = err.message.includes('bahut badi')
       ? err.message
-      : 'Analysis failed. Please try again.'
+      : err.message.includes('JSON repair failed')
+      ? 'Report analyze nahi ho saki — dobara try karo 🙏'
+      : err.message.includes('Could not process')
+      ? 'Report clearly visible nahi hai — better quality image upload karo 🙏'
+      : 'Kuch gadbad hui — thodi der baad try karo 🙏'
 
     return NextResponse.json(
       { error: userMessage },
@@ -351,7 +356,7 @@ if (file.type !== 'application/pdf') {
 async function analyzeWithPDF(base64) {
   const response = await anthropic.messages.create({
     model:      'claude-haiku-4-5-20251001',
-    max_tokens: 4000,
+    max_tokens: 4096,
     messages: [{
       role: 'user',
       content: [
@@ -365,7 +370,7 @@ async function analyzeWithPDF(base64) {
         },
         {
           type: 'text',
-          text: buildHealthPrompt('Extract ALL medical test values from this PDF. Ignore non-medical pages.')
+          text: buildHealthPrompt('Upar diye gaye PDF mein se saari lab values extract karo.')
         }
       ]
     }]
@@ -379,7 +384,7 @@ async function analyzeWithPDF(base64) {
 async function analyzeWithVision(base64, mediaType) {
   const response = await anthropic.messages.create({
     model:      'claude-haiku-4-5-20251001',
-    max_tokens: 4000,
+    max_tokens: 4096,
     messages: [{
       role: 'user',
       content: [
@@ -393,7 +398,7 @@ async function analyzeWithVision(base64, mediaType) {
         },
         {
           type: 'text',
-          text: buildHealthPrompt('Extract ALL values from the lab report image.')
+          text: buildHealthPrompt('Upar di gayi image mein se saari lab values extract karo.')
         }
       ]
     }]

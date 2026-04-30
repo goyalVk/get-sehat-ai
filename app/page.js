@@ -1,9 +1,8 @@
 'use client'
 import Link from 'next/link'
 import LiveCounter from '@/components/LiveCounter'
-import FAQSection from '@/components/FAQSection'  // ← ADD
+import FAQSection from '@/components/FAQSection'
 
-// ← ADD THIS BLOCK
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type':    'FAQPage',
@@ -51,12 +50,10 @@ const faqSchema = {
   ]
 }
 
-
-
 export default function Home() {
   return (
     <>
-    <script
+      <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
@@ -214,6 +211,55 @@ export default function Home() {
           100% { transform: translateY(48px); opacity: 0; }
         }
 
+        /* ── [FIX 2] Sticky mobile CTA ── */
+        @keyframes slideUp {
+          from { transform: translateY(100%); opacity: 0; }
+          to   { transform: translateY(0);    opacity: 1; }
+        }
+        .sticky-cta {
+          display: none;
+        }
+        @media (max-width: 720px) {
+          .sticky-cta {
+            display: flex;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 999;
+            background: linear-gradient(to top, rgba(6,13,13,0.98), rgba(6,13,13,0.92));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 12px 16px 20px;
+            gap: 10px;
+            border-top: 1px solid rgba(13,148,136,0.25);
+            animation: slideUp 0.4s cubic-bezier(0.22,1,0.36,1) 1.2s both;
+          }
+          .sticky-cta a {
+            flex: 1;
+            text-align: center;
+            padding: 14px 10px;
+            border-radius: 14px;
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+          }
+          .sticky-cta .sticky-primary {
+            background: var(--teal-600);
+            color: white;
+            box-shadow: 0 4px 20px rgba(13,148,136,0.4);
+          }
+          .sticky-cta .sticky-ghost {
+            background: rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.75);
+            border: 1px solid rgba(255,255,255,0.12);
+          }
+          /* Add bottom padding so sticky bar doesn't cover content */
+          main {
+            padding-bottom: 80px;
+          }
+        }
+
         .a1 { animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.05s both; }
         .a2 { animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.18s both; }
         .a3 { animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.30s both; }
@@ -361,11 +407,23 @@ export default function Home() {
           .r-col-2 { grid-template-columns: 1fr 1fr !important; }
           .r-pad   { padding: 48px 20px !important; }
           .r-hero-pad { padding: 90px 20px 64px !important; }
+          /* [FIX 3] Mobile subtext font size smaller */
+          .hero-subtext { font-size: 14px !important; }
         }
       `}</style>
 
+      {/* ── [FIX 2] Sticky Mobile CTA Bar ── */}
+      <div className="sticky-cta" role="navigation" aria-label="Quick actions">
+        <Link href="/upload" className="sticky-primary">
+          📋 Report Upload Karo — Free
+        </Link>
+        <Link href="/chat" className="sticky-ghost">
+          💊 Medicine Chat
+        </Link>
+      </div>
+
       <main style={{ background: 'var(--canvas)' }}>
-        
+
         {/* ══════════ HERO ══════════ */}
         <section style={{
           background: 'linear-gradient(160deg, #060d0d 0%, #0d1a1a 55%, #061a14 100%)',
@@ -436,8 +494,8 @@ export default function Home() {
               {' '}—<br />ab samjho.
             </h1>
 
-            {/* Sub */}
-            <p className="a3" style={{
+            {/* [FIX 3] Subtext — shorter on mobile via hero-subtext class */}
+            <p className="a3 hero-subtext" style={{
               fontFamily: 'var(--font-body)',
               fontSize: 17,
               color: 'rgba(255,255,255,0.5)',
@@ -446,13 +504,13 @@ export default function Home() {
               margin: '0 auto 44px',
               fontWeight: 400
             }}>
-              Blood test, MRI, X-Ray — koi bhi report upload karo.{' '}
+              Koi bhi report upload karo.{' '}
               <span style={{ color: 'var(--teal-400)', fontWeight: 600 }}>30 seconds</span>{' '}
-              mein Hindi mein sab explain ho jaata hai. Bilkul free.
+              mein Hindi mein sab explain. Bilkul free.
             </p>
 
             {/* CTAs */}
-            <div className="a4" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 52 }}>
+            <div className="a4" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
               <Link href="/upload" className="btn-primary">
                 📋 Report Analyze Karo — Free
               </Link>
@@ -461,25 +519,35 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Product Hunt Badge - Hero
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              marginBottom: '32px' 
+            {/* [FIX 1] Trust line — directly below CTA, high visibility */}
+            <div className="a4" style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              flexWrap: 'wrap',
+              marginBottom: 44,
             }}>
-              <a 
-                href="https://www.producthunt.com/products/sehat24?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-sehat24" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                <img 
-                  alt="Sehat24 - Medical reports explained in simple Hindi. Free AI for India | Product Hunt" 
-                  width="250" 
-                  height="54" 
-                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1130481&theme=light&t=1777200869551"
-                />
-              </a>
-            </div> */}
+              {[
+                '✅ No signup needed',
+                '·',
+                '🆓 Free forever',
+                '·',
+                '⚡ 30 seconds',
+                '·',
+                '🔒 Privacy first',
+              ].map((item, i) => (
+                <span key={i} style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 12,
+                  fontWeight: item === '·' ? 400 : 600,
+                  color: item === '·' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.5)',
+                  letterSpacing: '0.01em',
+                }}>
+                  {item}
+                </span>
+              ))}
+            </div>
 
             {/* Trust strip */}
             <div className="a5" style={{
@@ -491,9 +559,7 @@ export default function Home() {
                 null,
                 { icon: '🇮🇳', text: 'Made in India' },
                 null,
-                { icon: '🔒', text: 'Privacy first' },
-                null,
-                { icon: '✨',  text: 'No signup needed' },
+                { icon: '✨',  text: 'Every Indian lab' },
               ].map((item, i) => {
                 if (item === null) return <span key={i} className="divider" />
                 if (item.isCounter) return (
@@ -516,9 +582,6 @@ export default function Home() {
           {/* Bottom gradient fade */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, background: 'linear-gradient(transparent, var(--canvas))', pointerEvents: 'none' }} />
         </section>
-
-         
-
 
         {/* ══════════ LANGUAGE STRIP ══════════ */}
         <div style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-light)', padding: '18px 24px' }}>
@@ -859,161 +922,55 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Testimonial Section */}
-          <section style={{
-            padding: '60px 24px',
-            maxWidth: 860,
-            margin: '0 auto'
-          }}>
-            <p style={{
-              textAlign: 'center',
-              fontSize: 11,
-              fontWeight: 700,
-              color: '#2dd4bf',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              marginBottom: 32
-            }}>
-              Real Logon Ki Baat 🗣️
-            </p>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: 16
-            }}>
-
-              {/* Card 1 */}
-              <div style={{
-                background: '#1e293b',
-                border: '1px solid #2dd4bf',
-                borderRadius: 16,
-                padding: 24
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  marginBottom: 16
-                }}>
-                  <div style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: '50%',
-                    background: '#0f4f4f',
-                    border: '2px solid #2dd4bf',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 20,
-                    flexShrink: 0
-                  }}>🔬</div>
-                  <div>
-                    <p style={{
-                      fontSize: 15,
-                      fontWeight: 700,
-                      color: '#ffffff',
-                      margin: 0
-                    }}>Lab Technician</p>
-                    <p style={{
-                      fontSize: 12,
-                      color: '#2dd4bf',
-                      margin: 0
-                    }}>Delhi, India · Verified User ✅</p>
-                  </div>
+        {/* ══════════ TESTIMONIALS ══════════ */}
+        <section style={{ padding: '60px 24px', maxWidth: 860, margin: '0 auto' }}>
+          <p style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#2dd4bf', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 32 }}>
+            Real Logon Ki Baat 🗣️
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+            <div style={{ background: '#1e293b', border: '1px solid #2dd4bf', borderRadius: 16, padding: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#0f4f4f', border: '2px solid #2dd4bf', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>🔬</div>
+                <div>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: '#ffffff', margin: 0 }}>Lab Technician</p>
+                  <p style={{ fontSize: 12, color: '#2dd4bf', margin: 0 }}>Delhi, India · Verified User ✅</p>
                 </div>
-                <p style={{
-                  fontSize: 14,
-                  color: '#cbd5e1',
-                  lineHeight: 1.8,
-                  margin: '0 0 16px',
-                  fontStyle: 'italic'
-                }}>
-                  "Roz patients reports lekar aate hain aur
-                  koi samajh nahi paata. Maine khud apni
-                  full body report upload ki — 2 minute mein
-                  Hindi mein sab clear ho gaya. Ab main apne
-                  har patient ko Sehat24 recommend karta hoon."
-                </p>
-                <p style={{ color: '#f59e0b', fontSize: 16, margin: 0 }}>
-                  ★★★★★
-                </p>
               </div>
-
-              {/* Card 2 */}
-              <div style={{
-                background: '#1e293b',
-                border: '1px solid #2dd4bf',
-                borderRadius: 16,
-                padding: 24
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  marginBottom: 16
-                }}>
-                  <div style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: '50%',
-                    background: '#0f4f4f',
-                    border: '2px solid #2dd4bf',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 20,
-                    flexShrink: 0
-                  }}>👨‍👩‍👧</div>
-                  <div>
-                    <p style={{
-                      fontSize: 15,
-                      fontWeight: 700,
-                      color: '#ffffff',
-                      margin: 0
-                    }}>Milan Kumar</p>
-                    <p style={{
-                      fontSize: 12,
-                      color: '#2dd4bf',
-                      margin: 0
-                    }}>Noida, India · Verified User ✅</p>
-                  </div>
-                </div>
-                <p style={{
-                  fontSize: 14,
-                  color: '#cbd5e1',
-                  lineHeight: 1.8,
-                  margin: '0 0 16px',
-                  fontStyle: 'italic'
-                }}>
-                  "Pichle 6 mahine ki reports 
-                    compare karke pata chala 
-                    sugar slowly badh rahi thi.
-                    Sehat24 ne pakad liya"
-                </p>
-                <p style={{ color: '#f59e0b', fontSize: 16, margin: 0 }}>
-                  ★★★★★
-                </p>
-              </div>
-
+              <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.8, margin: '0 0 16px', fontStyle: 'italic' }}>
+                "Roz patients reports lekar aate hain aur koi samajh nahi paata. Maine khud apni full body report upload ki — 2 minute mein Hindi mein sab clear ho gaya. Ab main apne har patient ko Sehat24 recommend karta hoon."
+              </p>
+              <p style={{ color: '#f59e0b', fontSize: 16, margin: 0 }}>★★★★★</p>
             </div>
-          </section>
+
+            <div style={{ background: '#1e293b', border: '1px solid #2dd4bf', borderRadius: 16, padding: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#0f4f4f', border: '2px solid #2dd4bf', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>👨‍👩‍👧</div>
+                <div>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: '#ffffff', margin: 0 }}>Milan Kumar</p>
+                  <p style={{ fontSize: 12, color: '#2dd4bf', margin: 0 }}>Noida, India · Verified User ✅</p>
+                </div>
+              </div>
+              <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.8, margin: '0 0 16px', fontStyle: 'italic' }}>
+                "Pichle 6 mahine ki reports compare karke pata chala sugar slowly badh rahi thi. Sehat24 ne pakad liya."
+              </p>
+              <p style={{ color: '#f59e0b', fontSize: 16, margin: 0 }}>★★★★★</p>
+            </div>
+          </div>
+        </section>
 
         {/* ══════════ FAQ ══════════ */}
-      <section className="r-pad" style={{ padding: '80px 24px', background: 'var(--surface)' }}>
-        <div style={{ maxWidth: 680, margin: '0 auto' }}>
-
-          <div style={{ textAlign: 'center', marginBottom: 52 }}>
-            <p className="t-overline" style={{ marginBottom: 12 }}>FAQ</p>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 300, color: 'var(--ink)' }}>
-              Aksar pooche jaane wale{' '}
-              <em style={{ fontStyle: 'italic', color: 'var(--teal-600)' }}>sawaal</em>
-            </h2>
+        <section className="r-pad" style={{ padding: '80px 24px', background: 'var(--surface)' }}>
+          <div style={{ maxWidth: 680, margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: 52 }}>
+              <p className="t-overline" style={{ marginBottom: 12 }}>FAQ</p>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 300, color: 'var(--ink)' }}>
+                Aksar pooche jaane wale{' '}
+                <em style={{ fontStyle: 'italic', color: 'var(--teal-600)' }}>sawaal</em>
+              </h2>
+            </div>
+            <FAQSection />
           </div>
-
-          <FAQSection />
-        </div>
-      </section>
+        </section>
 
         {/* ══════════ FINAL CTA ══════════ */}
         <section className="r-pad" style={{ padding: '112px 24px', background: 'var(--canvas)', textAlign: 'center' }}>
