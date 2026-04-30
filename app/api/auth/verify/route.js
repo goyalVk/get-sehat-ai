@@ -26,7 +26,7 @@ export async function POST(req) {
         firstName: name || null,
         plan: 'free',
         reportsUsed: 0,
-        reportsLimit: 3
+        reportsLimit: 2
       })
     }
 

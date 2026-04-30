@@ -99,7 +99,7 @@ function DashboardContent() {
 
   const urgentReports = reports.filter(r => r.urgentFlags?.length > 0).length
   const firstName     = user?.firstName || user?.phone?.slice(-4) || 'there'
-  const reportsLeft   = user?.plan === 'paid' ? '∞' : `${(user?.reportsLimit || 3) - (user?.reportsUsed || 0)}`
+  const reportsLeft   = user?.plan === 'paid' ? '∞' : `${(user?.reportsLimit || 2) - (user?.reportsUsed || 0)}`
 
   return (
     <>
@@ -229,7 +229,7 @@ function DashboardContent() {
                 {user?.plan !== 'paid' && (
                   <div className="progress-bar">
                     <div className="progress-fill" style={{
-                      width: `${Math.min(((user?.reportsUsed || 0) / (user?.reportsLimit || 3)) * 100, 100)}%`,
+                      width: `${Math.min(((user?.reportsUsed || 0) / (user?.reportsLimit || 2)) * 100, 100)}%`,
                       background: 'linear-gradient(90deg, #0d9488, #0891b2)'
                     }} />
                   </div>

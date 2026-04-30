@@ -69,7 +69,7 @@ export default function ProfilePage() {
     : user?.phone?.slice(-2) || 'U'
 
   const reportsPercent = Math.min(
-    ((user?.reportsUsed || 0) / (user?.reportsLimit || 3)) * 100, 100
+    ((user?.reportsUsed || 0) / (user?.reportsLimit || 2)) * 100, 100
   )
 
   return (
@@ -127,7 +127,7 @@ export default function ProfilePage() {
               <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
                 {user?.plan === 'paid'
                   ? 'Unlimited reports'
-                  : `${user?.reportsUsed || 0} / ${user?.reportsLimit || 3} reports used`
+                  : `${user?.reportsUsed || 0} / ${user?.reportsLimit || 2} reports used`
                 }
               </p>
             </div>
