@@ -61,23 +61,40 @@ function normalizeParameters(parameters) {
 async function compressImage(buffer) {
   const sharp = (await import('sharp')).default
 
+  // Pehle aggressive resize karo
   let compressed = await sharp(buffer)
-    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
-    .jpeg({ quality: 80 })
+    .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 70 })
     .toBuffer()
 
-  if (compressed.length > 5 * 1024 * 1024) {
+  console.log(`After first compress: ${compressed.length} bytes`)
+
+  // Still > 4MB?
+  if (compressed.length > 4 * 1024 * 1024) {
     compressed = await sharp(buffer)
-      .resize(1280, 1280, { fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: 60 })
+      .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 50 })
       .toBuffer()
+    console.log(`After second compress: ${compressed.length} bytes`)
   }
 
-  if (compressed.length > 5 * 1024 * 1024) {
-    throw new Error('File bahut badi hai — choti file upload karo 🙏')
+  // Still > 4MB?
+  if (compressed.length > 4 * 1024 * 1024) {
+    compressed = await sharp(buffer)
+      .resize(600, 600, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 40 })
+      .toBuffer()
+    console.log(`After third compress: ${compressed.length} bytes`)
   }
 
-  console.log(`Image compressed: ${buffer.length} → ${compressed.length} bytes`)
+  // Still > 4.5MB? Error
+  if (compressed.length > 4.5 * 1024 * 1024) {
+    throw new Error(
+      'File bahut badi hai — choti file upload karo 🙏'
+    )
+  }
+
+  console.log(`✅ Compressed: ${buffer.length} → ${compressed.length} bytes`)
   return compressed
 }
 
@@ -196,7 +213,8 @@ export async function POST(req) {
     let finalBuffer = buffer
     let effectiveMediaType = file.type
 
-    if (file.type !== 'application/pdf' && buffer.length > 4 * 1024 * 1024) {
+    // 1MB se badi koi bhi image compress karo
+if (file.type !== 'application/pdf' && buffer.length > 1 * 1024 * 1024) {
       finalBuffer = await compressImage(buffer)
       effectiveMediaType = 'image/jpeg'
     }
