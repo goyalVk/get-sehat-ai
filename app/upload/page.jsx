@@ -86,7 +86,7 @@ export default function UploadPage() {
       setLoadingMsg('Ho gaya! Results load ho rahe hain...')
       router.push(`/results/${data.reportId}`)
     } catch (err) {
-      setError('Kuch gadbad ho gayi. Dobara try karo. 🙏')
+      setError('PDF bahut badi hai — 5MB se kam rakho ya photo upload karo 🙏')
       setLoading(false)
     }
   }
