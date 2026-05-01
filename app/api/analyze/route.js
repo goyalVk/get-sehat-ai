@@ -107,7 +107,7 @@ async function compressImage(buffer) {
   // Still > 4.5MB? Error
   if (compressed.length > 4.5 * 1024 * 1024) {
     throw new Error(
-      'File bahut badi hai — choti file upload karo 🙏'
+      'PDF bahut badi hai — 5MB se kam rakho ya photo upload karo 🙏'
     )
   }
 
