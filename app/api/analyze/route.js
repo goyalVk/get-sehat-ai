@@ -370,7 +370,7 @@ async function analyzeWithPDF(base64) {
         },
         {
           type: 'text',
-          text: buildHealthPrompt('Upar diye gaye PDF mein se saari lab values extract karo.')
+          text: buildHealthPrompt('Extract ALL medical values from this PDF report. Analyze every page.')
         }
       ]
     }]
@@ -398,7 +398,7 @@ async function analyzeWithVision(base64, mediaType) {
         },
         {
           type: 'text',
-          text: buildHealthPrompt('Upar di gayi image mein se saari lab values extract karo.')
+          text: buildHealthPrompt('Extract ALL medical values from this lab report image. Read every number carefully.')
         }
       ]
     }]
