@@ -296,7 +296,7 @@ export default function UploadPage() {
                 fontFamily: "'Plus Jakarta Sans', sans-serif"
               }}
             >
-              🚀 Pro Upgrade Karo — ₹299/month
+              🚀 Pro Upgrade Karo — ₹199/month
             </button>
           )}
         </div>

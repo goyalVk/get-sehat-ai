@@ -205,7 +205,7 @@ export default function UpgradePage() {
             <div style={{ fontSize: 13, color: '#64748b', marginBottom: 4 }}>Sirf itne mein poori family</div>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 4 }}>
               <span style={{ fontSize: 24, color: '#5eead4', fontWeight: 700, marginTop: 8 }}>₹</span>
-              <span style={{ fontSize: 64, fontWeight: 800, color: '#ffffff', lineHeight: 1 }}>299</span>
+              <span style={{ fontSize: 64, fontWeight: 800, color: '#ffffff', lineHeight: 1 }}>199</span>
             </div>
             <div style={{ fontSize: 13, color: '#64748b' }}>per month • Cancel anytime</div>
             <div style={{
@@ -270,7 +270,7 @@ export default function UpgradePage() {
               letterSpacing: 0.3,
             }}
           >
-            🚀 Abhi Upgrade Karo — ₹299/month
+            🚀 Abhi Upgrade Karo — ₹199/month
           </a>
 
           <div style={{
