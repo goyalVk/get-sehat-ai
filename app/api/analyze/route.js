@@ -9,7 +9,31 @@ import { jsonrepair } from 'jsonrepair'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
+// ── Model config ──────────────────────────────────────
+const HAIKU_MODEL   = 'claude-haiku-4-5-20251001'
+const SONNET_MODEL  = 'claude-sonnet-4-5'
+const FREE_MAX_SIZE = 4 * 1024 * 1024   // 4MB — free users
+const PRO_MAX_SIZE  = 20 * 1024 * 1024  // 20MB — pro users
 
+// ── Non-medical filenames (module level) ─────────────
+const NON_MEDICAL_FILENAMES = [
+  'aadhaar', 'aadhar', 'adhar',
+  'pan card', 'pancard', 'pan_card',
+  'driving licence', 'driving license', 'drivinglicence',
+  'passport',
+  'vehicle registration', 'rc book', 'rc_book',
+  'invoice', 'bill',
+  'electricity', 'bijli',
+  'bank statement', 'bankstatement',
+  'salary slip', 'salaryslip', 'payslip',
+  'resume', 'cv_',
+  'admit card', 'admitcard',
+  'marksheet', 'result',
+  'school', 'university', 'college',
+  'certificate',
+  'voter id', 'voterid',
+  'ration card', 'rationcard'
+]
 
 function parseClaudeResponse(rawText) {
   let text = rawText.trim()
@@ -22,7 +46,7 @@ function parseClaudeResponse(rawText) {
 
   // Step 2 — First { se last } tak lo
   const firstBrace = text.indexOf('{')
-  const lastBrace = text.lastIndexOf('}')
+  const lastBrace  = text.lastIndexOf('}')
 
   if (firstBrace !== -1 && lastBrace !== -1) {
     text = text.substring(firstBrace, lastBrace + 1)
@@ -34,20 +58,22 @@ function parseClaudeResponse(rawText) {
     return JSON.parse(repaired)
   } catch (e) {
     console.error('JSON repair failed:', e.message)
-    throw new Error(
-      'Report analyze nahi ho saki — dobara try karo 🙏'
-    )
+    throw new Error('Report analyze nahi ho saki — dobara try karo 🙏')
   }
 }
 
-function calculateTokenUsage(usage) {
-  const inputTokens   = usage.input_tokens  || 0
-  const outputTokens  = usage.output_tokens || 0
-  const totalTokens   = inputTokens + outputTokens
-  const inputCost     = (inputTokens  / 1_000_000) * 0.80
-  const outputCost    = (outputTokens / 1_000_000) * 4.00
+// ── Token cost — model aware ──────────────────────────
+function calculateTokenUsage(usage, model = HAIKU_MODEL) {
+  const inputTokens  = usage.input_tokens  || 0
+  const outputTokens = usage.output_tokens || 0
+  const totalTokens  = inputTokens + outputTokens
+
+  const isSonnet    = model === SONNET_MODEL
+  const inputCost   = (inputTokens  / 1_000_000) * (isSonnet ? 3.00 : 0.80)
+  const outputCost  = (outputTokens / 1_000_000) * (isSonnet ? 15.00 : 4.00)
   const estimatedCost = inputCost + outputCost
 
+  console.log(`Model: ${model}`)
   console.log(`Tokens — Input: ${inputTokens}, Output: ${outputTokens}, Total: ${totalTokens}`)
   console.log(`Estimated cost: $${estimatedCost.toFixed(6)}`)
 
@@ -78,7 +104,6 @@ function normalizeParameters(parameters) {
 async function compressImage(buffer) {
   const sharp = (await import('sharp')).default
 
-  // Pehle aggressive resize karo
   let compressed = await sharp(buffer)
     .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
     .jpeg({ quality: 70 })
@@ -86,7 +111,6 @@ async function compressImage(buffer) {
 
   console.log(`After first compress: ${compressed.length} bytes`)
 
-  // Still > 4MB?
   if (compressed.length > 4 * 1024 * 1024) {
     compressed = await sharp(buffer)
       .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
@@ -95,7 +119,6 @@ async function compressImage(buffer) {
     console.log(`After second compress: ${compressed.length} bytes`)
   }
 
-  // Still > 4MB?
   if (compressed.length > 4 * 1024 * 1024) {
     compressed = await sharp(buffer)
       .resize(600, 600, { fit: 'inside', withoutEnlargement: true })
@@ -104,11 +127,8 @@ async function compressImage(buffer) {
     console.log(`After third compress: ${compressed.length} bytes`)
   }
 
-  // Still > 4.5MB? Error
   if (compressed.length > 4.5 * 1024 * 1024) {
-    throw new Error(
-      'PDF bahut badi hai — 5MB se kam rakho ya photo upload karo 🙏'
-    )
+    throw new Error('Image bahut badi hai — compress karke upload karo 🙏')
   }
 
   console.log(`✅ Compressed: ${buffer.length} → ${compressed.length} bytes`)
@@ -130,31 +150,24 @@ export async function POST(req) {
       )
     }
 
-    // ══════════════════════════════════════
-    // SAMPLE FILE CACHE — DB SE RESULT LO
-    // ══════════════════════════════════════
+    // ── Sample file cache ─────────────────────────────
     const SAMPLE_NAMES = [
       'sample-cbc-report.pdf',
       'sample_report.pdf',
       'sample-report.pdf'
     ]
 
-    const isSampleFile = SAMPLE_NAMES.includes(
-      file.name?.toLowerCase()
-    )
+    const isSampleFile = SAMPLE_NAMES.includes(file.name?.toLowerCase())
 
     if (isSampleFile) {
       console.log('Sample file detected...')
-
-      // Pehle DB mein saved result check karo
       const cachedReport = await Report.findOne({
         fileName: { $in: SAMPLE_NAMES },
-        status: 'completed',
+        status:   'completed',
         isSample: true
       }).sort({ createdAt: -1 })
 
       if (cachedReport) {
-        // DB mein result hai — seedha do
         console.log('Sample cache hit ✅ — 0 tokens used!')
         return NextResponse.json({
           success:   true,
@@ -162,15 +175,11 @@ export async function POST(req) {
           data:      cachedReport.result,
           fromCache: true
         })
-      } //69f2d4a68c01082c314913f4
-      
-
-      // DB mein nahi hai — pehli baar analyze karo
-      // Aur isSample: true flag lagao save karte waqt
+      }
       console.log('Sample not in cache — analyzing and saving...')
     }
-    // ══════════════════════════════════════
 
+    // ── File type check ───────────────────────────────
     const allowedTypes = [
       'application/pdf',
       'image/jpeg',
@@ -186,92 +195,126 @@ export async function POST(req) {
       )
     }
 
-    if (file.size > 20 * 1024 * 1024) {
+    // ── Non-medical filename check ────────────────────
+    const fileNameLower = file.name.toLowerCase()
+    const isNonMedical  = NON_MEDICAL_FILENAMES
+      .some(keyword => fileNameLower.includes(keyword))
+
+    if (isNonMedical) {
+      return NextResponse.json({
+        error: 'Yeh medical lab report nahi lagti. Kripya blood test, MRI, ya pathology report upload karein.',
+        isNonMedical: true
+      }, { status: 400 })
+    }
+
+    // ── Absolute max size ─────────────────────────────
+    if (file.size > PRO_MAX_SIZE) {
       return NextResponse.json(
         { error: 'File too large. Max 20MB allowed.' },
         { status: 400 }
       )
     }
 
-    // Cookie se userId nikalo
+    // ── User + plan check ─────────────────────────────
     const cookieStore = await cookies()
-    const userId = cookieStore.get('userId')?.value
+    const userId      = cookieStore.get('userId')?.value
 
-    // Free limit check
+    let user  = null
+    let isPro = false
+
     if (userId) {
-      const user = await User.findById(userId)
+      user  = await User.findById(userId)
+      isPro = user?.plan === 'pro'
+    }
 
-      if (!user) {
-        console.log('User not found — skipping limit check')
-       } else if (user.plan === 'free' && user.reportsUsed >= user.reportsLimit) {
-          return NextResponse.json({
-            error: 'Aapki 1 free report use ho gayi 🙏 Pro upgrade karo — unlimited reports lo!',
-            limitReached: true,
-            upgradeUrl: 'https://rzp.io/rzp/f5GzI7Qj'
-          }, { status: 403 })
-        }
+    // ── Large file + free user → upgrade prompt ───────
+    if (file.size > FREE_MAX_SIZE && !isPro) {
+      return NextResponse.json({
+        error: `Aapki file ${(file.size / 1024 / 1024).toFixed(1)}MB ki hai. Badi reports ke liye Pro plan chahiye.`,
+        requiresUpgrade: true,
+        reason:          'large_file',
+        fileSizeMB:      (file.size / 1024 / 1024).toFixed(1),
+        upgradeUrl:      'https://rzp.io/rzp/f5GzI7Qj'
+      }, { status: 403 })
+    }
+
+    // ── Model selection ───────────────────────────────
+    // Pro user + large file → Sonnet (better for complex reports)
+    // Everyone else         → Haiku  (fast + cost effective)
+    const useSonnet  = isPro && file.size > FREE_MAX_SIZE
+    const modelToUse = useSonnet ? SONNET_MODEL : HAIKU_MODEL
+
+    console.log(`File: ${(file.size/1024/1024).toFixed(2)}MB | Plan: ${isPro ? 'pro' : 'free'} | Model: ${modelToUse}`)
+
+    // ── Free user report limit check ──────────────────
+    if (user) {
+      if (user.plan === 'free' && user.reportsUsed >= user.reportsLimit) {
+        return NextResponse.json({
+          error:        'Aapki 1 free report use ho gayi 🙏 Pro upgrade karo — unlimited reports lo!',
+          limitReached: true,
+          upgradeUrl:   'https://rzp.io/rzp/f5GzI7Qj'
+        }, { status: 403 })
       }
+    }
 
-    // Report create karo
+    // ── Create report record ──────────────────────────
     const report = await Report.create({
       fileName: file.name,
       fileType: file.type,
       fileSize: file.size,
       userId:   userId || null,
       status:   'processing',
-      isSample: isSampleFile // ← Sample flag
+      isSample: isSampleFile
     })
     reportId = report._id.toString()
 
-    // File buffer banao
-const bytes  = await file.arrayBuffer()
-const buffer = Buffer.from(bytes)
+    // ── File buffer ───────────────────────────────────
+    const bytes  = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
 
-let finalBuffer = buffer
-let effectiveMediaType = file.type
+    let finalBuffer        = buffer
+    let effectiveMediaType = file.type
 
-// ── 1MB se badi SARI images compress karo ──
-if (file.type !== 'application/pdf') {
-  if (buffer.length > 1 * 1024 * 1024) {
-    console.log('Compressing:', buffer.length, 'bytes')
-    finalBuffer = await compressImage(buffer)
-    effectiveMediaType = 'image/jpeg'
-    console.log('Compressed to:', finalBuffer.length, 'bytes')
-  }
+    if (file.type !== 'application/pdf') {
+      if (buffer.length > 1 * 1024 * 1024) {
+        console.log('Compressing:', buffer.length, 'bytes')
+        finalBuffer        = await compressImage(buffer)
+        effectiveMediaType = 'image/jpeg'
+        console.log('Compressed to:', finalBuffer.length, 'bytes')
+      }
 
-  // Final safety check
-  if (finalBuffer.length > 4.5 * 1024 * 1024) {
-    return NextResponse.json({
-      error: 'Image bahut badi hai — compress karke upload karo 🙏'
-    }, { status: 400 })
-  }
-}
+      if (finalBuffer.length > 4.5 * 1024 * 1024) {
+        return NextResponse.json({
+          error: 'Image bahut badi hai — compress karke upload karo 🙏'
+        }, { status: 400 })
+      }
+    }
 
-    const base64 = finalBuffer.toString('base64')
+    const base64    = finalBuffer.toString('base64')
     const startTime = Date.now()
 
-    // AI Analysis
+    // ── AI Analysis ───────────────────────────────────
     let interpretation
     let tokenUsage
 
     if (file.type === 'application/pdf') {
-      const result   = await analyzeWithPDF(base64)
+      const result   = await analyzeWithPDF(base64, modelToUse)
       interpretation = result.interpretation
       tokenUsage     = result.tokenUsage
     } else {
-      const result   = await analyzeWithVision(base64, effectiveMediaType)
+      const result   = await analyzeWithVision(base64, effectiveMediaType, modelToUse)
       interpretation = result.interpretation
       tokenUsage     = result.tokenUsage
     }
 
     const analysisTimeMs = Date.now() - startTime
 
-    // Date validate karo
+    // ── Date validate ─────────────────────────────────
     const labData = interpretation.lab || {}
     labData.collectedAt = validateReportDate(labData.collectedAt)
     labData.reportedAt  = validateReportDate(labData.reportedAt)
 
-    // Duplicate check
+    // ── Duplicate check ───────────────────────────────
     if (labData.collectedAt && userId) {
       const startOfDay = new Date(labData.collectedAt)
       startOfDay.setHours(0, 0, 0, 0)
@@ -280,9 +323,9 @@ if (file.type !== 'application/pdf') {
 
       const existing = await Report.findOne({
         userId,
-        reportType: interpretation.report_type,
+        reportType:        interpretation.report_type,
         'lab.collectedAt': { $gte: startOfDay, $lte: endOfDay },
-        status: 'completed'
+        status:            'completed'
       })
 
       if (existing) {
@@ -291,7 +334,7 @@ if (file.type !== 'application/pdf') {
       }
     }
 
-    // Result save karo
+    // ── Save result ───────────────────────────────────
     await Report.findByIdAndUpdate(reportId, {
       status:         'completed',
       result:         interpretation,
@@ -304,17 +347,16 @@ if (file.type !== 'application/pdf') {
       fileSize:       file.size,
       tokensUsed:     tokenUsage,
       analysisTimeMs,
-      modelUsed:      'claude-haiku-4-5-20251001',
-      isSample:       isSampleFile // ← Sample flag
+      modelUsed:      modelToUse,   // ← dynamic now
+      isSample:       isSampleFile
     })
 
-    // Sample tha toh log karo
     if (isSampleFile) {
-      console.log('✅ Sample analyzed & cached — next time DB se aayega!')
+      console.log('✅ Sample analyzed & cached!')
       console.log('Sample Report ID:', reportId)
     }
 
-    // reportsUsed increment karo
+    // ── Increment usage ───────────────────────────────
     if (userId) {
       await User.findByIdAndUpdate(userId, {
         $inc: { reportsUsed: 1 }
@@ -322,9 +364,10 @@ if (file.type !== 'application/pdf') {
     }
 
     return NextResponse.json({
-      success: true,
+      success:   true,
       reportId,
-      data: interpretation
+      data:      interpretation,
+      modelUsed: modelToUse
     })
 
   } catch (err) {
@@ -337,7 +380,6 @@ if (file.type !== 'application/pdf') {
       })
     }
 
-    // Fix — Hinglish specific messages
     const userMessage = err.message.includes('bahut badi')
       ? err.message
       : err.message.includes('JSON repair failed')
@@ -353,10 +395,11 @@ if (file.type !== 'application/pdf') {
   }
 }
 
-async function analyzeWithPDF(base64) {
+// ── analyzeWithPDF — model aware ──────────────────────
+async function analyzeWithPDF(base64, model = HAIKU_MODEL) {
   const response = await anthropic.messages.create({
-    model:      'claude-haiku-4-5-20251001',
-    max_tokens: 4096,
+    model,
+    max_tokens: model === SONNET_MODEL ? 12000 : 4096,
     messages: [{
       role: 'user',
       content: [
@@ -377,14 +420,15 @@ async function analyzeWithPDF(base64) {
   })
 
   const interpretation = parseClaudeResponse(response.content[0].text)
-  const tokenUsage     = calculateTokenUsage(response.usage)
+  const tokenUsage     = calculateTokenUsage(response.usage, model)
   return { interpretation, tokenUsage }
 }
 
-async function analyzeWithVision(base64, mediaType) {
+// ── analyzeWithVision — model aware ───────────────────
+async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL) {
   const response = await anthropic.messages.create({
-    model:      'claude-haiku-4-5-20251001',
-    max_tokens: 4096,
+    model,
+    max_tokens: model === SONNET_MODEL ? 12000 : 4096,
     messages: [{
       role: 'user',
       content: [
@@ -405,6 +449,6 @@ async function analyzeWithVision(base64, mediaType) {
   })
 
   const interpretation = parseClaudeResponse(response.content[0].text)
-  const tokenUsage     = calculateTokenUsage(response.usage)
+  const tokenUsage     = calculateTokenUsage(response.usage, model)
   return { interpretation, tokenUsage }
 }

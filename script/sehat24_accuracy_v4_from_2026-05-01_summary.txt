@@ -1,0 +1,570 @@
+════════════════════════════════════════════════════════════════════
+  SEHAT24 — AI ACCURACY CHECKER v4
+  Period: 01-May-2026, 01:00 pm  →  Now
+════════════════════════════════════════════════════════════════════
+
+┌─ DATA SUMMARY ─────────────────────────────────────────┐
+  Total Reports in period:    157
+  Total Parameters:           2187
+  Evaluated:                  1510
+  Unit Normalizations:        5
+  Skipped (no value):         0
+  Skipped (non-numeric):      476
+  Skipped (no range):         4
+  Skipped (bad range):        197
+└────────────────────────────────────────────────────────┘
+
+┌─ AI ACCURACY ──────────────────────────────────────────┐
+  ✅ Correct:                 1487
+  ❌ Total Wrong:             23
+  🔴 SEVERE:                 9  ← AI said NORMAL, was ABNORMAL
+  ⚠️  MEDIUM:                 14  ← AI said ABNORMAL, was NORMAL
+
+  📊 OVERALL ACCURACY:       98.48%
+  📊 SEVERE ERROR RATE:      0.60%
+  📊 MEDIUM ERROR RATE:      0.93%
+
+  STATUS: ✅ EXCELLENT — AI fix kaam kar raha hai!
+└────────────────────────────────────────────────────────┘
+
+┌─ PARAMS WITH MOST ERRORS ──────────────────────────────┐
+   1. Eosinophils                              1 errors
+   2. LDL/HDL Ratio                            1 errors
+   3. DLC Basophil                             1 errors
+   4. Platelets Count                          1 errors
+   5. Platelet Count                           1 errors
+   6. Random Blood Sugar                       1 errors
+   7. Absolute Basophil Count                  1 errors
+   8. Monocytes                                1 errors
+   9. RBC                                      1 errors
+└────────────────────────────────────────────────────────┘
+
+┌─ SEVERE ERRORS — AI said NORMAL, was ABNORMAL ─────────┐
+  🔴 These are DANGEROUS — user gets wrong health info
+
+  ─── Error #1 ──────────────────────────────────────────────────
+  Report ID:    69f46241d3ad8d4c1ecd0c53
+  Stored At:    01-May-2026, 01:50 pm
+  File:         IMG20260501134946.jpg
+  Report Type:  Complete Blood Count
+
+  Parameter:    Eosinophils
+  Stored Value: 7.5
+  DB Range:     0-4-8.0
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Eosinophils normal hain."
+  AI Action:      "Theek hai."
+
+  AI Summary:
+  "Prameen ji, aapki blood report mein kayi values thoda concern hain. Hematocrit, platelets aur RDW thoda low-high hain - iska matlab red blood cells aur platelets mein kuch slight issue hai jo anemia ki taraf ishara kar raha hai. Abhi foran danger nahi hai lekin iron-rich khana badhao, doctor ko batao aur 2-3 hafton mein retest karao. Bas thoda dhya"
+
+  ─── Error #2 ──────────────────────────────────────────────────
+  Report ID:    69f463d483d82f18d5521f4d
+  Stored At:    01-May-2026, 01:57 pm
+  File:         IMG20260501135631.jpg
+  Report Type:  Kidney Panel and Lipid Profile
+
+  Parameter:    LDL/HDL Ratio
+  Stored Value: 1.5
+  DB Range:     12 - 30
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Cholesterol ratio achha hai."
+  AI Action:      "Bilkul theek, aise rakho."
+
+  AI Summary:
+  "Parmeen ji, aapki report mostly bilkul normal hai! Bas ek choti baat - LDL cholesterol thoda high hai jo heart ke liye risk badhata hai. Baki kidney function, blood sugar, aur minerals sab theek hain. Lean protein, olive oil aur green veggies badhao, aur saturated fat kam karo - 3-4 hafton mein farak aa jayega."
+
+  ─── Error #3 ──────────────────────────────────────────────────
+  Report ID:    69f46fec867d8c14cdd35e83
+  Stored At:    01-May-2026, 02:48 pm
+  File:         17776270650501023990009585666191.jpg
+  Report Type:  Complete Blood Count
+
+  Parameter:    DLC Basophil
+  Stored Value: 00
+  DB Range:     01-10 %
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Inflammation control karne wale cells normal hain."
+  AI Action:      "Bilkul theek hai."
+
+  AI Summary:
+  "Hafeez ji, aapki report mostly normal hai par kuch choti baat par dhyan dena zaroori hai. Polymorphs thoda zyada aur lymphocytes thoda kam hain jo immunity thodi weak ho sakti hai aur infection possible hai - doctor se pooch lena achcha rahega ki kya infection ke symptoms hain. MCHC bhi slightly zyada hai jo dehydration ka sign ho sakta hai, to pan"
+
+  ─── Error #4 ──────────────────────────────────────────────────
+  Report ID:    69f46fec867d8c14cdd35e83
+  Stored At:    01-May-2026, 02:48 pm
+  File:         17776270650501023990009585666191.jpg
+  Report Type:  Complete Blood Count
+
+  Parameter:    Platelets Count
+  Stored Value: 225
+  DB Range:     1.25-4.0 Lac/cumm
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Blood clotting ke liye zaroori cells sahi numbers mein hain."
+  AI Action:      "Normal range mein hai, achcha sign hai."
+
+  AI Summary:
+  "Hafeez ji, aapki report mostly normal hai par kuch choti baat par dhyan dena zaroori hai. Polymorphs thoda zyada aur lymphocytes thoda kam hain jo immunity thodi weak ho sakti hai aur infection possible hai - doctor se pooch lena achcha rahega ki kya infection ke symptoms hain. MCHC bhi slightly zyada hai jo dehydration ka sign ho sakta hai, to pan"
+
+  ─── Error #5 ──────────────────────────────────────────────────
+  Report ID:    69f4709eee167767829c9fa1
+  Stored At:    01-May-2026, 02:51 pm
+  File:         20260501_144851.jpg
+  Report Type:  Complete Biochemistry Test
+
+  Parameter:    Platelet Count
+  Stored Value: 164
+  DB Range:     1.5-4.5
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Blood clotting cells normal hain."
+  AI Action:      "Theek hai."
+
+  AI Summary:
+  "Sir, aapka hemoglobin aur red blood cells thode kam hain jisse thakaan mehsoos ho sakta hai. Lymphocytes thode zyada hain jo infection ke sign ho sakte hain - doctor se milne ja kar recheck karwao. Baaki values mostly normal hain, lekin iron-rich diet lo aur proper rest lo taki jaldi recovery ho sake."
+
+  ─── Error #6 ──────────────────────────────────────────────────
+  Report ID:    69f47f45be01db99f4479362
+  Stored At:    01-May-2026, 03:54 pm
+  File:         IMG-20260213-WA0016.jpg
+  Report Type:  Biochemistry and Liver Function Tests
+
+  Parameter:    Random Blood Sugar
+  Stored Value: 90.08
+  DB Range:     140-160
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Aapka blood sugar bilkul theek hai."
+  AI Action:      "Yeh normal range mein hai, acha sign hai."
+
+  AI Summary:
+  "Aapke liver mein kuch issue dikh raha hai - bilirubin ka level thoda high tha aur kuch liver enzymes bhi elevated hain. Yeh jaundice ya mild liver problem ka sign ho sakta hai. Urgent doctor se consult karo aur repeat test karao 1-2 hafton mein."
+
+  ─── Error #7 ──────────────────────────────────────────────────
+  Report ID:    69f484ecc3a8798b1c3e5f30
+  Stored At:    01-May-2026, 04:18 pm
+  File:         IMG_2656.jpeg
+  Report Type:  Complete Blood Count (CBC)
+
+  Parameter:    Absolute Basophil Count
+  Stored Value: 0.03
+  DB Range:     0.00-0.00
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Basophil count minimal aur normal hai."
+  AI Action:      "Sab theek hai."
+
+  AI Summary:
+  "Mohit bhai, aapke khoon mein kayi cheezein thodi weak ho gayi hain. Hemoglobin, platelets aur red blood cells sab kam hain jo weakness aur thakavat de sakte hain. Saath hi monocytes aur eosinophils bhi thode badhey hain jo allergy ya infection ka hint de sakte hain. Doctor se zaroor milanupati karavao aur iron-rich khana shuru karo."
+
+  ─── Error #8 ──────────────────────────────────────────────────
+  Report ID:    69f48e9d5763878d62bb4cc6
+  Stored At:    01-May-2026, 04:59 pm
+  File:         17776349481143518232026747218031.jpg
+  Report Type:  Complete Blood Count
+
+  Parameter:    Monocytes
+  Stored Value: 00
+  DB Range:     01 to 06%
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Infection heal karne wale cells normal hain."
+  AI Action:      "Theek hai."
+
+  AI Summary:
+  "Rajda ji, aapke blood test se anemia ho gaya lag raha hai - hemoglobin, iron levels aur platelet count sab thode low aa rahe hain. Eosinophils bhi thoda high hain jo allergy ka sign ho sakta. Iron-rich food aur supplements zarur lene honge, aur doctor se milkar blood transfusion ya further tests ke baare mein pooch na chahiye."
+
+  ─── Error #9 ──────────────────────────────────────────────────
+  Report ID:    69f4c9e41f58e4274d94b1bc
+  Stored At:    01-May-2026, 09:12 pm
+  File:         IMG20260501192624.jpg
+  Report Type:  Complete Blood Count with Differential
+
+  Parameter:    RBC
+  Stored Value: 4.82
+  DB Range:     5.10-8.50
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Laal raktanu theek mein hain."
+  AI Action:      "Sab normal hai."
+
+  AI Summary:
+  "Rohit, aapki report mein kaafi important cheezein hain jo dhyan dene se pehle zaroori hain. Aapke safed raktanu kam hain aur unka balance galat hai - iska matlab aapke shariir ki immunity thodi weak ho gayi hai aur viral infection ho sakta hai. MCV aur MCH thoda zyada hain jo vitamin deficiency ka ishara de sakte hain. Aap ek acha doctor se zaroor "
+
+└────────────────────────────────────────────────────────┘
+
+┌─ MEDIUM ERRORS — AI said ABNORMAL, was NORMAL ─────────┐
+  ⚠️  These cause unnecessary patient anxiety
+
+  ─── Error #1 ──────────────────────────────────────────────────
+  Report ID:    69f4568811f9cf7d34492069
+  Stored At:    01-May-2026, 01:00 pm
+  File:         inbound6816363553810023536.pdf
+  Report Type:  Complete Blood Count and Liver Function Test
+
+  Parameter:    MPV
+  Stored Value: 11.70
+  DB Range:     9.1-11.9
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Platelet ka size average se thoda bada hai."
+
+  ─── Error #2 ──────────────────────────────────────────────────
+  Report ID:    69f4594011f9cf7d3449207c
+  Stored At:    01-May-2026, 01:11 pm
+  File:         17776212952884675253320381423951.jpg
+  Report Type:  Complete Blood Count
+
+  Parameter:    Haemoglobin
+  Stored Value: 13.0
+  DB Range:     12.0 - 16.0
+  AI Status:    low  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Hemoglobin slightly low hai, oxygen carry karna kam ho sakta hai."
+
+  ─── Error #3 ──────────────────────────────────────────────────
+  Report ID:    69f46241d3ad8d4c1ecd0c53
+  Stored At:    01-May-2026, 01:50 pm
+  File:         IMG20260501134946.jpg
+  Report Type:  Complete Blood Count
+
+  Parameter:    Platelet Count
+  Stored Value: 1.9
+  DB Range:     1.5-4.5
+  AI Status:    low  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Platelets thoda kam hain, blood clotting mein issue ho sakta hai."
+
+  ─── Error #4 ──────────────────────────────────────────────────
+  Report ID:    69f464a283d82f18d5521f5d
+  Stored At:    01-May-2026, 02:00 pm
+  File:         17776242021941213457801700930850.jpg
+  Report Type:  Complete Blood Count (CBC)
+
+  Parameter:    Monocytes
+  Stored Value: 8.3
+  DB Range:     3.0-9.0
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Monocytes thoda zyada hain — body mein slight inflammation ya infection ho sakta hai."
+
+  ─── Error #5 ──────────────────────────────────────────────────
+  Report ID:    69f46cf8ecf450cedabcf106
+  Stored At:    01-May-2026, 02:36 pm
+  File:         Screenshot 2026-05-01 143220.png
+  Report Type:  Complete Blood Count
+
+  Parameter:    MONOCYTES
+  Stored Value: 7.7
+  DB Range:     2 - 8
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Monocytes thoda zyada hain, body mein kisi infection ya inflammation ke signals ho sakte hain."
+
+  ─── Error #6 ──────────────────────────────────────────────────
+  Report ID:    69f46cf8ecf450cedabcf106
+  Stored At:    01-May-2026, 02:36 pm
+  File:         Screenshot 2026-05-01 143220.png
+  Report Type:  Complete Blood Count
+
+  Parameter:    MCHC (Mean Corp Hb Conc)
+  Stored Value: 34.49
+  DB Range:     31.5 - 34.5
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Hemoglobin concentration thoda zyada hai, normal ke border pe hai."
+
+  ─── Error #7 ──────────────────────────────────────────────────
+  Report ID:    69f47d94407707e75f4b6935
+  Stored At:    01-May-2026, 03:46 pm
+  File:         IMG_20260501_132248015_HDR.jpg
+  Report Type:  Diagnostic Centre Report
+
+  Parameter:    Globulin
+  Stored Value: 3.1
+  DB Range:     2.3-3.5
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Infection ya inflammation slightly high ho sakta hai."
+
+  ─── Error #8 ──────────────────────────────────────────────────
+  Report ID:    69f48e5f5763878d62bb4cc1
+  Stored At:    01-May-2026, 04:58 pm
+  File:         17776348799024890879499879654834.jpg
+  Report Type:  Complete Blood Count
+
+  Parameter:    MCHC
+  Stored Value: 35.8
+  DB Range:     32-36
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Hemoglobin concentration thoda high hai."
+
+  ─── Error #9 ──────────────────────────────────────────────────
+  Report ID:    69f492fa5763878d62bb4cdb
+  Stored At:    01-May-2026, 05:18 pm
+  File:         labreportnew.pdf
+  Report Type:  Complete Blood Count and Liver Function Test
+
+  Parameter:    MPV
+  Stored Value: 11.70
+  DB Range:     9.1-11.9
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Platelets thode bade hain average se."
+
+  ─── Error #10 ──────────────────────────────────────────────────
+  Report ID:    69f495a7aed1db5f4a5b1986
+  Stored At:    01-May-2026, 05:29 pm
+  File:         IMG-20260430-WA0000.jpg
+  Report Type:  Complete Blood Count and Widal Test
+
+  Parameter:    MEAN CELL Hb CONC (MCHC)
+  Stored Value: 25.6
+  DB Range:     20.00 - 42.00
+  AI Status:    low  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Hemoglobin concentration cells mein thoda kam hai."
+
+  ─── Error #11 ──────────────────────────────────────────────────
+  Report ID:    69f4a488aed1db5f4a5b19c7
+  Stored At:    01-May-2026, 06:33 pm
+  File:         17776404113556399411075248980788.jpg
+  Report Type:  Biochemistry Profile
+
+  Parameter:    Globulin
+  Stored Value: 3.3
+  DB Range:     2.3-3.5
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Immunity proteins thoda zyada ho gaye hain."
+
+  ─── Error #12 ──────────────────────────────────────────────────
+  Report ID:    69f4bf35d30425332aab6566
+  Stored At:    01-May-2026, 08:26 pm
+  File:         IMG-20260501-WA0009.jpg
+  Report Type:  Complete Blood Count (CBC) and Bio-Chemical Examination
+
+  Parameter:    Erythrocytes (RBC)
+  Stored Value: 5.26
+  DB Range:     3.8 - 5.3
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Red blood cells thoda zyada hain."
+
+  ─── Error #13 ──────────────────────────────────────────────────
+  Report ID:    69f4c995d600936ce7718b25
+  Stored At:    01-May-2026, 09:11 pm
+  File:         IMG-20260501-WA0016.jpeg
+  Report Type:  Complete Blood Count and Blood Chemistry
+
+  Parameter:    Monocytes
+  Stored Value: 8.3
+  DB Range:     3.0-9.0
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Monocytes thoda high hain, inflammation ho sakti hai."
+
+  ─── Error #14 ──────────────────────────────────────────────────
+  Report ID:    69f4d823f75a9f9e78940ca3
+  Stored At:    01-May-2026, 10:13 pm
+  File:         Scan document20260501_204414_compressed (1).pdf
+  Report Type:  Complete Blood Count and Biochemistry
+
+  Parameter:    Platelet Count
+  Stored Value: 4,33,000
+  DB Range:     1.5 - 4.0
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Platelets thoda zyada hain, blood clotting mein issue ho sakta."
+
+└────────────────────────────────────────────────────────┘
+
+┌─ ACCURACY BY REPORT TYPE ──────────────────────────────┐
+  🔴 Complete Blood Count
+     Reports:20  Evaluated:329  Acc:97.3%  Severe:4  Medium:5
+
+  ⚠️  Complete Blood Count (CBC)
+     Reports:9  Evaluated:165  Acc:98.8%  Severe:1  Medium:1
+
+  ⚠️  Kidney Panel and Lipid Profile
+     Reports:1  Evaluated:15  Acc:93.3%  Severe:1  Medium:0
+
+  ⚠️  Complete Biochemistry Test
+     Reports:1  Evaluated:13  Acc:92.3%  Severe:1  Medium:0
+
+  ⚠️  Complete Blood Count with Differential
+     Reports:3  Evaluated:63  Acc:98.4%  Severe:1  Medium:0
+
+  ⚠️  Biochemistry and Liver Function Tests
+     Reports:1  Evaluated:11  Acc:90.9%  Severe:1  Medium:0
+
+  ✅ Complete Blood Count and Liver Function Test
+     Reports:2  Evaluated:64  Acc:96.9%  Severe:0  Medium:2
+
+  ✅ Complete Blood Count and Biochemistry
+     Reports:6  Evaluated:90  Acc:98.9%  Severe:0  Medium:1
+
+  ✅ Complete Blood Count and Immunology-Serology
+     Reports:1  Evaluated:14  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Liver Function Test
+     Reports:9  Evaluated:91  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Pathology Test Report
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and CRP
+     Reports:1  Evaluated:15  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Serology
+     Reports:2  Evaluated:29  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Comprehensive Health Analysis - Smart Repo...
+     Reports:1  Evaluated:37  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Laboratory Report
+     Reports:3  Evaluated:22  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Blood Report
+     Reports:1  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Pathology Report
+     Reports:2  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry Panel
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Urine and Clinical Pathology
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Serological Test
+     Reports:1  Evaluated:14  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (Hemogram)
+     Reports:1  Evaluated:20  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Comprehensive Health Analysis - Super Life...
+     Reports:1  Evaluated:35  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Pathology Lab Report
+     Reports:1  Evaluated:14  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Lipid Profile
+     Reports:2  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Biochemical Panel
+     Reports:1  Evaluated:18  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Serum Tests
+     Reports:1  Evaluated:15  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Differential
+     Reports:3  Evaluated:77  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC) Whole Blood
+     Reports:1  Evaluated:19  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Hematology
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Hematology and Biochemistry
+     Reports:1  Evaluated:10  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Semen Examination
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Urine Analysis with Culture and S...
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Diagnostic Centre Report
+     Reports:4  Evaluated:31  Acc:96.8%  Severe:0  Medium:1
+
+  ✅ Haematology and Biochemistry Report
+     Reports:1  Evaluated:12  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ USG Abdomen and Pelvis
+     Reports:1  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Immunology Lab
+     Reports:1  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, CRP, ESR, Random Blo...
+     Reports:1  Evaluated:20  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Widal Test
+     Reports:2  Evaluated:28  Acc:96.4%  Severe:0  Medium:1
+
+  ✅ Hematology Report
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Health Profile
+     Reports:1  Evaluated:40  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Renal Profile and Electrolyte Panel
+     Reports:1  Evaluated:12  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Obstetric Ultrasound
+     Reports:3  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry Profile
+     Reports:1  Evaluated:23  Acc:95.7%  Severe:0  Medium:1
+
+  ✅ Lipid Profile Screen Serum
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Package - Preventive
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Bio-Chemistry
+     Reports:1  Evaluated:15  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC) and Bio-Chemica...
+     Reports:1  Evaluated:18  Acc:94.4%  Severe:0  Medium:1
+
+  ✅ Bio-Chemistry
+     Reports:1  Evaluated:10  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC) and Haematology
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Blood Chemistry
+     Reports:1  Evaluated:19  Acc:94.7%  Severe:0  Medium:1
+
+  ✅ Biochemistry and Clinical Pathology
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+└────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════
+  PERIOD: 01-May-2026, 01:00 pm → Now
+  ACCURACY: 98.48% | Evaluated: 1510
+  Severe: 9 | Medium: 14 | Unit fixes: 5
+════════════════════════════════════════════════════════════════════

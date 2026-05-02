@@ -1,0 +1,1174 @@
+═════════════════════════════════════════════════════════════════
+  SEHAT24 — AI ACCURACY CHECKER v3
+  2/5/2026, 2:11:19 am
+═════════════════════════════════════════════════════════════════
+
+┌─ DATA SUMMARY ───────────────────────────────────────┐
+  Total Reports:              1551
+  Total Parameters in DB:     20149
+  Parameters Evaluated:       15222
+  Unit Normalizations Done:   85
+  Skipped (no value):         19
+  Skipped (non-numeric):      3387
+  Skipped (no range):         102
+  Skipped (unparsable range): 1419
+  Skipped (no AI status):     0
+└──────────────────────────────────────────────────────┘
+
+┌─ AI ACCURACY RESULT ─────────────────────────────────┐
+  ✅ Correct:                 14924
+  ❌ Total Wrong:             298
+  🔴 SEVERE:                 148  ← AI said NORMAL, was ABNORMAL
+  ⚠️  MEDIUM:                 150  ← AI said ABNORMAL, was NORMAL
+
+  📊 OVERALL ACCURACY:       98.04%
+  📊 SEVERE ERROR RATE:      0.97%
+  📊 MEDIUM ERROR RATE:      0.99%
+
+  STATUS: ✅ EXCELLENT
+└──────────────────────────────────────────────────────┘
+
+┌─ PARAMS WITH MOST ERRORS ────────────────────────────┐
+   1. Platelet Count                      9 errors
+   2. Eosinophils                         6 errors
+   3. Creatinine                          4 errors
+   4. Absolute Basophil Count             4 errors
+   5. Basophils                           4 errors
+   6. MCV                                 3 errors
+   7. RBC (Red Blood Cells)               3 errors
+   8. RDW - CV                            3 errors
+   9. Monocytes                           3 errors
+  10. Red Blood Cells (RBC)               2 errors
+  11. Lymphocytes                         2 errors
+  12. R.B.C Count                         2 errors
+  13. MCHC (Mean Corpuscular Hemoglobin Concentration) 2 errors
+  14. RDW-SD (Red Cell Distribution Width - Standard Deviation) 2 errors
+  15. Absolute Basophils Count            2 errors
+└──────────────────────────────────────────────────────┘
+
+┌─ SEVERE ERRORS — FULL DETAIL ────────────────────────┐
+  🔴 AI said NORMAL but value was ABNORMAL
+  These cause user complaints & wrong health decisions!
+
+  ─── Error #1 ──────────────────────────────────────────────────
+  Report ID:    69e9e4b43896bfc9718f5a44
+  File:         Screenshot_20260423-144952_Drive.png
+  Report Type:  Kidney Function Test Extended
+  Date:         23/4/2026
+
+  Parameter:    Creatinine
+  Stored Value: 0.56
+  DB Range:     0.60-1.20
+  Parsed Range: 0.6–1.2
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Creatinine bilkul normal hai — yeh kidney function ka sabse important marker hai."
+  AI Action:      "Bilkul theek — normal range mein ho."
+
+  AI Report Summary:
+  "Divya, aapke kidney function tests bilkul normal hain — aapke kidney theek se kaam kar rahe hain. Sab values normal range mein hain, koi ghabraaने ki baat nahin hai."
+
+  ─── Error #2 ──────────────────────────────────────────────────
+  Report ID:    69e9e5e63896bfc9718f5a48
+  File:         DIVYA.pdf
+  Report Type:  Comprehensive Health Check Profile
+  Date:         23/4/2026
+
+  Parameter:    Red Blood Cells (RBC)
+  Stored Value: 4.22
+  DB Range:     4.5-5.5
+  Parsed Range: 4.5–5.5
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "RBC count theek hai, oxygen carrying capacity normal hai."
+  AI Action:      "Koi action nahi — normal range mein ho."
+
+  AI Report Summary:
+  "Divya, aapki report mostly bilkul normal hai! Sirf triglyceride aur HDL cholesterol thoda adjust karne ki zaroorat hai. Baaki sab kuch perfectly fine hai — thyroid, liver, kidney, blood count, aur blood sugar — sab normal range mein hain."
+
+  ─── Error #3 ──────────────────────────────────────────────────
+  Report ID:    69f1fda59675366bfb4fb97f
+  File:         IMG-20260429-WA0002.jpg
+  Report Type:  Complete Blood Count (CBC) with Biochemistry
+  Date:         29/4/2026
+
+  Parameter:    MCV
+  Stored Value: 8.2
+  DB Range:     27.0-34.0
+  Parsed Range: 27–34
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Red blood cells ka size normal hai."
+  AI Action:      "Sab normal hai."
+
+  AI Report Summary:
+  "Akansh ki report mein sab kuch normal range mein hai — hemoglobin, white blood cells, platelets aur liver-kidney function sab theek hain. Uske overall health indicators bilkul fit dikhai dein rahe hain."
+
+  ─── Error #4 ──────────────────────────────────────────────────
+  Report ID:    69f20a529675366bfb4fba00
+  File:         17774699926316548653838696348590.jpg
+  Report Type:  Complete Blood Count (CBC) with Differential
+  Date:         29/4/2026
+
+  Parameter:    MCV
+  Stored Value: 9.3
+  DB Range:     80-100
+  Parsed Range: 80–100
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Red blood cells ka average size normal hai."
+  AI Action:      "Bilkul theek hai."
+
+  AI Report Summary:
+  "Aapki complete blood count report bilkul normal hai. Sabhi values healthy range mein hain — aap tension na lo. Regular check-ups karते rahen."
+
+  ─── Error #5 ──────────────────────────────────────────────────
+  Report ID:    69f20aa4eeeebbde2147907b
+  File:         17774700618777151778525816878162.jpg
+  Report Type:  Liver Function Test (LFT)
+  Date:         29/4/2026
+
+  Parameter:    Serum Alkaline Phosphatase
+  Stored Value: 135.7
+  DB Range:     53 - 128 IU/l (Children 54-369 IU/l)
+  Parsed Range: 53–128
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Bone aur liver mein yeh enzyme naturally rehta hai — aapke liye normal range mein hai kyunki aap 14 saal ki ho."
+  AI Action:      "Bilkul theek hai, normal hai."
+
+  AI Report Summary:
+  "Nida, aapki liver function test report bilkul normal hai — koi ghabraane ki baat nahi. Sabhi values healthy range mein hain aur aapka liver theek tarah se kaam kar raha hai."
+
+  ─── Error #6 ──────────────────────────────────────────────────
+  Report ID:    69f20ed2eeeebbde214790cc
+  File:         IMG_9316.jpeg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    Absolute Basophil Count
+  Stored Value: 0
+  DB Range:     1 - 100
+  Parsed Range: 1–100
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Basophil count normal hai."
+  AI Action:      "Theek hai."
+
+  AI Report Summary:
+  "Mehwish, aapki blood report bilkul normal hai! Hemoglobin, RBC count, white blood cells, platelets sab kuch balanced aur healthy range mein hain. Koi special tension lene ki baat nahi hai."
+
+  ─── Error #7 ──────────────────────────────────────────────────
+  Report ID:    69f20fa69675366bfb4fba25
+  File:         IMG_9316.jpeg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    Absolute Basophil Count
+  Stored Value: 0
+  DB Range:     1 - 100
+  Parsed Range: 1–100
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Basophil count normal hai."
+  AI Action:      "Koi concern nahi."
+
+  AI Report Summary:
+  "MEHWISH, aapki blood report bilkul normal range mein hai! Hemoglobin, RBC count, aur white blood cells sab theek-thaak hain. Koi tension nahi — aap bilkul healthy ho."
+
+  ─── Error #8 ──────────────────────────────────────────────────
+  Report ID:    69f217a6012353dc49e73073
+  File:         17774734217288954202410421930604.jpg
+  Report Type:  Biochemistry - Blood Test & Lipid Profile
+  Date:         29/4/2026
+
+  Parameter:    LDLC/HDLC Ratio
+  Stored Value: 2.42
+  DB Range:     2.5 - 3.5
+  Parsed Range: 2.5–3.5
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Cholesterol ratio achha hai — dil ke liye risky nahi."
+  AI Action:      "Yeh excellent ratio hai, acha sign."
+
+  AI Report Summary:
+  "Sandhya ji, aapki report mostly normal hai — blood sugar aur kidney function bilkul theek hain. Lekin cholesterol thoda badhaa hai, khaas kar LDL (bad cholesterol) ko control karna padega diet aur lifestyle se."
+
+  ─── Error #9 ──────────────────────────────────────────────────
+  Report ID:    69f21802012353dc49e73086
+  File:         17774734916028031843746806850205.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    Eosinophils
+  Stored Value: 00
+  DB Range:     1-06 %
+  Parsed Range: 1–6
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Eosinophil count normal range mein hai."
+  AI Action:      "Koi problem nahi."
+
+  AI Report Summary:
+  "Anshika ki report mein hemoglobin aur platelet count donon thoda low hain. TLC normal range mein hai aur baki values mostly theek hain. Doctor se follow-up zaroor karwaye."
+
+  ─── Error #10 ──────────────────────────────────────────────────
+  Report ID:    69f21aba012353dc49e730c1
+  File:         1777474202573624488266354932028.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    Eosinophils
+  Stored Value: 1.4
+  DB Range:     2-10
+  Parsed Range: 2–10
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Eosinophils normal hain — allergy response theek hai."
+  AI Action:      "Normal range mein."
+
+  AI Report Summary:
+  "Aapki Complete Blood Count report bilkul normal range mein hai. Hemoglobin, WBC, platelets — sab kuch theek hai. Aap stress-free reh sakte ho aur healthy lifestyle maintain rakhte hue regular check-up karate raho."
+
+  ─── Error #11 ──────────────────────────────────────────────────
+  Report ID:    69f21aba012353dc49e730c1
+  File:         1777474202573624488266354932028.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    Basophils
+  Stored Value: 0.4
+  DB Range:     1-6
+  Parsed Range: 1–6
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Basophils normal hain."
+  AI Action:      "Theek hai."
+
+  AI Report Summary:
+  "Aapki Complete Blood Count report bilkul normal range mein hai. Hemoglobin, WBC, platelets — sab kuch theek hai. Aap stress-free reh sakte ho aur healthy lifestyle maintain rakhte hue regular check-up karate raho."
+
+  ─── Error #12 ──────────────────────────────────────────────────
+  Report ID:    69f21aba012353dc49e730c1
+  File:         1777474202573624488266354932028.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    Neutrophils (Absolute)
+  Stored Value: 7.17
+  DB Range:     2 - 7
+  Parsed Range: 2–7
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Absolute neutrophil count normal hai."
+  AI Action:      "Normal — koi issue nahi."
+
+  AI Report Summary:
+  "Aapki Complete Blood Count report bilkul normal range mein hai. Hemoglobin, WBC, platelets — sab kuch theek hai. Aap stress-free reh sakte ho aur healthy lifestyle maintain rakhte hue regular check-up karate raho."
+
+  ─── Error #13 ──────────────────────────────────────────────────
+  Report ID:    69f21aeb012353dc49e730d0
+  File:         inbound5080544544243248806.pdf
+  Report Type:  Complete Blood Count
+  Date:         29/4/2026
+
+  Parameter:    Lymphocytes
+  Stored Value: 41
+  DB Range:     20 - 40
+  Parsed Range: 20–40
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Lymphocytes jo immunity boost karte hain bilkul thik hain."
+  AI Action:      "Normal hai — all good."
+
+  AI Report Summary:
+  "Mehrin, aapki Complete Blood Count report bilkul normal hai — sabhi values healthy range mein hain. Hemoglobin, WBC count, platelet count, aur sab kuch thik hai. Koi tension lene ki baat nahi hai."
+
+  ─── Error #14 ──────────────────────────────────────────────────
+  Report ID:    69f221cad98828acc0b2e831
+  File:         IMG-20260429-WA0003.jpg
+  Report Type:  Bio-Chemical Test
+  Date:         29/4/2026
+
+  Parameter:    VLDL Cholesterol
+  Stored Value: 20.40
+  DB Range:     120-250 IU/L
+  Parsed Range: 120–250
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "VLDL (bad cholesterol) low level par hai jo achha hai."
+  AI Action:      "Heart ke liye yeh beneficial hai."
+
+  AI Report Summary:
+  "Tuba ji, aapki report mein kaafi achche signs dikhai de rahe hain — mostly values normal range mein hain. Sirf AST aur ALT thoda high aayi hai jo liver function se related ho sakta hai — isko zaroor follow-up mein dekhana hoga."
+
+  ─── Error #15 ──────────────────────────────────────────────────
+  Report ID:    69f222e3d08d319c8a60cf12
+  File:         a76e45ba-9536-4e2c-a0f1-9b5cb5173744.jpeg
+  Report Type:  Comprehensive Metabolic Panel
+  Date:         29/4/2026
+
+  Parameter:    RBC (Red Blood Cells)
+  Stored Value: 0.00
+  DB Range:     4.5-5.9
+  Parsed Range: 4.5–5.9
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Aapke red blood cells normal count mein hain."
+  AI Action:      "Koi action nahi — bilkul theek hai."
+
+  AI Report Summary:
+  "Aapki report mein sabhi values normal range mein hain — bilkul theek hai! Sirf HbF (Fetal Hemoglobin) thoda high dikha jo sometimes normal variation hota hai. Aap tensionmukta reh sakte ho."
+
+  ─── Error #16 ──────────────────────────────────────────────────
+  Report ID:    69f22322d98828acc0b2e848
+  File:         IMG_20260428_204037474_AE.jpg
+  Report Type:  Complete Blood Count, Biochemistry, Liver Profile, Serology
+  Date:         29/4/2026
+
+  Parameter:    Blood Sugar (R)
+  Stored Value: 104
+  DB Range:     110-140
+  Parsed Range: 110–140
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Khali pet blood sugar bilkul normal hai."
+  AI Action:      "Balanced diet maintain karo."
+
+  AI Report Summary:
+  "Ram ji, aapki report bilkul theek hai! Sab values normal range mein hain. Sirf S.Alkaline Phosphatase thoda high hai jo usually koi badi chinta ki baat nahi, lekin doctor se ek baar pooch lo."
+
+  ─── Error #17 ──────────────────────────────────────────────────
+  Report ID:    69f22408d98828acc0b2e86a
+  File:         IMG_20260416_191927.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    CBC (Complete Blood Count)
+  Stored Value: 13.4
+  DB Range:     13.5 - 17
+  Parsed Range: 13.5–17
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Hemoglobin thoda chhota ho sakta hai, lekin practically normal range mein hi hai."
+  AI Action:      "Yeh bilkul normal hai — iron-rich foods khate raho, koi tension nahi."
+
+  AI Report Summary:
+  "Avnish ji, aapka blood report bilkul normal hai — sab kuch achche se chal raha hai. Hemoglobin, WBC, aur dusre values sab theek-thak range mein hain. Aap fit aur healthy ho — koi fikar ki baat nahi hai."
+
+  ─── Error #18 ──────────────────────────────────────────────────
+  Report ID:    69f2242fd98828acc0b2e877
+  File:         Screenshot_20260429-205653_Image to PDF Converter.png
+  Report Type:  Complete Blood Count
+  Date:         29/4/2026
+
+  Parameter:    R.B.C Count
+  Stored Value: 5.05
+  DB Range:     4.0 - 5.0
+  Parsed Range: 4–5
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Red blood cells normal hain, oxygen supply theek hai."
+  AI Action:      "Normal range mein ho, koi fiqr nahi."
+
+  AI Report Summary:
+  "Sana ji, aapki complete blood count report bilkul normal hai. Sabhi values healthy range mein hain — aap tension na lo. Aapka hemoglobin, WBC count, aur platelets sab theek hain."
+
+  ─── Error #19 ──────────────────────────────────────────────────
+  Report ID:    69f2242fd98828acc0b2e877
+  File:         Screenshot_20260429-205653_Image to PDF Converter.png
+  Report Type:  Complete Blood Count
+  Date:         29/4/2026
+
+  Parameter:    RDW - CV
+  Stored Value: 15.3
+  DB Range:     11.0 - 15.0
+  Parsed Range: 11–15
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Red Cell Distribution Width normal hai, RBC size mein uniformity theek hai."
+  AI Action:      "Normal range mein ho."
+
+  AI Report Summary:
+  "Sana ji, aapki complete blood count report bilkul normal hai. Sabhi values healthy range mein hain — aap tension na lo. Aapka hemoglobin, WBC count, aur platelets sab theek hain."
+
+  ─── Error #20 ──────────────────────────────────────────────────
+  Report ID:    69f225b3d98828acc0b2e898
+  File:         Screenshot_20260429-205653_Image to PDF Converter.png
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    R.B.C Count
+  Stored Value: 5.05
+  DB Range:     4.0 - 5.0
+  Parsed Range: 4–5
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Red blood cell count normal range ke edge par lekin theek hai."
+  AI Action:      "Bilkul normal hai, oxygen carry karne mein sab theek hai."
+
+  AI Report Summary:
+  "Sana ji, aapki report bilkul normal hai! Blood count, WBC, RBC sab thik-thaak hain. Aap bilkul healthy hain, ghabraiye mat."
+
+  ─── Error #21 ──────────────────────────────────────────────────
+  Report ID:    69f225b3d98828acc0b2e898
+  File:         Screenshot_20260429-205653_Image to PDF Converter.png
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    RDW - CV
+  Stored Value: 15.3
+  DB Range:     11.0 - 15.0
+  Parsed Range: 11–15
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Red cell distribution width bilkul normal hai."
+  AI Action:      "Bilkul theek hai, RBC size variation normal hai."
+
+  AI Report Summary:
+  "Sana ji, aapki report bilkul normal hai! Blood count, WBC, RBC sab thik-thaak hain. Aap bilkul healthy hain, ghabraiye mat."
+
+  ─── Error #22 ──────────────────────────────────────────────────
+  Report ID:    69f225f6d98828acc0b2e89f
+  File:         IMG-20260428-WA0000.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    MCHC (Mean Corpuscular Hemoglobin Concentration)
+  Stored Value: 33.4
+  DB Range:     150 - 500
+  Parsed Range: 150–500
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "MCHC normal range mein hai."
+  AI Action:      "Bilkul theek."
+
+  AI Report Summary:
+  "Parwati ji, aapki blood count report mostly normal hai — achhi baat hai. Sirf hemoglobin thoda low hai jo care ki zaroorat hai. Baki sab parameters bilkul theek hain."
+
+  ─── Error #23 ──────────────────────────────────────────────────
+  Report ID:    69f22794d98828acc0b2e8bc
+  File:         17774775026045481542484217404426.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    RDW-SD (Red Cell Distribution Width - Standard Deviation)
+  Stored Value: 46.4
+  DB Range:     39-46
+  Parsed Range: 39–46
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Yeh normal range mein hai."
+  AI Action:      "Koi tension nahi."
+
+  AI Report Summary:
+  "Aapka WBC count thoda high hai aur hemoglobin aur hematocrit dono kam hain. Isse anemia ho sakta hai. Doctor se milkar aur tests karwane ki zaroorat hai."
+
+  ─── Error #24 ──────────────────────────────────────────────────
+  Report ID:    69f228a0d98828acc0b2e8c8
+  File:         IMG_20260427_105433.jpg
+  Report Type:  Hematology - HD-SIC (CBC, S.E, RFTs, BC HIV)
+  Date:         29/4/2026
+
+  Parameter:    Monocytes%
+  Stored Value: 04
+  DB Range:     4.3 - 12
+  Parsed Range: 4.3–12
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Monocytes normal range mein hain."
+  AI Action:      "Normal hai."
+
+  AI Report Summary:
+  "Tajbar ji, aapka report bilkul normal hai — saari cheezein theek range mein hain. Blood count, kidney function, aur liver sab kuch healthy dikhai de rahe hain. Aap stress-free reh sakte ho."
+
+  ─── Error #25 ──────────────────────────────────────────────────
+  Report ID:    69f228a0d98828acc0b2e8c8
+  File:         IMG_20260427_105433.jpg
+  Report Type:  Hematology - HD-SIC (CBC, S.E, RFTs, BC HIV)
+  Date:         29/4/2026
+
+  Parameter:    Basophils%
+  Stored Value: 00
+  DB Range:     0.09 - 1.59
+  Parsed Range: 0.09–1.59
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Basophils zero hain, jo normal hai."
+  AI Action:      "Theek hai."
+
+  AI Report Summary:
+  "Tajbar ji, aapka report bilkul normal hai — saari cheezein theek range mein hain. Blood count, kidney function, aur liver sab kuch healthy dikhai de rahe hain. Aap stress-free reh sakte ho."
+
+  ─── Error #26 ──────────────────────────────────────────────────
+  Report ID:    69f228e0bb3e9125fd818473
+  File:         image-1776404697627.jpg
+  Report Type:  Serum Chemistry & Lipid Profile
+  Date:         29/4/2026
+
+  Parameter:    HDL Chol
+  Stored Value: 39.5
+  DB Range:     0.0-35.0
+  Parsed Range: 0–35
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Good cholesterol achha hai, heart ke liye protective hai."
+  AI Action:      "Bilkul theek, yeh good cholesterol hai."
+
+  AI Report Summary:
+  "Ashfaq ji, aapki report bilkul normal hai! Saare values perfect range mein hain. Aap bilkul tension-free reh sakte ho aur apni healthy lifestyle continue karein."
+
+  ─── Error #27 ──────────────────────────────────────────────────
+  Report ID:    69f22960dfee6d7bb0fed6ee
+  File:         IMG_20260407_144357378_HDR.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    Monocytes
+  Stored Value: 00
+  DB Range:     01-10
+  Parsed Range: 1–10
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Immune cells normal hain."
+  AI Action:      "Koi action nahi — theek hai."
+
+  AI Report Summary:
+  "Mrs. Bano, aapki blood report bilkul normal hai — koi bhi tension ki baat nahi hai. Hemoglobin, white blood cells, aur platelets sab theek-thaak hain. Aap healthy aur fit ho."
+
+  ─── Error #28 ──────────────────────────────────────────────────
+  Report ID:    69f22c6cdfee6d7bb0fed72e
+  File:         1000054128.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    RDW-SD (Red Cell Distribution Width - Standard Deviation)
+  Stored Value: 46.2
+  DB Range:     39-46
+  Parsed Range: 39–46
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Red blood cell size variation normal range ke edge par hai."
+  AI Action:      "Monitor karo aur doctor se check-up le."
+
+  AI Report Summary:
+  "Aapki report mein kuch values thoda normal range se bahar hain. HGB, HCT, aur MCH thode low hain jo anemia ki taraf ishara karte hain. Platelet count (PLT) aur RDW-CV thode high hain. Doctor se milke treatment discuss karna zaroori hai."
+
+  ─── Error #29 ──────────────────────────────────────────────────
+  Report ID:    69f22e58dfee6d7bb0fed747
+  File:         P7016O1777452049042_RLS-1.pdf
+  Report Type:  Lipid Profile
+  Date:         29/4/2026
+
+  Parameter:    TC/HDL Cholesterol Ratio
+  Stored Value: 2.9
+  DB Range:     3 - 5
+  Parsed Range: 3–5
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Yeh ratio very good hai — heart disease ka risk kam hai."
+  AI Action:      "Excellent score — maintain karte rahiye."
+
+  AI Report Summary:
+  "Anamika ji, aapki lipid profile bilkul achhi condition mein hai. Sabhi cholesterol values normal range mein hain aur aapka heart health risk bahut kam hai. Bas ek chhoti si cheez — LDL thoda sa target se upar hai, isliye healthy habits maintain karte rahiye."
+
+  ─── Error #30 ──────────────────────────────────────────────────
+  Report ID:    69f22e8ddfee6d7bb0fed750
+  File:         IMG_20260418_181824.jpg
+  Report Type:  Obstetric Ultrasound - First Trimester
+  Date:         29/4/2026
+
+  Parameter:    Right UT Artery RI
+  Stored Value: 0.78
+  DB Range:     0.2-0.70
+  Parsed Range: 0.2–0.7
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Uterus mein blood flow theek tarike se chal raha hai."
+  AI Action:      "Placental function sahi hai."
+
+  AI Report Summary:
+  "Shephali ji, aapka pehla trimester ultrasound bilkul normal hai! Baby ki growth sahi tareeke se ho rahi hai aur fetal heart beat 150/min perfect hai. Bas dhyan rakhiye ke aapke paas multiple fibroids hai, lekin baby safe hai — doctor se regular follow-up zaroor karwate rahiye."
+
+  ─── Error #31 ──────────────────────────────────────────────────
+  Report ID:    69f230d966bd9f25af50127b
+  File:         IMG_20250225_094630.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    Monocytes
+  Stored Value: 00
+  DB Range:     01-03
+  Parsed Range: 1–3
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Monocytes bilkul normal range mein hain."
+  AI Action:      "Sab theek hai."
+
+  AI Report Summary:
+  "Poonam ji, aapki blood report bilkul normal hai — hemoglobin, RBC, WBC sab theek range mein hain. Koi tension lene ki baat nahin hai, aap bilkul fit aur healthy hain!"
+
+  ─── Error #32 ──────────────────────────────────────────────────
+  Report ID:    69f23321b65636d390819b9c
+  File:         IMG-20260427-WA0022.jpeg
+  Report Type:  Complete Blood Count (Haematology Test Report)
+  Date:         29/4/2026
+
+  Parameter:    BASOPHILS
+  Stored Value: 00
+  DB Range:     1 - 6
+  Parsed Range: 1–6
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Basophils absent hain jo bilkul normal aur theek hai."
+  AI Action:      "Perfectly normal."
+
+  AI Report Summary:
+  "Rajkumari ji, aapka hemoglobin thoda low hai (10.1 GM%), jo anemia ka sign hai. Baaki blood counts bilkul normal range mein hain. Iron-rich diet leni chahiye aur doctor se follow-up zaroor karein."
+
+  ─── Error #33 ──────────────────────────────────────────────────
+  Report ID:    69f235e5b65636d390819c7a
+  File:         Dilip Narayanrao Bangale-Male60 years-232505 (2).pdf
+  Report Type:  Complete Blood Count, HbA1c, Vitamin B12, TSH
+  Date:         29/4/2026
+
+  Parameter:    Absolute Basophils Count
+  Stored Value: 0
+  DB Range:     0.02 - 0.10
+  Parsed Range: 0.02–0.1
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Basophil count zero hai jo normal hai."
+  AI Action:      "Theek hai."
+
+  AI Report Summary:
+  "Dilip ji, aapke report mein kayi zaruri values low hain jo dhyan dene wali hain. Hemoglobin, WBC, platelets aur Vitamin B12 sab thode kam hain — yeh anemia aur weakness ke signs hain. Jaldi se apne doctor se milke further tests karwane honge."
+
+  ─── Error #34 ──────────────────────────────────────────────────
+  Report ID:    69f2366fb65636d390819cc5
+  File:         IMG-20260429-WA0040.jpg
+  Report Type:  Complete Blood Count (Haemogram)
+  Date:         29/4/2026
+
+  Parameter:    Platelet Count
+  Stored Value: 1,51,000
+  Normalized:   100000  ← unit fix applied
+  DB Range:     150000 - 450000
+  Parsed Range: 150000–450000
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Platelets bilkul normal hain — blood clotting theek hai."
+  AI Action:      "Koi issue nahin — bilkul sahi hai."
+
+  AI Report Summary:
+  "Umrawati ji, aapka complete blood count report dekha — aapka hemoglobin thoda low hai (6.9), jo anemia ka ishara hai. Baki values mostly normal range mein hain, lekin hemoglobin ko dhyan dena zaruri hai."
+
+  ─── Error #35 ──────────────────────────────────────────────────
+  Report ID:    69f236e0b65636d390819ce4
+  File:         IMG-20260428-WA0031.jpg
+  Report Type:  Complete Blood Count (Haematology Report)
+  Date:         29/4/2026
+
+  Parameter:    Total W.B.C
+  Stored Value: 6,080
+  DB Range:     4000-10000
+  Parsed Range: 4000–10000
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "White blood cells bilkul normal hain — infection se body defend kar sakta hai."
+  AI Action:      "Koi tension nahi. Yeh theek hai."
+
+  AI Report Summary:
+  "Khairun ji, aapki blood report mostly normal hai. Hemoglobin, RBC, aur white blood cells sab theek hain. Sirf platelet count thoda high hai — iska matlab aapko blood clotting mein koi problem nahi hai, par isko monitor karna padega."
+
+  ─── Error #36 ──────────────────────────────────────────────────
+  Report ID:    69f23797848769cbe74004b9
+  File:         20250222_100306.jpg
+  Report Type:  Complete Blood Count (CBC)
+  Date:         29/4/2026
+
+  Parameter:    Hemoglobin (Hb)
+  Stored Value: 13.2
+  DB Range:     13.5-18.0 (M)
+  Parsed Range: 13.5–18
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Hemoglobin thoda borderline low side mein hai par practically normal hai."
+  AI Action:      "Koi alarm nahi, par iron-rich foods regularly lo taki yeh maintain rahe."
+
+  AI Report Summary:
+  "Roshan ji, aapki blood report bilkul normal hai. Hemoglobin, RBC, WBC, platelets sab kuch theek range mein hain. Aap bilkul healthy ho — koi ghabraahat ki baat nahi hai."
+
+  ─── Error #37 ──────────────────────────────────────────────────
+  Report ID:    69f23986848769cbe7400527
+  File:         IMG-20260429-WA0009.jpg
+  Report Type:  Complete Blood Count (CBC) - Hematology Report
+  Date:         29/4/2026
+
+  Parameter:    Absolute Basophils Count
+  Stored Value: 0
+  DB Range:     0.02 - 0.1
+  Parsed Range: 0.02–0.1
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Basophils count normal hai."
+  AI Action:      "Theek hai."
+
+  AI Report Summary:
+  "Brajraj ji, aapki complete blood count report bilkul normal hai. Sab values sahi range mein hain, koi ghabraaने ki baat nahi hai. Aap bilkul fit aur healthy hain."
+
+  ─── Error #38 ──────────────────────────────────────────────────
+  Report ID:    69f23a94c83b130d96906db5
+  File:         IMG-20260428-WA0008_20260428_153047.jpg
+  Report Type:  Blood Reports - Hemta / Biochemistry / Serology
+  Date:         29/4/2026
+
+  Parameter:    Serum Creatinine
+  Stored Value: 0.7
+  DB Range:     0.9 - 1.3 mg/dL
+  Parsed Range: 0.9–1.3
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Kidney function bilkul theek hai."
+  AI Action:      "Normal range mein hai, kahin issue nahin."
+
+  AI Report Summary:
+  "Vanshika ji, aapki report mein zyada sab kuch normal hai. Blood group B positive hai aur biochemistry values bilkul theek range mein hain. Sirf serum albumin thoda lower side par hai jo poshan se improve ho sakta hai."
+
+  ─── Error #39 ──────────────────────────────────────────────────
+  Report ID:    69f23b1dc83b130d96906dea
+  File:         MRS. SUMAN ANUP KUMAR YADAV.pdf
+  Report Type:  Comprehensive Health Checkup
+  Date:         29/4/2026
+
+  Parameter:    ANTI MULLERIAN HORMONE (AMH)
+  Stored Value: 5.75
+  DB Range:     20-24 years old: 1.135-11.46 ng/mL
+  Parsed Range: 20–24
+  AI Status:    normal  ← WRONG
+  Should Be:    low
+
+  AI Explanation: "Aapka ovarian reserve bilkul sahi hai — fertility bilkul theek hai."
+  AI Action:      "Bilkul normal, aapka reproductive health excellent hai."
+
+  AI Report Summary:
+  "Suman ji, aapki zyada tar reports normal ho gayi hain aur aap bilkul healthy ho. Lekin VDRL test mein positive aaya hai jo syphilis ke liye screening hai — isko confirm karne ke liye TPHA/FTA-ABS test zaroori hai. Aur creatinine thoda low side pe hai, isliye doctor se milkar confirm karwalo."
+
+  ─── Error #40 ──────────────────────────────────────────────────
+  Report ID:    69f23c60c83b130d96906e1e
+  File:         Report-HEMLAL-JHARIYA-28-Apr-2026.pdf
+  Report Type:  Complete Blood Count, Lipid Profile, Liver Function Test, Renal Function Test, Widal Test
+  Date:         29/4/2026
+
+  Parameter:    Alkaline Phosphatase
+  Stored Value: 75.1
+  DB Range:     13-60 Yrs: 53-128
+  Parsed Range: 13–60
+  AI Status:    normal  ← WRONG
+  Should Be:    high
+
+  AI Explanation: "Liver enzyme normal hai."
+  AI Action:      "Theek hai."
+
+  AI Report Summary:
+  "Hemlal ji, aapki report mein kuch abnormal findings hai jo dhyan dene laayak hain. Hemoglobin, RBC, aur Lymphocytes thode low hain, aur ESR aur Neutrophils thode high hain — yeh ek systemic inflammation ka sign ho sakta hai. Baki sab values bilkul normal hain, aur aapke cholesterol aur liver functio"
+
+  ... and 108 more in JSON file
+└──────────────────────────────────────────────────────┘
+
+┌─ MEDIUM ERRORS — FULL DETAIL ────────────────────────┐
+  ⚠️  AI said ABNORMAL but value was NORMAL
+  These cause unnecessary patient anxiety
+
+  ─── Error #1 ──────────────────────────────────────────────────
+  Report ID:    69f20327eeeebbde2147902c
+  File:         IMG-20260409-WA0011.jpg
+  Report Type:  Hematolology & Blood Chemistry with Urine Examination
+
+  Parameter:    Urine Pus Cells
+  Stored Value: 2-10
+  DB Range:     0-5
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Pus cells thoda high aayen to infection ka hint mil sakta hai."
+
+  ─── Error #2 ──────────────────────────────────────────────────
+  Report ID:    69f204d3eeeebbde2147903e
+  File:         17774686004962606106294863755448.jpg
+  Report Type:  Complete Blood Count (CBC) - Haematology
+
+  Parameter:    Platelet Count
+  Stored Value: 2,12,000
+  DB Range:     1.5-4.5
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Platelet count high hai — blood clotting capacity zyada ho gayi hai."
+
+  ─── Error #3 ──────────────────────────────────────────────────
+  Report ID:    69f20ae49675366bfb4fba07
+  File:         PdfText.pdf
+  Report Type:  Health Package 1.4 - Complete Health Check
+
+  Parameter:    SGOT/SGPT Ratio
+  Stored Value: 3
+  DB Range:     >2.0 suggests alcoholic liver disease
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "SGOT/SGPT ratio 3 hai jo alcoholic liver disease suggest karta hai."
+
+  ─── Error #4 ──────────────────────────────────────────────────
+  Report ID:    69f20c60eeeebbde21479096
+  File:         17774704775608946549212813644324.jpg
+  Report Type:  Complete Blood Count (CBC) + Liver Function Test
+
+  Parameter:    PCV
+  Stored Value: 53.5
+  DB Range:     40-54
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Red blood cells ka percentage thoda high hai — dehydration ya stress se ho sakta hai."
+
+  ─── Error #5 ──────────────────────────────────────────────────
+  Report ID:    69f2130b9675366bfb4fba72
+  File:         IMG_20260429_152621.jpg
+  Report Type:  Complete Blood Count (CBC) with Differential
+
+  Parameter:    Neutrophils Percentage
+  Stored Value: 69.6
+  DB Range:     50-70
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Neutrophil percentage thoda zyada hai, iska matlab infection se ladhne wale cells zyada aktiv ho sakte hain."
+
+  ─── Error #6 ──────────────────────────────────────────────────
+  Report ID:    69f21802012353dc49e73086
+  File:         17774734916028031843746806850205.jpg
+  Report Type:  Complete Blood Count (CBC)
+
+  Parameter:    PLATELET COUNT
+  Stored Value: 3,52,000
+  DB Range:     1.50-4.00 lac
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Platelet count thoda zyada hai — yeh infection ya inflammation se related ho sakta hai."
+
+  ─── Error #7 ──────────────────────────────────────────────────
+  Report ID:    69f21a52d08d319c8a60ce00
+  File:         IMG-20260416-WA0000.jpg
+  Report Type:  Hematology Report
+
+  Parameter:    Gran
+  Stored Value: 8.25
+  DB Range:     1.80-8.30
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Aapka neutrophil count thoda zyada hai, jo body mein inflammation indicate kar sakta hai."
+
+  ─── Error #8 ──────────────────────────────────────────────────
+  Report ID:    69f21e9ad98828acc0b2e804
+  File:         IMG20260426093854.jpg
+  Report Type:  Complete Blood Count (CBC)
+
+  Parameter:    Granulocytes (Gran#)
+  Stored Value: 7.5
+  DB Range:     2.0-7.5
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Granulocytes upper normal range par hain."
+
+  ─── Error #9 ──────────────────────────────────────────────────
+  Report ID:    69f21f28d08d319c8a60ce71
+  File:         image.jpg
+  Report Type:  Hematology (Complete Blood Count)
+
+  Parameter:    MCV (Mean Corpuscular Volume)
+  Stored Value: 100
+  DB Range:     80-100
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Red blood cells average mein thoda bade hain."
+
+  ─── Error #10 ──────────────────────────────────────────────────
+  Report ID:    69f21f8dd08d319c8a60ce81
+  File:         FATIMA-BEGUM-_2614164.pdf
+  Report Type:  Complete Health Checkup (Blood + Urine)
+
+  Parameter:    Platelet Count
+  Stored Value: 4.21
+  DB Range:     1.5 - 4.5
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Platelets thoda zyada hain, bleeding aur clotting se related."
+
+  ─── Error #11 ──────────────────────────────────────────────────
+  Report ID:    69f220e5d08d319c8a60cec0
+  File:         PRANABJYOTI BORO.pdf
+  Report Type:  Comprehensive Metabolic Panel + Parathyroid Hormone + Complete Blood Count
+
+  Parameter:    Phosphorus, Inorganic
+  Stored Value: 2.50
+  DB Range:     2.5-4.5
+  AI Status:    low  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Phosphorus thoda low hai — kidney disease se yeh hota hai."
+
+  ─── Error #12 ──────────────────────────────────────────────────
+  Report ID:    69f2223cd08d319c8a60cefd
+  File:         IMG_1123.png
+  Report Type:  Complete Blood Count (CBC) - Haematology
+
+  Parameter:    MONO%
+  Stored Value: 8.7
+  DB Range:     01-09
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Monocytes borderline high hain."
+
+  ─── Error #13 ──────────────────────────────────────────────────
+  Report ID:    69f22408d98828acc0b2e86a
+  File:         IMG_20260416_191927.jpg
+  Report Type:  Complete Blood Count (CBC)
+
+  Parameter:    PLATELET COUNT
+  Stored Value: 1.75
+  DB Range:     0 - 9
+  AI Status:    low  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Platelet count bohot low hai — blood clotting mein problem ho sakti hai."
+
+  ─── Error #14 ──────────────────────────────────────────────────
+  Report ID:    69f22412d98828acc0b2e86d
+  File:         inbound117395198812879085.pdf
+  Report Type:  Complete Blood Count + Haematology Examination + Widal Test
+
+  Parameter:    S. Typhi O
+  Stored Value: 1:160
+  DB Range:     < 1:80
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Typhoid O antigen zyada hai — past typhoid infection ho sakta hai."
+
+  ─── Error #15 ──────────────────────────────────────────────────
+  Report ID:    69f22794d98828acc0b2e8bc
+  File:         17774775026045481542484217404426.jpg
+  Report Type:  Complete Blood Count (CBC)
+
+  Parameter:    PCT (Plateletcrit)
+  Stored Value: 0.278
+  DB Range:     0.108-0.282
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Platelet volume slightly elevated hai."
+
+  ─── Error #16 ──────────────────────────────────────────────────
+  Report ID:    69f22868bb3e9125fd81845e
+  File:         IMG20260320181453.jpg
+  Report Type:  Blood Sugar (Random)
+
+  Parameter:    Blood Sugar (Random)
+  Stored Value: 100
+  DB Range:     70-100
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Aapka blood sugar normal limit se thoda zyada hai — diabetes ke taraf warning sign ho sakta hai."
+
+  ─── Error #17 ──────────────────────────────────────────────────
+  Report ID:    69f22dae66bd9f25af501220
+  File:         Screenshot_20260429-213828_Google.jpg
+  Report Type:  Dengue Test + Complete Blood Count
+
+  Parameter:    Anti Dengue (IgG)
+  Stored Value: 4.49
+  DB Range:     >1.1 positive, <0.8 negative
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Dengue virus ka purana infection indication deta hai — body ne pehle dengue se fight kiya tha."
+
+  ─── Error #18 ──────────────────────────────────────────────────
+  Report ID:    69f22dae66bd9f25af501220
+  File:         Screenshot_20260429-213828_Google.jpg
+  Report Type:  Dengue Test + Complete Blood Count
+
+  Parameter:    Anti Dengue (IgM)
+  Stored Value: 2.47
+  DB Range:     >1.1 positive, <0.8 negative
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "Yeh recent dengue infection indicate karta hai — abhi active hai."
+
+  ─── Error #19 ──────────────────────────────────────────────────
+  Report ID:    69f22faa66bd9f25af501264
+  File:         IMG-20260429-WA0030.jpg
+  Report Type:  Complete Blood Count (CBC)
+
+  Parameter:    WBC (White Blood Cells)
+  Stored Value: 10.0
+  DB Range:     4.5-11.0
+  AI Status:    high  ← Possibly wrong
+  Should Be:    normal
+
+  AI Explanation: "WBC thoda badhey hain jo infection ya inflammation ke karan ho sakta hai."
+
+  ─── Error #20 ──────────────────────────────────────────────────
+  Report ID:    69f2300edfee6d7bb0fed778
+  File:         Screenshot_20260429-213828_Google.jpg
+  Report Type:  Complete Blood Count (CBC)
+
+  Parameter:    Platelets
+  Stored Value: 36,234
+  Normalized:   3600000  ← unit fix applied
+  DB Range:     150000 - 400000
+  AI Status:    low  ← Possibly wrong
+  Should Be:    high
+
+  AI Explanation: "Platelets bahut kam hain, jo bleeding risk badha sakte hain."
+
+└──────────────────────────────────────────────────────┘
+
+┌─ ACCURACY BY REPORT TYPE ────────────────────────────┐
+  🔴 Complete Blood Count (CBC)
+     Reports: 362  Evaluated: 5025  Accuracy: 98.4%  Severe: 43  Medium: 37
+
+  🔴 Complete Blood Count
+     Reports: 75  Evaluated: 1121  Accuracy: 98.4%  Severe: 10  Medium: 8
+
+  🔴 Complete Blood Count (Haematology Report)
+     Reports: 4  Evaluated: 65  Accuracy: 87.7%  Severe: 7  Medium: 1
+
+  ⚠️  Liver Function Test
+     Reports: 30  Evaluated: 260  Accuracy: 97.7%  Severe: 5  Medium: 1
+
+  ⚠️  Liver Function Test (LFT)
+     Reports: 11  Evaluated: 116  Accuracy: 97.4%  Severe: 3  Medium: 0
+
+  ⚠️  Comprehensive Metabolic Panel with Lipi...
+     Reports: 2  Evaluated: 52  Accuracy: 94.2%  Severe: 3  Medium: 0
+
+  ⚠️  Complete Blood Count + Biochemistry
+     Reports: 2  Evaluated: 29  Accuracy: 89.7%  Severe: 3  Medium: 0
+
+  ⚠️  Complete Blood Count (CBC), Liver Funct...
+     Reports: 1  Evaluated: 38  Accuracy: 92.1%  Severe: 3  Medium: 0
+
+  ⚠️  Complete Blood Count (CBC) with Differe...
+     Reports: 21  Evaluated: 439  Accuracy: 98.6%  Severe: 2  Medium: 4
+
+  ⚠️  Biochemistry Panel
+     Reports: 10  Evaluated: 142  Accuracy: 97.9%  Severe: 2  Medium: 1
+
+  ⚠️  Complete Blood Count (Haemogram)
+     Reports: 5  Evaluated: 83  Accuracy: 97.6%  Severe: 2  Medium: 0
+
+  ⚠️  Biochemistry
+     Reports: 5  Evaluated: 63  Accuracy: 93.7%  Severe: 2  Medium: 2
+
+  ⚠️  Hematology - HD-SIC (CBC, S.E, RFTs, BC...
+     Reports: 1  Evaluated: 21  Accuracy: 90.5%  Severe: 2  Medium: 0
+
+  ⚠️  Haematology
+     Reports: 4  Evaluated: 30  Accuracy: 90.0%  Severe: 2  Medium: 1
+
+  ⚠️  TORCH 10 Profile (Immunology and Serology)
+     Reports: 1  Evaluated: 10  Accuracy: 80.0%  Severe: 2  Medium: 0
+
+  ⚠️  12-Lead Electrocardiogram (ECG)
+     Reports: 1  Evaluated: 8  Accuracy: 75.0%  Severe: 2  Medium: 0
+
+  ⚠️  Thyroid Profile with Ultra Sensitive TS...
+     Reports: 2  Evaluated: 15  Accuracy: 86.7%  Severe: 2  Medium: 0
+
+  ⚠️  Kidney Profile
+     Reports: 1  Evaluated: 6  Accuracy: 66.7%  Severe: 2  Medium: 0
+
+  ⚠️  Complete Blood Count, Biochemistry, Vir...
+     Reports: 1  Evaluated: 33  Accuracy: 93.9%  Severe: 2  Medium: 0
+
+  ⚠️  Complete Blood Count with Biochemistry
+     Reports: 2  Evaluated: 28  Accuracy: 92.9%  Severe: 2  Medium: 0
+
+└──────────────────────────────────────────────────────┘
+
+┌─ WHERE TO FIX healthPrompt.js ───────────────────────┐
+
+  🔴 ADD THIS RULE TO healthPrompt.js:
+  "Compare extracted value with reference_range.
+   If value is clearly outside range — status MUST be low/high.
+   NEVER say normal if value is outside its reference_range.
+   Ensure value and reference_range use the SAME unit."
+
+  Params to focus on:
+  → Platelet Count (9 errors)
+  → Eosinophils (6 errors)
+  → Creatinine (4 errors)
+  → Absolute Basophil Count (4 errors)
+  → Basophils (4 errors)
+  → MCV (3 errors)
+  → RBC (Red Blood Cells) (3 errors)
+  → RDW - CV (3 errors)
+
+  ⚠️  AI borderline values pe overreacting hai:
+  Add: "For values within 5% of reference_range boundary,
+        use borderline-high or borderline-low, not high/low"
+└──────────────────────────────────────────────────────┘
+
+═════════════════════════════════════════════════════════════════
+  FINAL ACCURACY: 98.04%
+  Evaluated: 15222 | Correct: 14924 | Wrong: 298
+  Severe: 148 | Medium: 150 | Unit fixes: 85
+═════════════════════════════════════════════════════════════════
