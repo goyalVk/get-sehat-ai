@@ -3,18 +3,15 @@ import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 
 const ChatWidget = dynamic(
-  () => import('@/components/chatWidget'),
-  { ssr: false }
+  () => import('@/components/chatWidget'),  // ← Capital C fix
+  { ssr: false, loading: () => null }
 )
 
 export default function ClientChatWidget() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMounted(true)
-    }, 3000)
-    return () => clearTimeout(timer)
+    setMounted(true)  // ← Delay hatao, turant load karo
   }, [])
 
   if (!mounted) return null

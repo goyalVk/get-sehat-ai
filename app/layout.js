@@ -158,6 +158,16 @@ export default function RootLayout({ children }) {
         <Navbar />
         {children}
         <Footer />
+        <div style={{
+        position: 'fixed',
+        bottom: 0, right: 0,
+        zIndex: 9999,
+        pointerEvents: 'none'  // ← Layout affect nahi karega
+      }}>
+        <div style={{ pointerEvents: 'auto' }}>
+          <ClientChatWidget />
+        </div>
+      </div>
         <ClientChatWidget />
       </body>
     </html>

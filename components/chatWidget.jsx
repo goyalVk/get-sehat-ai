@@ -1,296 +1,353 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+
+function AIText({ text }) {
+  const lines = text.split('\n')
+  return (
+    <div style={{ fontSize: 13, lineHeight: 1.75, color: '#1e293b', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      {lines.map((line, i) => {
+        if (!line.trim()) return <div key={i} style={{ height: 5 }} />
+
+        if (/^[🌿🥗🚨💊🔴🟡🟢⚕️🛒⚠️📸🏥❤️💡✅🌱]/.test(line)) {
+          return <div key={i} style={{ fontWeight: 700, fontSize: 12.5, color: '#0f766e', marginTop: 8, marginBottom: 2 }}>{line}</div>
+        }
+
+        if (/^[-•→*]/.test(line.trim())) {
+          return (
+            <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 3, alignItems: 'flex-start' }}>
+              <span style={{ color: '#0d9488', fontWeight: 800, flexShrink: 0, fontSize: 14, lineHeight: 1.4 }}>·</span>
+              <span style={{ color: '#334155' }}>{line.replace(/^[-•→*]\s*/, '')}</span>
+            </div>
+          )
+        }
+
+        return <div key={i} style={{ color: '#475569', marginBottom: 1 }}>{line}</div>
+      })}
+    </div>
+  )
+}
+
+const SUGGESTIONS = [
+  '🤒 Bukhaar ka gharelu ilaj?',
+  '💊 Dolo 650 kya hai?',
+  '🌿 BP ke liye herbs?',
+]
 
 export default function ChatWidget() {
-  const [open, setOpen]           = useState(false)
-  const [messages, setMessages]   = useState([])
-  const [input, setInput]         = useState('')
-  const [loading, setLoading]     = useState(false)
-  const bottomRef                 = useRef(null)
+  const [open, setOpen]         = useState(false)
+  const [messages, setMessages] = useState([])
+  const [input, setInput]       = useState('')
+  const [image, setImage]       = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [unread, setUnread]     = useState(0)
+  const bottomRef               = useRef(null)
+  const inputRef                = useRef(null)
+  const fileInputRef            = useRef(null)
+  const isFirstMount            = useRef(true)
 
   useEffect(() => {
     if (open && messages.length === 0) {
       setMessages([{
         role: 'assistant',
-        text: 'Namaste! 🙏\n\nKoi bhi medicine ke baare mein poochho — dose, side effects, interactions.\n\nHindi ya English — dono chalega!'
+        text: 'Namaste! 🙏 Health ya medicine se related koi bhi sawaal poochho.\n\n💊 Medicine info\n🤒 Symptoms aur herbs\n📸 Medicine photo bhi bhej sakte ho\n\nMain help karne ke liye hoon!'
       }])
+      setUnread(0)
+    }
+    if (open) {
+      setUnread(0)
+      setTimeout(() => inputRef.current?.focus(), 200)
     }
   }, [open])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, loading])
+    if (isFirstMount.current) { isFirstMount.current = false; return }
+    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80)
+  }, [messages.length, loading])
 
- const send = async () => {
-  if (!input.trim() || loading) return
-  const userText = input.trim()
-  setMessages(prev => [...prev, { role: 'user', text: userText }])
-  setInput('')
-  setLoading(true)
-
-  try {
-    const history = messages.slice(-4).map(m => ({ role: m.role, content: m.text }))
-    const formData = new FormData()
-    formData.append('message', userText)
-    formData.append('history', JSON.stringify(history))
-
-    const res = await fetch('/api/chat', { method: 'POST', body: formData })
-
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}))
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        text: errData.reply || 'Dobara try karo. 🙏'
-      }])
-      return
+  useEffect(() => {
+    const lastMsg = messages[messages.length - 1]
+    if (!open && lastMsg?.role === 'assistant' && messages.length > 1) {
+      setUnread(u => u + 1)
     }
+  }, [messages.length])
 
-    // Streaming
-    const reader  = res.body.getReader()
-    const decoder = new TextDecoder()
-    let   fullText = ''
+  const handleImage = useCallback((f) => {
+    if (!f || !f.type.startsWith('image/')) return
+    if (f.size > 5 * 1024 * 1024) { alert('5MB se chhoti image upload karo'); return }
+    setImage(f)
+    setImagePreview(URL.createObjectURL(f))
+    inputRef.current?.focus()
+  }, [])
 
-    setMessages(prev => [...prev, { role: 'assistant', text: '' }])
+  const send = useCallback(async (overrideText) => {
+    const text = (overrideText !== undefined ? overrideText : input).trim()
+    if ((!text && !image) || loading) return
 
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      fullText += decoder.decode(value, { stream: true })
-      setMessages(prev => {
-        const updated = [...prev]
-        updated[updated.length - 1] = { role: 'assistant', text: fullText }
-        return updated
-      })
+    const displayText = text || 'Is medicine ke baare mein batao'
+    setMessages(prev => [...prev, { role: 'user', text: displayText, imagePreview }])
+    setInput('')
+    const sentImage = image
+    setImage(null)
+    setImagePreview(null)
+    setLoading(true)
+
+    try {
+      const history = messages.slice(-4).map(m => ({ role: m.role, content: m.text }))
+      const fd = new FormData()
+      fd.append('message', displayText)
+      fd.append('history', JSON.stringify(history))
+      if (sentImage) fd.append('image', sentImage)
+
+      const res = await fetch('/api/chat', { method: 'POST', body: fd })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        setMessages(prev => [...prev, { role: 'assistant', text: err.reply || 'Dobara try karo. 🙏' }])
+        return
+      }
+
+      const reader  = res.body.getReader()
+      const decoder = new TextDecoder()
+      let full = ''
+      setMessages(prev => [...prev, { role: 'assistant', text: '' }])
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        full += decoder.decode(value, { stream: true })
+        setMessages(prev => {
+          const u = [...prev]
+          u[u.length - 1] = { role: 'assistant', text: full }
+          return u
+        })
+      }
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', text: 'Network error. Dobara try karo. 🙏' }])
+    } finally {
+      setLoading(false)
     }
+  }, [input, image, imagePreview, loading, messages])
 
-  } catch (err) {
-    console.error('Widget chat error:', err)
-    setMessages(prev => [...prev, { role: 'assistant', text: 'Dobara try karo. 🙏' }])
-  } finally {
-    setLoading(false)
-  }
-}
+  const isActive = (input.trim().length > 0 || !!image) && !loading
 
   return (
     <>
       <style>{`
-        @keyframes widgetPulse {
-          0%,100% { box-shadow: 0 4px 20px rgba(13,148,136,0.4); }
-          50%      { box-shadow: 0 4px 30px rgba(13,148,136,0.7); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @keyframes wPulse { 0%,100%{box-shadow:0 4px 20px rgba(13,148,136,.4)}50%{box-shadow:0 4px 32px rgba(13,148,136,.7)} }
+        @keyframes wOpen  { from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)} }
+        @keyframes wDot   { 0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1.1)} }
+        @keyframes wSpin  { to{transform:rotate(360deg)} }
+        @keyframes wBadge { from{transform:scale(0)}to{transform:scale(1)} }
+        .wchip:hover { background:#f0fdfa!important;border-color:#0d9488!important;color:#0d9488!important; }
+        .wcam:hover  { border-color:#0d9488!important;background:#f0fdfa!important; }
+        .wsend-on:hover { transform:translateY(-1px)!important;box-shadow:0 5px 14px rgba(13,148,136,.4)!important; }
+        .wfab-btn:hover  { transform:scale(1.08)!important; }
+        .wchat-msgs::-webkit-scrollbar { width:3px }
+        .wchat-msgs::-webkit-scrollbar-thumb { background:#b2dfdb;border-radius:2px }
+        @media (max-width: 768px) {
+          .wfab-btn { display: none !important; }
+          .wchat-box { display: none !important; }
         }
-        @keyframes widgetFadeIn {
-          from { opacity:0; transform:translateY(16px) scale(0.95); }
-          to   { opacity:1; transform:translateY(0) scale(1); }
-        }
-        @keyframes spin { to { transform:rotate(360deg) } }
-        @keyframes dot  {
-          0%,100% { opacity:0.3; transform:scale(0.8); }
-          50%     { opacity:1;   transform:scale(1.2); }
-        }
-        .widget-input:focus { border-color:#0d9488!important; outline:none; }
-        .widget-send:hover  { background:#0f766e!important; }
-        .widget-close:hover { opacity:0.8; }
       `}</style>
 
-      {/* WhatsApp Support — bottom left */}
-      
-        {/* <a 
-        href="https://wa.me/918076170877?text=Namaste%20Sehat24!%20Mujhe%20help%20chahiye."
-        target="_blank"
-        rel="noopener noreferrer"
-        title="WhatsApp Support"
-        style={{
-          position: 'fixed', bottom: 24, left: 24, zIndex: 9998,
-          width: 52, height: 52, borderRadius: '50%',
-          background: '#25d366',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 24, textDecoration: 'none',
-          boxShadow: '0 4px 20px rgba(37,211,102,0.4)',
-          transition: 'all 0.2s'
-        }}
-      >
-        💬
-      </a> */}
+      {/* ── Hidden file input ── */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={e => { handleImage(e.target.files[0]); e.target.value = '' }}
+      />
 
-      {/* 💊 Medicine Chat Button — bottom right */}
+      {/* ── FAB Button ── */}
       <button
-        onClick={() => setOpen(!open)}
-        title="Medicine AI Chat"
+        className="wfab-btn"
+        onClick={() => setOpen(o => !o)}
+        title="Health Assistant"
         style={{
-          position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
-          width: 60, height: 60, borderRadius: '50%',
+          position: 'fixed', bottom: 20, right: 20, zIndex: 9999,
+          width: 58, height: 58, borderRadius: '50%', border: 'none',
           background: 'linear-gradient(135deg, #0d9488, #0891b2)',
-          border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 26,
-          animation: !open ? 'widgetPulse 2.5s ease-in-out infinite' : 'none',
-          boxShadow: '0 4px 20px rgba(13,148,136,0.4)',
-          transition: 'all 0.2s'
+          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 24, transition: 'all .2s',
+          boxShadow: '0 4px 20px rgba(13,148,136,.4)',
+          animation: !open ? 'wPulse 2.5s ease-in-out infinite' : 'none',
         }}
       >
-        {open ? (
-          <span style={{ color: 'white', fontSize: 20, fontWeight: 700 }}>✕</span>
-        ) : '💊'}
+        {open
+          ? <span style={{ color: 'white', fontSize: 18, fontWeight: 800 }}>✕</span>
+          : <>
+              <span>💊</span>
+              {unread > 0 && (
+                <div style={{
+                  position: 'absolute', top: -4, right: -4,
+                  width: 20, height: 20, borderRadius: '50%',
+                  background: '#ef4444', color: 'white',
+                  fontSize: 10, fontWeight: 800,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: '2px solid white', animation: 'wBadge .2s ease both'
+                }}>{unread}</div>
+              )}
+            </>
+        }
       </button>
 
-      {/* Chat Window */}
+      {/* ── Chat Window ── */}
       {open && (
         <div style={{
-          position: 'fixed', bottom: 96, right: 24, zIndex: 9998,
-          width: 340, height: 490,
-          background: 'white', borderRadius: 20,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
-          border: '1px solid #f1f5f9',
+          position: 'fixed', bottom: 90, right: 20, zIndex: 9998,
+          width: 340, height: 510,
+          background: 'white', borderRadius: 22,
+          boxShadow: '0 24px 64px rgba(0,0,0,.14)',
+          border: '1px solid #e8f5f3',
           display: 'flex', flexDirection: 'column',
-          animation: 'widgetFadeIn 0.25s ease forwards',
+          animation: 'wOpen .24s cubic-bezier(.34,1.56,.64,1) forwards',
           fontFamily: "'Plus Jakarta Sans', sans-serif",
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}>
 
           {/* Header */}
-          <div style={{
-            background: 'linear-gradient(135deg, #0d9488, #0891b2)',
-            padding: '14px 16px',
-            display: 'flex', alignItems: 'center', gap: 10,
-            flexShrink: 0
-          }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: 10,
-              background: 'rgba(255,255,255,0.2)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 18, flexShrink: 0
-            }}>💊</div>
-            <div style={{ flex: 1 }}>
-              <p style={{ color: 'white', fontWeight: 700, fontSize: 14, margin: 0 }}>Medicine AI</p>
-              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, margin: 0 }}>● Online — Free</p>
+          <div style={{ background: 'linear-gradient(135deg, #0d9488, #0891b2)', padding: '13px 14px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0 }}>🏥</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ color: 'white', fontWeight: 800, fontSize: 13.5 }}>Health Assistant</div>
+              <div style={{ color: 'rgba(255,255,255,.75)', fontSize: 11, display: 'flex', alignItems: 'center', gap: 5, marginTop: 1 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
+                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>Online · Medicine · Herbs</span>
+              </div>
             </div>
-            <a href="/chat" style={{
-              color: 'rgba(255,255,255,0.85)', fontSize: 11,
-              textDecoration: 'none',
-              background: 'rgba(255,255,255,0.15)',
-              padding: '4px 10px', borderRadius: 8,
-              fontWeight: 600, flexShrink: 0
-            }}>
+            <a href="/chat" style={{ color: 'rgba(255,255,255,.9)', fontSize: 11, textDecoration: 'none', background: 'rgba(255,255,255,.15)', padding: '4px 10px', borderRadius: 8, fontWeight: 700, flexShrink: 0, whiteSpace: 'nowrap' }}>
               Full Chat →
             </a>
           </div>
 
           {/* Messages */}
-          <div style={{
-            flex: 1, overflowY: 'auto',
-            padding: '14px', display: 'flex',
-            flexDirection: 'column', gap: 10
-          }}>
+          <div className="wchat-msgs" style={{ flex: 1, overflowY: 'auto', padding: '14px 12px 8px', display: 'flex', flexDirection: 'column', background: '#f8fffe' }}>
             {messages.map((msg, i) => (
-              <div key={i} style={{
-                display: 'flex',
-                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
-              }}>
-                <div style={{
-                  maxWidth: '83%',
-                  background: msg.role === 'user' ? '#0d9488' : '#f8fafc',
-                  color: msg.role === 'user' ? 'white' : '#0f172a',
-                  border: msg.role === 'user' ? 'none' : '1px solid #f1f5f9',
-                  borderRadius: msg.role === 'user'
-                    ? '14px 14px 3px 14px'
-                    : '14px 14px 14px 3px',
-                  padding: '10px 13px',
-                  fontSize: 13, lineHeight: 1.6,
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {msg.text}
-                </div>
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start', marginBottom: 10 }}>
+                {msg.imagePreview && (
+                  <img src={msg.imagePreview} alt="upload"
+                    style={{ width: 120, height: 90, objectFit: 'cover', borderRadius: 10, border: '2px solid #0d9488', marginBottom: 6 }}
+                  />
+                )}
+                {msg.role === 'user'
+                  ? (
+                    <div style={{ maxWidth: '82%', padding: '9px 13px', background: 'linear-gradient(135deg, #0d9488, #0891b2)', color: 'white', borderRadius: '16px 16px 3px 16px', fontSize: 13, lineHeight: 1.55, fontWeight: 500, boxShadow: '0 2px 8px rgba(13,148,136,.25)' }}>
+                      {msg.text}
+                    </div>
+                  )
+                  : (
+                    <div style={{ maxWidth: '88%', padding: '10px 13px', background: 'white', border: '1px solid #ddf0ee', borderRadius: '3px 16px 16px 16px', boxShadow: '0 1px 6px rgba(0,0,0,.05)' }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: '#0d9488', letterSpacing: '.05em', textTransform: 'uppercase', marginBottom: 4 }}>🏥 Sehat24</div>
+                      <AIText text={msg.text} />
+                    </div>
+                  )
+                }
               </div>
             ))}
 
-            {/* Loading dots */}
+            {/* Typing */}
             {loading && (
-              <div style={{ display: 'flex' }}>
-                <div style={{
-                  background: '#f8fafc', border: '1px solid #f1f5f9',
-                  borderRadius: '14px 14px 14px 3px',
-                  padding: '10px 14px', display: 'flex', gap: 5, alignItems: 'center'
-                }}>
-                  {[0, 1, 2].map(i => (
-                    <div key={i} style={{
-                      width: 7, height: 7, borderRadius: '50%',
-                      background: '#0d9488',
-                      animation: `dot 1.2s ease-in-out ${i * 0.2}s infinite`
-                    }} />
-                  ))}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: 10 }}>
+                <div style={{ padding: '10px 14px', background: 'white', border: '1px solid #ddf0ee', borderRadius: '3px 16px 16px 16px', boxShadow: '0 1px 6px rgba(0,0,0,.05)' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#0d9488', textTransform: 'uppercase', marginBottom: 4 }}>🏥 Sehat24</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {[0,1,2].map(j => (
+                      <div key={j} style={{ width: 7, height: 7, borderRadius: '50%', background: '#0d9488', animation: `wDot 1.3s ease ${j*.18}s infinite` }} />
+                    ))}
+                    <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 6, fontStyle: 'italic' }}>Soch raha hoon...</span>
+                  </div>
                 </div>
               </div>
             )}
+
+            {/* Suggestions */}
+            {messages.length === 1 && !loading && (
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                {SUGGESTIONS.map((s, i) => (
+                  <button key={i} className="wchip" onClick={() => send(s)}
+                    style={{ background: 'white', border: '1px solid #ddf0ee', borderRadius: 16, padding: '5px 11px', fontSize: 11.5, fontWeight: 600, color: '#334155', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans', sans-serif", transition: 'all .14s', whiteSpace: 'nowrap' }}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div ref={bottomRef} />
           </div>
 
-          {/* Suggestions — only on first message */}
-          {messages.length === 1 && (
-            <div style={{ padding: '0 14px 10px', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {[
-                'Paracetamol dose?',
-                'Metformin side effects?',
-                'Azithromycin kya hai?',
-              ].map((s, i) => (
-                <button key={i} onClick={() => { setInput(s); }} style={{
-                  background: '#f0fdfa', border: '1px solid #99f6e4',
-                  borderRadius: 20, padding: '5px 12px',
-                  fontSize: 11, color: '#0d9488', cursor: 'pointer',
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontWeight: 600, whiteSpace: 'nowrap'
-                }}>
-                  {s}
-                </button>
-              ))}
+          {/* Image preview */}
+          {imagePreview && (
+            <div style={{ background: '#f0fdf9', borderTop: '1px solid #a7f3d0', padding: '7px 12px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+              <img src={imagePreview} alt="preview" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 8, border: '2px solid #0d9488', flexShrink: 0 }} />
+              <span style={{ fontSize: 11.5, color: '#0f766e', fontWeight: 600, flex: 1 }}>📸 Photo ready — sawaal likhke bhejo</span>
+              <button onClick={() => { setImage(null); setImagePreview(null) }}
+                style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 16, padding: '0 4px', fontWeight: 700 }}>×</button>
             </div>
           )}
 
           {/* Input */}
-          <div style={{
-            padding: '10px 12px',
-            borderTop: '1px solid #f1f5f9',
-            display: 'flex', gap: 8, alignItems: 'center',
-            flexShrink: 0
-          }}>
-            <input
-              className="widget-input"
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-              placeholder="Medicine ka naam poochho..."
-              style={{
-                flex: 1, border: '1px solid #e2e8f0', borderRadius: 10,
-                padding: '10px 12px', fontSize: 13,
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                background: '#f8fafc', color: '#0f172a',
-                transition: 'border-color 0.2s'
-              }}
-            />
-            <button
-              className="widget-send"
-              onClick={send}
-              disabled={loading || !input.trim()}
-              style={{
-                width: 38, height: 38, borderRadius: 10,
-                background: input.trim() && !loading ? '#0d9488' : '#f1f5f9',
-                border: 'none',
-                cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0, transition: 'all 0.2s'
-              }}
-            >
-              {loading
-                ? <div style={{ width: 14, height: 14, border: '2px solid #0d9488', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                : <span style={{ color: input.trim() ? 'white' : '#94a3b8', fontSize: 16, lineHeight: 1 }}>↑</span>
-              }
-            </button>
-          </div>
+          <div style={{ padding: '10px 12px', borderTop: '1px solid #e8f5f3', background: 'white', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
 
-          {/* Disclaimer */}
-          <div style={{ padding: '6px 12px 10px', textAlign: 'center', flexShrink: 0 }}>
-            <p style={{ fontSize: 10, color: '#cbd5e1', margin: 0 }}>
-              Educational only. Doctor se zaroor milein.
-            </p>
+              {/* Camera button — div with onClick */}
+              <div
+                className="wcam"
+                onClick={() => fileInputRef.current?.click()}
+                title="Medicine photo upload karo"
+                style={{
+                  width: 38, height: 38, borderRadius: 10,
+                  border: '1.5px solid #e2eeec', background: 'white',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 18, cursor: 'pointer', flexShrink: 0,
+                  transition: 'all .18s', userSelect: 'none',
+                }}
+              >
+                📷
+              </div>
+
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); send() } }}
+                placeholder="Medicine ya health sawaal..."
+                style={{
+                  flex: 1, border: '1.5px solid #dde8e6', borderRadius: 12,
+                  padding: '10px 13px', fontSize: 13, fontWeight: 500,
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  background: '#fafefe', color: '#1e293b',
+                  transition: 'all .18s', outline: 'none',
+                }}
+                onFocus={e => { e.target.style.borderColor = '#0d9488'; e.target.style.boxShadow = '0 0 0 3px rgba(13,148,136,.08)'; e.target.style.background = 'white' }}
+                onBlur={e => { e.target.style.borderColor = '#dde8e6'; e.target.style.boxShadow = 'none'; e.target.style.background = '#fafefe' }}
+              />
+
+              <div
+                className={isActive ? 'wsend-on' : ''}
+                onClick={() => { if (isActive) send() }}
+                style={{
+                  width: 38, height: 38, borderRadius: 11,
+                  background: isActive ? 'linear-gradient(135deg, #0d9488, #0891b2)' : '#f1f5f9',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 15, fontWeight: 800, flexShrink: 0,
+                  cursor: isActive ? 'pointer' : 'not-allowed',
+                  color: isActive ? 'white' : '#cbd5e1',
+                  transition: 'all .18s',
+                  boxShadow: isActive ? '0 3px 10px rgba(13,148,136,.3)' : 'none',
+                  userSelect: 'none',
+                }}
+              >
+                {loading
+                  ? <div style={{ width: 14, height: 14, border: '2.5px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'wSpin .7s linear infinite' }} />
+                  : '↑'
+                }
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', marginTop: 6 }}>
+              <span style={{ fontSize: 10, color: '#b0c4c0', fontWeight: 500 }}>⚕️ Educational only · Doctor se zaroor milein</span>
+            </div>
           </div>
         </div>
       )}
