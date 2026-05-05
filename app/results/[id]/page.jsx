@@ -175,11 +175,45 @@ export default async function ResultsPage({ params }) {
           )}
 
           {/* ── AI Summary ── */}
-          <div className="fade-up" style={{ background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 20, padding: 28, marginBottom: 24, animationDelay: '0.1s', position: 'relative', overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(13,148,136,0.06)' }} />
-            <p style={{ fontSize: 11, color: '#0d9488', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>AI Summary</p>
+        <div className="fade-up" style={{ background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 20, padding: 28, marginBottom: 24, animationDelay: '0.1s', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(13,148,136,0.06)' }} />
+          <p style={{ fontSize: 11, color: '#0d9488', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>AI Summary</p>
+          {result.summary && result.summary.length > 20 ? (
             <p style={{ fontSize: 15, color: '#134e4a', lineHeight: 1.75, fontWeight: 500 }}>{result.summary}</p>
-          </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '8px 0' }}>
+              <p style={{ fontSize: 22, marginBottom: 8 }}>🤖</p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>
+                Aapki report bahut detailed hai!
+              </p>
+              <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.7, marginBottom: 6 }}>
+                Main free mein itna hi kar sakta hoon — 
+                aapki report meri free limit se badi hai. 
+                <strong> Neeche saare parameters dikh rahe hain.</strong>
+              </p>
+              <p style={{ fontSize: 13, color: '#0d9488', fontWeight: 600, marginBottom: 16 }}>
+                Pro mein meri limit badh jaati hai — 
+                wahan aapko poori summary, lifestyle tips 
+                aur ayurvedic suggestions bhi dunga 😊
+              </p>
+
+          <a href="/upgrade"
+          style={{
+            display: 'inline-block',
+            background: '#0d9488',
+            color: 'white',
+            padding: '12px 28px',
+            borderRadius: 12,
+            textDecoration: 'none',
+            fontSize: 14,
+            fontWeight: 700
+          }}
+        >
+          Pro lo sirf ₹199/month →
+        </a>
+            </div>
+          )}
+        </div>
 
           {/* ── Parameters ── */}
           <div className="fade-up" style={{ marginBottom: 24, animationDelay: '0.15s' }}>

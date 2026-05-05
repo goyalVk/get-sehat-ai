@@ -13,7 +13,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 // ── Model config ──────────────────────────────────────
 const HAIKU_MODEL   = 'claude-haiku-4-5-20251001'
 const SONNET_MODEL  = 'claude-sonnet-4-5'
-const FREE_MAX_SIZE = 4 * 1024 * 1024   // 4MB — free users
+const FREE_MAX_SIZE = 10 * 1024 * 1024   // 10MB — free users
 const PRO_MAX_SIZE  = 20 * 1024 * 1024  // 20MB — pro users
 
 // ── Non-medical filenames (module level) ─────────────
@@ -252,7 +252,7 @@ export async function POST(req) {
     if (user) {
       if (user.plan === 'free' && user.reportsUsed >= user.reportsLimit) {
         return NextResponse.json({
-          error:        'Aapki 1 free report use ho gayi 🙏 Pro upgrade karo — unlimited reports lo!',
+          error:        'Aapki free report use ho gayi 🙏 Pro upgrade karo — unlimited reports lo!',
           limitReached: true,
           upgradeUrl:   'https://rzp.io/rzp/f5GzI7Qj'
         }, { status: 403 })
@@ -410,12 +410,16 @@ export async function POST(req) {
     }
 
     const userMessage = err.message.includes('bahut badi')
-      ? err.message
-      : err.message.includes('JSON repair failed')
-      ? 'Report analyze nahi ho saki — dobara try karo 🙏'
-      : err.message.includes('Could not process')
-      ? 'Report clearly visible nahi hai — better quality image upload karo 🙏'
-      : 'Kuch gadbad hui — thodi der baad try karo 🙏'
+  ? err.message
+  : err.message.includes('JSON repair failed')
+  ? 'Report samajh nahi aayi — clearer photo ya PDF upload karo 🙏'
+  : err.message.includes('Could not process')
+  ? 'Photo clear nahi hai — achhi roshni mein dobara photo lo 🙏'
+  : err.message.includes('timeout') || err.message.includes('ETIMEDOUT')
+  ? 'Server busy hai — thodi der baad try karo 🙏'
+  : err.message.includes('ECONNRESET') || err.message.includes('fetch failed')
+  ? 'Internet connection check karo aur dobara try karo 🙏'
+  : 'Kuch problem aayi — report dobara upload karo 🙏'
 
     return NextResponse.json(
       { error: userMessage },

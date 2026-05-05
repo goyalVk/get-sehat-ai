@@ -79,7 +79,7 @@ export default function UploadPage() {
           setLoading(false)
           return
         }
-        setError(data.error || 'Kuch gadbad ho gayi. Dobara try karo.')
+        setError(data.error || 'Kuch problem aayi — report dobara upload karo 🙏')
         setLoading(false)
         return
       }
@@ -94,9 +94,15 @@ export default function UploadPage() {
       setLoadingMsg('Ho gaya! Results load ho rahe hain...')
       router.push(`/results/${data.reportId}`)
     } catch (err) {
-      setError('PDF bahut badi hai — 5MB se kam rakho ya photo upload karo 🙏')
-      setLoading(false)
-    }
+        if (err.message?.includes('timeout') || err.message?.includes('ETIMEDOUT')) {
+          setError('Server busy hai — thodi der baad try karo 🙏')
+        } else if (err.message?.includes('fetch') || err.message?.includes('network')) {
+          setError('Internet connection check karo aur dobara try karo 🙏')
+        } else {
+          setError('Kuch problem aayi — report dobara upload karo 🙏')
+        }
+        setLoading(false)
+      }
   }
 
   return (

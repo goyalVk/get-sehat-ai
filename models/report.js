@@ -110,5 +110,7 @@ ReportSchema.index({ userId: 1, reportType: 1, createdAt: -1 })
 ReportSchema.index({ sessionId: 1, createdAt: -1 })
 ReportSchema.index({ reportHash: 1 })
 ReportSchema.index({ 'patient.name': 1 })
+ReportSchema.index({ anonId: 1, createdAt: -1 })
+ReportSchema.index({ status: 1, createdAt: -1 })
 
 export default mongoose.models.Report || mongoose.model('Report', ReportSchema)
