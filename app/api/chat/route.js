@@ -1,6 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { connectDB } from '@/lib/mongodb'
+import User from '@/models/user'
+import ChatLog from '@/models/chatlogs'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -198,10 +201,14 @@ ALWAYS end response with one of:
 
 export async function POST(req) {
   try {
-    const formData = await req.formData()
-    const message  = formData.get('message')?.toString().trim()
-    const image    = formData.get('image')
-    const history  = JSON.parse(formData.get('history') || '[]')
+    await connectDB()
+
+    const formData  = await req.formData()
+    const message   = formData.get('message')?.toString().trim()
+    const image     = formData.get('image')
+    const history   = JSON.parse(formData.get('history') || '[]')
+    const anonId    = formData.get('anonId')?.toString()  || null
+    const sessionId = formData.get('sessionId')?.toString() || crypto.randomUUID()
 
     if (!message && !image) {
       return NextResponse.json({ error: 'Message required' }, { status: 400 })
@@ -209,10 +216,10 @@ export async function POST(req) {
 
     // ── Rate limit ────────────────────────────────────
     const cookieStore = await cookies()
-    const userId      = cookieStore.get('userId')?.value
-    const forwarded   = req.headers.get('x-forwarded-for')
-    const ip          = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
-    const identifier  = userId || ip
+    const cookieUserId = cookieStore.get('userId')?.value
+    const forwarded    = req.headers.get('x-forwarded-for')
+    const ip           = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
+    const identifier   = cookieUserId || ip
 
     if (!checkRateLimit(identifier)) {
       return NextResponse.json({
@@ -220,6 +227,9 @@ export async function POST(req) {
         limitReached: true
       }, { status: 429 })
     }
+
+    // ── User lookup ───────────────────────────────────
+    const userDoc = cookieUserId ? await User.findById(cookieUserId).lean() : null
 
     // ── Conversation history ──────────────────────────
     const recentHistory = history
@@ -261,6 +271,16 @@ export async function POST(req) {
       ...recentHistory,
       { role: 'user', content: userContent }
     ]
+
+    // ── Save user message ─────────────────────────────
+    ChatLog.create({
+      userId:    userDoc?._id || null,
+      anonId,
+      sessionId,
+      role:      'user',
+      message:   message || 'Is medicine ke baare mein batao',
+      chatType:  'medicine',
+    }).catch(e => console.error('ChatLog user save error:', e.message))
 
     // ── Stream response ───────────────────────────────
     const stream = await anthropic.messages.stream({

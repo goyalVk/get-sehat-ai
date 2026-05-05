@@ -1,5 +1,6 @@
 'use client'
 import { useState, useRef } from 'react'
+import { events } from '@/components/Analytics'
 
 export default function DownloadButton({ report, result }) {
   const [loading, setLoading] = useState(null)
@@ -218,7 +219,7 @@ export default function DownloadButton({ report, result }) {
       {/* ── 2 Buttons ── */}
       <div style={{ display: 'flex', gap: 10 }}>
         <button
-          onClick={() => generatePDF(fullRef, 'full')}
+          onClick={() => { events.pdfDownload('full'); generatePDF(fullRef, 'full') }}
           disabled={loading !== null}
           style={{
             flex: 1, padding: '14px', borderRadius: 14,
@@ -237,7 +238,7 @@ export default function DownloadButton({ report, result }) {
         </button>
 
         <button
-          onClick={() => generatePDF(doctorRef, 'doctor')}
+          onClick={() => { events.pdfDownload('doctor'); generatePDF(doctorRef, 'doctor') }}
           disabled={loading !== null}
           style={{
             flex: 1, padding: '14px', borderRadius: 14,

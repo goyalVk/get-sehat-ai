@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { events } from '@/components/Analytics'
 import AnalyzingLoader from '@/components/AnalyzingLoader'
+import { isReturningUser, incrementUploadCount, getUploadCount } from '@/utils/anonId'
 
 export default function UploadPage() {
   const router = useRouter()
@@ -83,6 +84,13 @@ export default function UploadPage() {
         return
       }
       events.reportAnalyzed(data.reportType || 'unknown')
+      const returning = isReturningUser()
+      const uploadNumber = getUploadCount() + 1
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'analysis_complete', { is_returning: returning, upload_number: uploadNumber })
+        if (returning) window.gtag('event', 'returning_user_upload')
+      }
+      incrementUploadCount()
       setLoadingMsg('Ho gaya! Results load ho rahe hain...')
       router.push(`/results/${data.reportId}`)
     } catch (err) {

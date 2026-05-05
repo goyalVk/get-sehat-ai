@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"d:\\\\office\\\\self-work\\\\sehat24\\\\getsehat\\\\app\" -Force)",
+      "Bash(Select-Object Name)",
+      "Bash(Get-ChildItem -Path \"d:\\\\office\\\\self-work\\\\sehat24\\\\getsehat\" -Recurse -Filter \"*.jsx\" -o \"*.js\")",
+      "Bash(Select-Object -ExpandProperty FullName)"
+    ]
+  }
+}

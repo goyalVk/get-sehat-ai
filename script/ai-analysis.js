@@ -18,8 +18,8 @@ if (!MONGO_URI) {
 // ── DATE FILTER — Change these as needed ─────────────
 // Check records AFTER 1st May 2026 1:00 PM IST
 // IST = UTC+5:30, so 1:00 PM IST = 07:30 UTC
-const FILTER_FROM = new Date('2026-05-01T07:30:00.000Z') // 1 May 1 PM IST
-const FILTER_TO   = null  // null = no end limit (till now)
+const FILTER_FROM = new Date('2026-05-04T07:30:00.000Z') // 1 May 1 PM IST
+const FILTER_TO   =  new Date('2026-05-05T07:30:00.000Z')  // null = no end limit (till now)
 
 // To check all records, set both to null
 // const FILTER_FROM = null

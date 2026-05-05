@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { NextResponse } from 'next/server'
+import { createHash } from 'crypto'
 import { connectDB } from '@/lib/mongodb'
 import Report from '@/models/report'
 import { buildHealthPrompt } from '@/lib/healthPrompt'
@@ -141,7 +142,8 @@ export async function POST(req) {
 
   try {
     const formData = await req.formData()
-    const file = formData.get('file')
+    const file    = formData.get('file')
+    const anonId  = formData.get('anonId')?.toString() || null
 
     if (!file) {
       return NextResponse.json(
@@ -257,17 +259,6 @@ export async function POST(req) {
       }
     }
 
-    // ── Create report record ──────────────────────────
-    const report = await Report.create({
-      fileName: file.name,
-      fileType: file.type,
-      fileSize: file.size,
-      userId:   userId || null,
-      status:   'processing',
-      isSample: isSampleFile
-    })
-    reportId = report._id.toString()
-
     // ── File buffer ───────────────────────────────────
     const bytes  = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
@@ -290,7 +281,40 @@ export async function POST(req) {
       }
     }
 
-    const base64    = finalBuffer.toString('base64')
+    const base64 = finalBuffer.toString('base64')
+
+    // ── Report hash cache ─────────────────────────────
+    const reportHash   = createHash('md5').update(base64).digest('hex')
+    const cachedByHash = await Report.findOne({ reportHash })
+
+    if (cachedByHash?.analysisResult?.report_type) {
+      console.log('Hash cache hit ✅ — 0 tokens used!')
+      await Report.findByIdAndUpdate(cachedByHash._id, {
+        $inc:          { uploadCount: 1 },
+        lastUploadedAt: new Date()
+      })
+      return NextResponse.json({
+        success:   true,
+        reportId:  cachedByHash._id.toString(),
+        data:      cachedByHash.analysisResult,
+        fromCache: true
+      })
+    }
+
+    // ── Create report record ──────────────────────────
+    const now    = new Date()
+    const report = await Report.create({
+      fileName:  file.name,
+      fileType:  file.type,
+      fileSize:  file.size,
+      userId:    user?._id?.toString() || null,
+      anonId,
+      sessionId: crypto.randomUUID(),
+      status:    'processing',
+      isSample:  isSampleFile,
+    })
+    reportId = report._id.toString()
+
     const startTime = Date.now()
 
     // ── AI Analysis ───────────────────────────────────
@@ -336,19 +360,24 @@ export async function POST(req) {
 
     // ── Save result ───────────────────────────────────
     await Report.findByIdAndUpdate(reportId, {
-      status:         'completed',
-      result:         interpretation,
-      reportType:     interpretation.report_type     || null,
-      reportCategory: interpretation.report_category || 'other',
-      parameters:     normalizeParameters(interpretation.parameters),
-      urgentFlags:    interpretation.urgent_flags    || [],
-      patient:        interpretation.patient         || {},
-      lab:            labData,
-      fileSize:       file.size,
-      tokensUsed:     tokenUsage,
+      status:          'completed',
+      result:          interpretation,
+      analysisResult:  interpretation,
+      reportHash,
+      uploadCount:     1,
+      firstUploadedAt: now,
+      lastUploadedAt:  now,
+      reportType:      interpretation.report_type     || null,
+      reportCategory:  interpretation.report_category || 'other',
+      parameters:      normalizeParameters(interpretation.parameters),
+      urgentFlags:     interpretation.urgent_flags    || [],
+      patient:         interpretation.patient         || {},
+      lab:             labData,
+      fileSize:        file.size,
+      tokensUsed:      tokenUsage,
       analysisTimeMs,
-      modelUsed:      modelToUse,   // ← dynamic now
-      isSample:       isSampleFile
+      modelUsed:       modelToUse,
+      isSample:        isSampleFile
     })
 
     if (isSampleFile) {
@@ -399,10 +428,15 @@ export async function POST(req) {
 async function analyzeWithPDF(base64, model = HAIKU_MODEL) {
   const response = await anthropic.messages.create({
     model,
-    max_tokens: model === SONNET_MODEL ? 12000 : 4096,
+    max_tokens: model === SONNET_MODEL ? 12000 : 8000,
     messages: [{
       role: 'user',
       content: [
+        {
+          type:          'text',
+          text:          buildHealthPrompt('Extract ALL medical values from this PDF report. Analyze every page.'),
+          cache_control: { type: 'ephemeral' }
+        },
         {
           type: 'document',
           source: {
@@ -410,10 +444,6 @@ async function analyzeWithPDF(base64, model = HAIKU_MODEL) {
             media_type: 'application/pdf',
             data:       base64
           }
-        },
-        {
-          type: 'text',
-          text: buildHealthPrompt('Extract ALL medical values from this PDF report. Analyze every page.')
         }
       ]
     }]
@@ -428,10 +458,15 @@ async function analyzeWithPDF(base64, model = HAIKU_MODEL) {
 async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL) {
   const response = await anthropic.messages.create({
     model,
-    max_tokens: model === SONNET_MODEL ? 12000 : 4096,
+    max_tokens: model === SONNET_MODEL ? 12000 : 8000,
     messages: [{
       role: 'user',
       content: [
+        {
+          type:          'text',
+          text:          buildHealthPrompt('Extract ALL medical values from this lab report image. Read every number carefully.'),
+          cache_control: { type: 'ephemeral' }
+        },
         {
           type: 'image',
           source: {
@@ -439,10 +474,6 @@ async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL) {
             media_type: mediaType,
             data:       base64
           }
-        },
-        {
-          type: 'text',
-          text: buildHealthPrompt('Extract ALL medical values from this lab report image. Read every number carefully.')
         }
       ]
     }]

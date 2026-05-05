@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import DownloadButton from '@/components/DownloadButton'
+import FeedbackSection from '@/components/FeedbackSection'
 
 const statusConfig = {
   normal:   { color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0', badge: '#dcfce7', badgeText: '#15803d', label: 'Normal',   icon: '✓' },
@@ -350,6 +351,11 @@ export default async function ResultsPage({ params }) {
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* ── Feedback & Follow-up ── */}
+          <div className="fade-up" style={{ animationDelay: '0.33s' }}>
+            <FeedbackSection reportId={String(report._id)} />
           </div>
 
          {/* ── Action Buttons ── */}

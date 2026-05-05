@@ -38,6 +38,7 @@ const ReportSchema = new mongoose.Schema(
     // User identity — future login ke liye
     userId:      { type: String, default: null },
     sessionId:   { type: String, default: null }, // Anonymous user track
+    anonId:      { type: String, default: null },
 
     // File info
     fileName:    { type: String, required: true },
@@ -82,6 +83,24 @@ const ReportSchema = new mongoose.Schema(
     // Analytics
     analysisTimeMs: { type: Number, default: 0 }, // Kitna time laga
     modelUsed:      { type: String, default: null }, // Haiku ya Sonnet
+
+    // Hash caching
+    reportHash:      { type: String, default: null },
+    analysisResult:  { type: mongoose.Schema.Types.Mixed, default: null },
+    uploadCount:     { type: Number, default: 1 },
+    firstUploadedAt: { type: Date,   default: null },
+    lastUploadedAt:  { type: Date,   default: null },
+
+    // User feedback
+    feedback: {
+      rating:    { type: Number, min: 1, max: 5, default: null },
+      ratedAt:   { type: Date, default: null },
+      clarifications: [{
+        question: { type: String, maxlength: 500 },
+        askedAt:  { type: Date, default: Date.now },
+        _id: false,
+      }],
+    },
   },
   { timestamps: true } // createdAt, updatedAt automatic
 )
@@ -89,6 +108,7 @@ const ReportSchema = new mongoose.Schema(
 // Future comparison ke liye index
 ReportSchema.index({ userId: 1, reportType: 1, createdAt: -1 })
 ReportSchema.index({ sessionId: 1, createdAt: -1 })
+ReportSchema.index({ reportHash: 1 })
 ReportSchema.index({ 'patient.name': 1 })
 
 export default mongoose.models.Report || mongoose.model('Report', ReportSchema)
