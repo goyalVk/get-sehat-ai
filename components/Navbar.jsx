@@ -99,6 +99,7 @@ export default function Navbar() {
                   { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
                   { href: '/upload',    label: 'Upload',    icon: '📋' },
                   { href: '/chat',      label: 'Medicine',  icon: '💊' },
+                  { href: '/blog',      label: 'Blog',      icon: '📝' },
                   { href: '/history',   label: 'History',   icon: '📈' },
                 ].map(link => (
                   <Link key={link.href} href={link.href}
@@ -169,6 +170,10 @@ export default function Navbar() {
                 <Link href="/chat" className={`nav-link ${pathname === '/chat' ? 'active' : ''}`}>
                   <span className="nav-link-icon">💊</span>
                   <span className="nav-link-label">Medicine</span>
+                </Link>
+                <Link href="/blog" className={`nav-link ${pathname?.startsWith('/blog') ? 'active' : ''}`}>
+                  <span className="nav-link-icon">📝</span>
+                  <span className="nav-link-label">Blog</span>
                 </Link>
                 <Link href="/auth/login" className="nav-link">
                   <span className="nav-link-icon">👤</span>

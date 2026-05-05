@@ -1,8 +1,23 @@
+import { getAllPosts } from '@/lib/blog'
+
 export default async function sitemap() {
   const baseUrl = 'https://www.sehat24.com'
   const now     = new Date()
 
+  const blogPosts = getAllPosts().map(post => ({
+    url:             `${baseUrl}/blog/${post.slug}`,
+    lastModified:    post.date ? new Date(post.date) : now,
+    changeFrequency: 'monthly',
+    priority:        0.7,
+  }))
+
   const staticPages = [
+    {
+      url:             `${baseUrl}/blog`,
+      lastModified:    now,
+      changeFrequency: 'weekly',
+      priority:        0.8,
+    },
     {
       url:             baseUrl,
       lastModified:    now,
@@ -41,5 +56,5 @@ export default async function sitemap() {
     },
   ]
 
-  return staticPages
+  return [...staticPages, ...blogPosts]
 }
