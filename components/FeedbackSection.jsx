@@ -161,188 +161,252 @@ export default function FeedbackSection({ reportId }) {
       `}</style>
 
       {/* ══ Rating Card ══ */}
-      <div style={{
-        background: 'white', borderRadius: 24,
-        border: '1px solid #f1f5f9', padding: '24px 28px',
-        marginBottom: 16, position: 'relative', overflow: 'hidden',
-      }}>
-        {/* Decorative blobs */}
-        <div style={{ position:'absolute', top:-40, right:-40, width:130, height:130, borderRadius:'50%', background:'radial-gradient(circle,rgba(245,158,11,0.07),transparent)', pointerEvents:'none' }} />
-        <div style={{ position:'absolute', bottom:-30, left:-20, width:90, height:90, borderRadius:'50%', background:'radial-gradient(circle,rgba(13,148,136,0.06),transparent)', pointerEvents:'none' }} />
+     <div style={{
+  background: 'linear-gradient(150deg,#0f172a 0%,#1e293b 100%)',
+  borderRadius: 24,
+  border: '1px solid rgba(255,255,255,0.08)',
+  padding: '24px 28px',
+  marginBottom: 16,
+  position: 'relative', overflow: 'hidden',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+}}>
 
-        {!ratingDone ? (
-          <div style={{ position:'relative', zIndex:1 }}>
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:20 }}>
-              <div style={{ width:42, height:42, borderRadius:13, background:'linear-gradient(135deg,#fef3c7,#fde68a)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0, boxShadow:'0 2px 10px rgba(245,158,11,0.2)' }}>⭐</div>
-              <div>
-                <h3 style={{ fontSize:15, fontWeight:700, color:'#0f172a', marginBottom:2 }}>Yeh analysis kaisi lagi?</h3>
-                <p style={{ fontSize:12, color:'#94a3b8' }}>1 click — humari bahut help hoti hai 🙏</p>
-              </div>
-            </div>
+  <style>{`
+    .fb-star { background:none; border:none; cursor:pointer; padding:2px; transition:transform 0.15s; }
+    .fb-star:hover { transform: scale(1.2); }
+    .fb-star.locked { cursor:default; }
+    .glowing { filter: drop-shadow(0 0 6px rgba(245,158,11,0.7)); }
+    @keyframes fb-pop { from { transform:scale(0.7); opacity:0; } to { transform:scale(1); opacity:1; } }
+    @keyframes fb-slide { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  `}</style>
 
-            {/* Stars row */}
-            <div style={{ display:'flex', alignItems:'center', gap:2, marginBottom:10 }}>
-              {[1,2,3,4,5].map(i => (
-                <button
-                  key={i}
-                  className="fb-star"
-                  onMouseEnter={() => setHover(i)}
-                  onMouseLeave={() => setHover(0)}
-                  onClick={() => doRate(i)}
-                  aria-label={`${i} star`}
-                >
-                  <svg width="38" height="38" viewBox="0 0 24 24"
-                    fill={i <= active ? fillColor : '#f1f5f9'}
-                    stroke={i <= active ? fillColor : '#e2e8f0'}
-                    strokeWidth="1.5" style={{ transition:'fill 0.15s, stroke 0.15s' }}
-                  >
-                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-                  </svg>
-                </button>
-              ))}
+  {/* Decorative blob */}
+  <div style={{ position:'absolute', top:-40, right:-40, width:160, height:160, borderRadius:'50%', background:'radial-gradient(circle,rgba(245,158,11,0.12),transparent)', pointerEvents:'none' }} />
 
-              {active > 0 && (
-                <span style={{ marginLeft:8, fontSize:30, display:'inline-block', animation:'fb-pop 0.3s ease both' }}>
-                  {EMOJIS[active]}
-                </span>
-              )}
-            </div>
+  {!ratingDone ? (
+    <div style={{ position:'relative', zIndex:1 }}>
 
-            {/* Label */}
-            <div style={{ minHeight:20 }}>
-              {active > 0 && (
-                <p style={{
-                  fontSize:13, fontWeight:700, animation:'fb-slide 0.2s ease',
-                  color: active <= 2 ? '#ef4444' : active === 3 ? '#f59e0b' : '#16a34a',
-                }}>
-                  {LABELS[active]}
-                </p>
-              )}
-            </div>
-          </div>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:20 }}>
+        <div style={{ width:42, height:42, borderRadius:13, background:'linear-gradient(135deg,#f59e0b,#fbbf24)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0, boxShadow:'0 3px 12px rgba(245,158,11,0.4)' }}>⭐</div>
+        <div>
+          <h3 style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:2 }}>
+            Yeh analysis kaisi lagi?
+          </h3>
+          <p style={{ fontSize:12, color:'#94a3b8' }}>
+            1 click — humari bahut help hoti hai 🙏
+          </p>
+        </div>
+      </div>
 
-        ) : (
-          /* ── Thank You State ── */
-          <div style={{ textAlign:'center', padding:'8px 0', animation:'fb-pop 0.45s cubic-bezier(.22,1,.36,1)' }}>
-            <div style={{ fontSize:56, marginBottom:12, lineHeight:1 }}>{EMOJIS[rating]}</div>
-            <div style={{ display:'flex', justifyContent:'center', gap:4, marginBottom:14 }}>
-              {[1,2,3,4,5].map(i => (
-                <svg key={i} width="26" height="26" viewBox="0 0 24 24"
-                  className={`fb-star locked ${i <= rating ? 'glowing' : ''}`}
-                  fill={i <= rating ? STAR_COLORS[rating] : '#f1f5f9'}
-                  stroke={i <= rating ? STAR_COLORS[rating] : '#e2e8f0'}
-                  strokeWidth="1.5"
-                >
-                  <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-                </svg>
-              ))}
-            </div>
-            <p style={{ fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:5 }}>Shukriya! 🙏</p>
-            <p style={{ fontSize:13, color:'#64748b', lineHeight:1.6 }}>{THANKYOU[rating]}</p>
-          </div>
+      {/* Stars row */}
+      <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:12 }}>
+        {[1,2,3,4,5].map(i => (
+          <button
+            key={i}
+            className="fb-star"
+            onMouseEnter={() => setHover(i)}
+            onMouseLeave={() => setHover(0)}
+            onClick={() => doRate(i)}
+            aria-label={`${i} star`}
+          >
+            <svg width="42" height="42" viewBox="0 0 24 24"
+              fill={i <= active ? fillColor : 'rgba(255,255,255,0.1)'}
+              stroke={i <= active ? fillColor : 'rgba(255,255,255,0.2)'}
+              strokeWidth="1.5"
+              style={{ transition:'fill 0.15s, stroke 0.15s' }}
+            >
+              <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+            </svg>
+          </button>
+        ))}
+
+        {active > 0 && (
+          <span style={{ marginLeft:8, fontSize:32, display:'inline-block', animation:'fb-pop 0.3s ease both' }}>
+            {EMOJIS[active]}
+          </span>
         )}
       </div>
 
-      {/* ══ Follow-up Questions Card ══ */}
-      <div style={{
-        background:'linear-gradient(150deg,#0f172a 0%,#1e293b 100%)',
-        borderRadius:24, padding:'24px 24px 20px',
-        marginBottom:16, position:'relative', overflow:'hidden',
-        border:'1px solid rgba(255,255,255,0.06)',
-        boxShadow:'0 8px 32px rgba(0,0,0,0.18)',
-      }}>
-        {/* Decorative blobs */}
-        <div style={{ position:'absolute', top:-50, right:-50, width:160, height:160, borderRadius:'50%', background:'radial-gradient(circle,rgba(13,148,136,0.14),transparent)', pointerEvents:'none' }} />
-        <div style={{ position:'absolute', bottom:-40, left:-40, width:120, height:120, borderRadius:'50%', background:'radial-gradient(circle,rgba(8,145,178,0.08),transparent)', pointerEvents:'none' }} />
+      {/* Label */}
+      <div style={{ minHeight:22 }}>
+        {active > 0 && (
+          <p style={{
+            fontSize:14, fontWeight:700,
+            animation:'fb-slide 0.2s ease',
+            color: active <= 2 ? '#f87171' : active === 3 ? '#fbbf24' : '#4ade80',
+          }}>
+            {LABELS[active]}
+          </p>
+        )}
+      </div>
 
-        <div style={{ position:'relative', zIndex:1 }}>
+    </div>
+
+  ) : (
+    /* ── Thank You State ── */
+    <div style={{ textAlign:'center', padding:'8px 0', animation:'fb-pop 0.45s cubic-bezier(.22,1,.36,1)', position:'relative', zIndex:1 }}>
+      <div style={{ fontSize:56, marginBottom:12, lineHeight:1 }}>{EMOJIS[rating]}</div>
+      <div style={{ display:'flex', justifyContent:'center', gap:4, marginBottom:14 }}>
+        {[1,2,3,4,5].map(i => (
+          <svg key={i} width="28" height="28" viewBox="0 0 24 24"
+            className={`fb-star locked ${i <= rating ? 'glowing' : ''}`}
+            fill={i <= rating ? STAR_COLORS[rating] : 'rgba(255,255,255,0.1)'}
+            stroke={i <= rating ? STAR_COLORS[rating] : 'rgba(255,255,255,0.15)'}
+            strokeWidth="1.5"
+          >
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+          </svg>
+        ))}
+      </div>
+      <p style={{ fontSize:16, fontWeight:800, color:'white', marginBottom:6 }}>
+        Shukriya! 🙏
+      </p>
+      <p style={{ fontSize:13, color:'#94a3b8', lineHeight:1.6 }}>
+        {THANKYOU[rating]}
+      </p>
+    </div>
+  )}
+
+</div>
+
+     
+                  {/* ══ Feedback Card ══ */}
+        <div style={{
+          background: 'linear-gradient(150deg,#0f172a 0%,#1e293b 100%)',
+          borderRadius: 24, padding: '24px',
+          marginBottom: 16,
+          border: '1px solid rgba(255,255,255,0.06)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+        }}>
+
+          <style>{`
+            .fb-textarea::placeholder { color: rgba(255,255,255,0.45); }
+            .fb-textarea:focus { border-color: rgba(13,148,136,0.5) !important; }
+            .fb-opt:hover { border-color: #0d9488 !important; color: #2dd4bf !important; }
+          `}</style>
 
           {/* Header */}
           <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:18 }}>
-            <div style={{ width:42, height:42, borderRadius:13, background:'linear-gradient(135deg,#0d9488,#0891b2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0, boxShadow:'0 3px 12px rgba(13,148,136,0.3)' }}>💬</div>
+            <div style={{ width:42, height:42, borderRadius:13, background:'linear-gradient(135deg,#0d9488,#0891b2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0, boxShadow:'0 3px 12px rgba(13,148,136,0.3)' }}>⭐</div>
             <div>
-              <h3 style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:2 }}>Kuch Aur Poochna Hai?</h3>
-              <p style={{ fontSize:12, color:'#475569' }}>Apna sawaal bhejo — Sehat24 team review karegi</p>
+              <h3 style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:2 }}>
+                Aapka feedback chahiye
+              </h3>
+              <p style={{ fontSize:12, color:'#94a3b8' }}>
+                2 second — bas ek tap 😊
+              </p>
             </div>
           </div>
 
-          {/* Quick suggestion chips */}
-          <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:14 }}>
-            {CHIPS.map((c, i) => (
+          {/* Quick Options */}
+          <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:14 }}>
+            {[
+              '✅ Bahut helpful thi',
+              '🤔 Thoda confusing tha',
+              '❓ Aur detail chahiye',
+              '🌿 Ayurvedic tips achhe lage',
+              '📄 PDF chahiye tha',
+              '💊 Medicine chat try karunga',
+            ].map((opt, i) => (
               <button
                 key={i}
-                className="fb-chip"
-                onClick={() => {
-                  setQuestion(c.q)
-                  document.getElementById('fb-textarea')?.focus()
+                className="fb-opt"
+                onClick={() => setQuestion(opt)}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: 100,
+                  border: `1px solid ${question === opt
+                    ? '#0d9488'
+                    : 'rgba(255,255,255,0.15)'}`,
+                  background: question === opt
+                    ? 'rgba(13,148,136,0.2)'
+                    : 'rgba(255,255,255,0.06)',
+                  color: question === opt
+                    ? '#2dd4bf'
+                    : 'rgba(255,255,255,0.95)',
+                  fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
                 }}
               >
-                <span>{c.icon}</span> {c.q}
+                {opt}
               </button>
             ))}
           </div>
 
           {/* Textarea */}
-          <div style={{ position:'relative', marginBottom:12 }}>
-            <textarea
-              id="fb-textarea"
-              className="fb-textarea"
-              value={question}
-              onChange={e => setQuestion(e.target.value.slice(0, 500))}
-              placeholder="Apna sawaal likhein... Hindi ya English dono chalte hain"
-              rows={3}
-            />
-            <span style={{ position:'absolute', bottom:10, right:12, fontSize:11, color: question.length > 450 ? '#f97316' : '#475569', fontWeight:500, pointerEvents:'none' }}>
-              {question.length}/500
-            </span>
-          </div>
+          <textarea
+            className="fb-textarea"
+            value={question}
+            onChange={e => setQuestion(e.target.value.slice(0, 300))}
+            placeholder="Ya apni baat likhein... Hindi ya English dono chalte hain 😊"
+            rows={3}
+            style={{
+              width: '100%',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 14,
+              padding: '12px 14px',
+              color: 'white',
+              fontSize: 13,
+              lineHeight: 1.6,
+              resize: 'none',
+              outline: 'none',
+              fontFamily: 'inherit',
+              marginBottom: 12,
+              transition: 'border-color 0.2s',
+            }}
+          />
 
-          {/* Send button */}
+          {/* Send Button */}
           <button
-            className={`fb-send ${canSend ? 'on' : 'off'}`}
             onClick={doSend}
             disabled={!canSend}
+            style={{
+              width: '100%',
+              padding: '14px',
+              borderRadius: 14,
+              border: 'none',
+              background: canSend
+                ? 'linear-gradient(135deg,#0d9488,#0891b2)'
+                : 'rgba(255,255,255,0.06)',
+              color: canSend
+                ? 'white'
+                : 'rgba(255,255,255,0.3)',
+              fontSize: 14, fontWeight: 700,
+              cursor: canSend ? 'pointer' : 'not-allowed',
+              transition: 'all 0.2s',
+              boxShadow: canSend
+                ? '0 4px 16px rgba(13,148,136,0.3)'
+                : 'none',
+            }}
           >
-            {sending ? (
-              <>
-                <div style={{ width:16, height:16, border:'2.5px solid rgba(255,255,255,0.3)', borderTopColor:'white', borderRadius:'50%', animation:'fb-spin 0.7s linear infinite' }} />
-                Bhej raha hoon...
-              </>
-            ) : (
-              <>✉️ Sawaal Bhejo →</>
-            )}
+            {sending ? '⏳ Bhej raha hoon...' : '✉️ Feedback Bhejo →'}
           </button>
 
-          {/* Sent toast */}
+          {/* Success Toast */}
           {sent && (
-            <div style={{ marginTop:12, padding:'11px 14px', background:'rgba(13,148,136,0.15)', border:'1px solid rgba(13,148,136,0.35)', borderRadius:12, display:'flex', alignItems:'center', gap:9, animation:'fb-slide 0.3s ease' }}>
-              <span style={{ fontSize:18, flexShrink:0 }}>✅</span>
+            <div style={{
+              marginTop: 12, padding: '12px 14px',
+              background: 'rgba(13,148,136,0.15)',
+              border: '1px solid rgba(13,148,136,0.35)',
+              borderRadius: 12,
+              display: 'flex', alignItems: 'center', gap: 9
+            }}>
+              <span style={{ fontSize: 18 }}>✅</span>
               <div>
-                <p style={{ fontSize:13, fontWeight:700, color:'#2dd4bf', marginBottom:1 }}>Sawaal mil gaya!</p>
-                <p style={{ fontSize:11, color:'#64748b' }}>Sehat24 team 24 ghante mein review karegi.</p>
-              </div>
-            </div>
-          )}
-
-          {/* Submitted questions list */}
-          {sentQs.length > 0 && (
-            <div style={{ marginTop:16 }}>
-              <p style={{ fontSize:10, fontWeight:700, color:'#334155', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>
-                ✓ Aapke Sawaal ({sentQs.length})
-              </p>
-              <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
-                {sentQs.map((q, i) => (
-                  <div key={i} className="fb-sent-item" style={{ display:'flex', alignItems:'flex-start', gap:10, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:11, padding:'10px 13px' }}>
-                    <span style={{ width:20, height:20, borderRadius:'50%', background:'rgba(13,148,136,0.2)', color:'#2dd4bf', fontSize:10, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>Q</span>
-                    <p style={{ fontSize:13, color:'rgba(255,255,255,0.65)', lineHeight:1.55 }}>{q}</p>
-                  </div>
-                ))}
+                <p style={{ fontSize:13, fontWeight:700, color:'#2dd4bf', marginBottom:1 }}>
+                  Shukriya! Feedback mil gaya 🙏
+                </p>
+                <p style={{ fontSize:11, color:'#94a3b8' }}>
+                  Sehat24 team review karegi.
+                </p>
               </div>
             </div>
           )}
 
         </div>
-      </div>
     </>
   )
 }
