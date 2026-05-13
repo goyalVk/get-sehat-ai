@@ -101,6 +101,23 @@ const ReportSchema = new mongoose.Schema(
         _id: false,
       }],
     },
+
+    // Spam detection
+    isSpam:        { type: Boolean, default: false },
+    spamReason:    { type: String, default: null },
+    // Values: 'non_medical', 'corrupted', 
+    //         'password_protected', 'low_quality',
+    //         'bot_suspected'
+
+    isNonMedical:  { type: Boolean, default: false },
+    preCheckFailed:{ type: Boolean, default: false },
+
+    // Bot detection
+    uploadSource:  { type: String, default: 'web' },
+    // Values: 'web', 'api', 'unknown'
+
+    userAgent:     { type: String, default: null },
+    visitCount:    { type: Number, default: 1 },
   },
   { timestamps: true } // createdAt, updatedAt automatic
 )

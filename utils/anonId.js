@@ -1,6 +1,8 @@
 const UID_KEY    = 's24_uid'
 const COUNT_KEY  = 's24_upload_count'
 const LAST_KEY   = 's24_last_upload'
+const VISIT_KEY  = 's24_visit_count'
+const VISIT_TS   = 's24_last_visit'
 
 export function getAnonId() {
   if (typeof window === 'undefined') return null
@@ -27,4 +29,19 @@ export function incrementUploadCount() {
 export function getUploadCount() {
   if (typeof window === 'undefined') return 0
   return parseInt(localStorage.getItem(COUNT_KEY) || '0', 10)
+}
+
+export function trackVisit() {
+  if (typeof window === 'undefined') return 0
+  getAnonId() // ensure anonId exists
+  const current = parseInt(localStorage.getItem(VISIT_KEY) || '0', 10)
+  const next = current + 1
+  localStorage.setItem(VISIT_KEY, String(next))
+  localStorage.setItem(VISIT_TS, new Date().toISOString())
+  return next
+}
+
+export function getVisitCount() {
+  if (typeof window === 'undefined') return 0
+  return parseInt(localStorage.getItem(VISIT_KEY) || '0', 10)
 }

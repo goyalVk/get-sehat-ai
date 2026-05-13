@@ -110,6 +110,11 @@ export default function HistoryPage() {
   const [loading, setLoading]   = useState(true)
   const [expanded, setExpanded] = useState({})
   const [total, setTotal]       = useState(0)
+  const [historyFeedback, setHistoryFeedback] = useState('')
+  const [historyRating, setHistoryRating]     = useState(0)
+  const [historyHover, setHistoryHover]       = useState(0)
+  const [historySent, setHistorySent]         = useState(false)
+  const [historySending, setHistorySending]   = useState(false)
 
   useEffect(() => { fetchData() }, [])
 
@@ -145,6 +150,29 @@ export default function HistoryPage() {
       router.push('/auth/login')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const sendHistoryFeedback = async () => {
+    if (!historyRating) return
+    setHistorySending(true)
+    try {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          page: 'history',
+          rating: historyRating,
+          feedback: historyFeedback,
+          totalReports: total,
+          reportTypes: Object.keys(grouped),
+        }),
+      })
+      setHistorySent(true)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setHistorySending(false)
     }
   }
 
@@ -186,6 +214,37 @@ export default function HistoryPage() {
         .expand-btn:hover{background:#f0fdfa!important}
         .param-row:hover{background:#f0f0f0!important}
         .dl-btn:hover{border-color:#0d9488!important;color:#0d9488!important}
+
+        @media (max-width: 720px) {
+          .history-header { flex-direction: column !important; gap: 12px !important; }
+          .history-header a { width: 100% !important; text-align: center !important; }
+
+          .stat-card { padding: 12px 14px !important; min-width: 90px !important; }
+          .stat-card p:first-child { font-size: 20px !important; }
+
+          .timeline-pills { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 8px !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; }
+          .timeline-pills::-webkit-scrollbar { display: none !important; }
+
+          .expand-btn { padding: 8px 12px !important; font-size: 11px !important; }
+
+          .trend-card { padding: 12px 14px !important; }
+
+          .value-timeline { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 8px !important; -webkit-overflow-scrolling: touch !important; }
+
+          .sparkline-container { display: none !important; }
+
+          .health-trend-pills > div { padding: 10px 8px !important; min-width: 80px !important; }
+
+          .overall-summary { padding: 20px 16px !important; }
+
+          .history-feedback { padding: 20px 16px !important; }
+          .history-feedback .star-btn { width: 40px !important; height: 40px !important; }
+
+          .dl-btn { font-size: 12px !important; padding: 10px 8px !important; }
+
+          .bottom-cta { padding: 20px 16px !important; }
+          .bottom-cta a { display: block !important; width: 100% !important; text-align: center !important; }
+        }
       `}</style>
 
       <main style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -193,7 +252,7 @@ export default function HistoryPage() {
 
           {/* Header */}
           <div className="fade-up" style={{ marginBottom: 28 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div className="history-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
               <div>
                 <p style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600, marginBottom: 4 }}>Health Intelligence</p>
                 <h1 style={{ fontSize: 28, fontWeight: 400, color: '#0f172a', fontFamily: "'DM Serif Display', serif" }}>Report History & Trends</h1>
@@ -210,7 +269,7 @@ export default function HistoryPage() {
                 { label: 'Report Types',     value: typeCount,  icon: '🔬', bg: '#eff6ff', color: '#1d4ed8',  border: '#bfdbfe' },
                 { label: 'Trends Available', value: trendCount, icon: '📈', bg: trendCount > 0 ? '#f0fdf4' : '#f8fafc', color: trendCount > 0 ? '#16a34a' : '#94a3b8', border: trendCount > 0 ? '#86efac' : '#e2e8f0' },
               ].map((s, i) => (
-                <div key={i} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 14, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 140 }}>
+                <div key={i} className="stat-card" style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 14, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 140 }}>
                   <span style={{ fontSize: 22 }}>{s.icon}</span>
                   <div>
                     <p style={{ fontSize: 22, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
@@ -265,7 +324,7 @@ export default function HistoryPage() {
                         </div>
 
                         {/* Timeline Pills */}
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                        <div className="timeline-pills" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                           {reports.map((r, i) => {
                             const d = getDate(r)
                             const isLatest = i === reports.length - 1
@@ -312,6 +371,24 @@ export default function HistoryPage() {
                   {/* Expanded Section */}
                   {isExpanded && (
                     <div style={{ padding: '24px' }}>
+
+                      {/* ── Urgent Flags — top of both views ── */}
+                      {latest?.result?.urgent_flags?.length > 0 && (
+                        <div style={{
+                          background: 'linear-gradient(135deg,#fef2f2,#fff1f2)',
+                          border: '2px solid #fecaca', borderRadius: 14,
+                          padding: '14px 18px', marginBottom: 16,
+                          display: 'flex', alignItems: 'flex-start', gap: 10
+                        }}>
+                          <span style={{ fontSize: 20, flexShrink: 0 }}>⚠️</span>
+                          <div>
+                            <p style={{ fontSize: 13, fontWeight: 700, color: '#991b1b', marginBottom: 6 }}>Dhyan Dein — Urgent</p>
+                            {latest.result.urgent_flags.map((flag, i) => (
+                              <p key={i} style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6 }}>• {flag}</p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {!hasTrend ? (
                         /* Single report */
@@ -360,6 +437,85 @@ export default function HistoryPage() {
                               💡 Ek aur {type} report upload karo — trend comparison shuru hoga!
                             </p>
                           </div>
+
+                          {/* Lifestyle Tips */}
+                          {latest?.result?.lifestyle && (
+                            <div style={{ background: 'linear-gradient(135deg,#fffbeb,#fef9ee)', border: '1px solid #fde68a', borderRadius: 16, padding: '16px 20px', marginTop: 16 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                                <div style={{ width: 32, height: 32, borderRadius: 10, background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🌿</div>
+                                <div>
+                                  <h3 style={{ fontSize: 14, fontWeight: 700, color: '#92400e' }}>Lifestyle Tips</h3>
+                                  <p style={{ fontSize: 11, color: '#b45309' }}>Latest report ke hisaab se</p>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                {[
+                                  { icon: '🥗', label: 'Diet',          value: latest.result.lifestyle.diet },
+                                  { icon: '🚶', label: 'Activity',      value: latest.result.lifestyle.activity },
+                                  { icon: '😴', label: 'Sleep & Stress', value: latest.result.lifestyle.sleep_stress },
+                                  { icon: '🚫', label: 'Avoid',         value: latest.result.lifestyle.avoid },
+                                ].filter(item => item.value).map((item, i) => (
+                                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: 'white', borderRadius: 10, padding: '10px 12px', border: '1px solid #fde68a' }}>
+                                    <span style={{ fontSize: 16, flexShrink: 0 }}>{item.icon}</span>
+                                    <div>
+                                      <p style={{ fontSize: 10, fontWeight: 700, color: '#92400e', marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</p>
+                                      <p style={{ fontSize: 12, color: '#78350f', lineHeight: 1.6 }}>{item.value}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Ayurvedic Herbs */}
+                          {latest?.result?.ayurvedic_herbs?.length > 0 && (
+                            <div style={{ background: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', border: '1px solid #86efac', borderRadius: 16, padding: '16px 20px', marginTop: 12 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                                <div style={{ width: 32, height: 32, borderRadius: 10, background: '#bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🌱</div>
+                                <div>
+                                  <h3 style={{ fontSize: 14, fontWeight: 700, color: '#14532d' }}>Ayurvedic Herbs</h3>
+                                  <p style={{ fontSize: 11, color: '#16a34a' }}>Doctor se pooch ke lo</p>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {latest.result.ayurvedic_herbs.map((herb, i) => (
+                                  <div key={i} style={{ background: 'white', borderRadius: 12, padding: '12px 14px', border: '1px solid #86efac' }}>
+                                    <p style={{ fontSize: 13, fontWeight: 700, color: '#14532d', marginBottom: 4 }}>🌿 {herb.name}</p>
+                                    <p style={{ fontSize: 12, color: '#166534', lineHeight: 1.6, marginBottom: 4 }}><strong>Faida:</strong> {herb.benefit}</p>
+                                    <p style={{ fontSize: 12, color: '#166534', lineHeight: 1.6, marginBottom: 6 }}><strong>Kaise lein:</strong> {herb.how_to_use}</p>
+                                    <div style={{ background: '#fefce8', borderRadius: 8, padding: '6px 10px', border: '1px solid #fde68a', display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                                      <span style={{ fontSize: 11, flexShrink: 0 }}>⚠️</span>
+                                      <p style={{ fontSize: 11, color: '#92400e', lineHeight: 1.5 }}>{herb.caution}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              <a href="https://satvikhavan.com" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12, padding: '10px', background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#15803d' }}>
+                                🛒 Satvik Havan se order karo
+                              </a>
+                            </div>
+                          )}
+
+                          {/* Doctor Questions */}
+                          {latest?.result?.doctor_questions?.length > 0 && (
+                            <div style={{ background: 'white', border: '1px solid #f1f5f9', borderRadius: 16, padding: '16px 20px', marginTop: 12 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                                <div style={{ width: 32, height: 32, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>💬</div>
+                                <div>
+                                  <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Doctor Se Yeh Poochho</h3>
+                                  <p style={{ fontSize: 11, color: '#94a3b8' }}>Next visit ke liye ready questions</p>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                {latest.result.doctor_questions.map((q, i) => (
+                                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: '#f8fafc', borderRadius: 10, border: '1px solid #f1f5f9' }}>
+                                    <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#dbeafe', color: '#1d4ed8', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+                                    <p style={{ fontSize: 12, color: '#334155', lineHeight: 1.6 }}>{q}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                       ) : (
@@ -392,7 +548,7 @@ export default function HistoryPage() {
                               const refRange = latest.reference_range
 
                               return (
-                                <div key={paramName} style={{
+                                <div key={paramName} className="trend-card" style={{
                                   background: trendBg, border: `1px solid ${trendBorder}`,
                                   borderRadius: 16, padding: '16px 20px',
                                   borderLeft: `4px solid ${trendColor}`
@@ -428,7 +584,7 @@ export default function HistoryPage() {
                                       )}
 
                                       {/* Value Timeline */}
-                                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+                                      <div className="value-timeline" style={{ display: 'flex', alignItems: 'flex-end', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
                                         {trend.map((item, ti) => {
                                           const ist    = statusStyle(item.status)
                                           const isLast = ti === trend.length - 1
@@ -472,7 +628,7 @@ export default function HistoryPage() {
                                     </div>
 
                                     {/* Sparkline */}
-                                    <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                                    <div className="sparkline-container" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                                       <Sparkline trend={trend} color={trendColor} />
                                       <p style={{ fontSize: 10, color: '#94a3b8' }}>{trend.length} tests</p>
                                     </div>
@@ -481,6 +637,85 @@ export default function HistoryPage() {
                               )
                             })}
                           </div>
+
+                          {/* Lifestyle Tips */}
+                          {latest?.result?.lifestyle && (
+                            <div style={{ background: 'linear-gradient(135deg,#fffbeb,#fef9ee)', border: '1px solid #fde68a', borderRadius: 16, padding: '16px 20px', marginTop: 16 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                                <div style={{ width: 32, height: 32, borderRadius: 10, background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🌿</div>
+                                <div>
+                                  <h3 style={{ fontSize: 14, fontWeight: 700, color: '#92400e' }}>Lifestyle Tips</h3>
+                                  <p style={{ fontSize: 11, color: '#b45309' }}>Latest report ke hisaab se</p>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                {[
+                                  { icon: '🥗', label: 'Diet',           value: latest.result.lifestyle.diet },
+                                  { icon: '🚶', label: 'Activity',       value: latest.result.lifestyle.activity },
+                                  { icon: '😴', label: 'Sleep & Stress', value: latest.result.lifestyle.sleep_stress },
+                                  { icon: '🚫', label: 'Avoid',          value: latest.result.lifestyle.avoid },
+                                ].filter(item => item.value).map((item, i) => (
+                                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: 'white', borderRadius: 10, padding: '10px 12px', border: '1px solid #fde68a' }}>
+                                    <span style={{ fontSize: 16, flexShrink: 0 }}>{item.icon}</span>
+                                    <div>
+                                      <p style={{ fontSize: 10, fontWeight: 700, color: '#92400e', marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</p>
+                                      <p style={{ fontSize: 12, color: '#78350f', lineHeight: 1.6 }}>{item.value}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Ayurvedic Herbs */}
+                          {latest?.result?.ayurvedic_herbs?.length > 0 && (
+                            <div style={{ background: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', border: '1px solid #86efac', borderRadius: 16, padding: '16px 20px', marginTop: 12 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                                <div style={{ width: 32, height: 32, borderRadius: 10, background: '#bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🌱</div>
+                                <div>
+                                  <h3 style={{ fontSize: 14, fontWeight: 700, color: '#14532d' }}>Ayurvedic Herbs</h3>
+                                  <p style={{ fontSize: 11, color: '#16a34a' }}>Doctor se pooch ke lo</p>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {latest.result.ayurvedic_herbs.map((herb, i) => (
+                                  <div key={i} style={{ background: 'white', borderRadius: 12, padding: '12px 14px', border: '1px solid #86efac' }}>
+                                    <p style={{ fontSize: 13, fontWeight: 700, color: '#14532d', marginBottom: 4 }}>🌿 {herb.name}</p>
+                                    <p style={{ fontSize: 12, color: '#166534', lineHeight: 1.6, marginBottom: 4 }}><strong>Faida:</strong> {herb.benefit}</p>
+                                    <p style={{ fontSize: 12, color: '#166534', lineHeight: 1.6, marginBottom: 6 }}><strong>Kaise lein:</strong> {herb.how_to_use}</p>
+                                    <div style={{ background: '#fefce8', borderRadius: 8, padding: '6px 10px', border: '1px solid #fde68a', display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                                      <span style={{ fontSize: 11, flexShrink: 0 }}>⚠️</span>
+                                      <p style={{ fontSize: 11, color: '#92400e', lineHeight: 1.5 }}>{herb.caution}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              <a href="https://satvikhavan.com" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12, padding: '10px', background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#15803d' }}>
+                                🛒 Satvik Havan se order karo
+                              </a>
+                            </div>
+                          )}
+
+                          {/* Doctor Questions */}
+                          {latest?.result?.doctor_questions?.length > 0 && (
+                            <div style={{ background: 'white', border: '1px solid #f1f5f9', borderRadius: 16, padding: '16px 20px', marginTop: 12 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                                <div style={{ width: 32, height: 32, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>💬</div>
+                                <div>
+                                  <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Doctor Se Yeh Poochho</h3>
+                                  <p style={{ fontSize: 11, color: '#94a3b8' }}>Next visit ke liye ready questions</p>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                {latest.result.doctor_questions.map((q, i) => (
+                                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: '#f8fafc', borderRadius: 10, border: '1px solid #f1f5f9' }}>
+                                    <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#dbeafe', color: '#1d4ed8', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+                                    <p style={{ fontSize: 12, color: '#334155', lineHeight: 1.6 }}>{q}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
 
                           {/* Overall Health Summary */}
                           {(() => {
@@ -500,7 +735,7 @@ export default function HistoryPage() {
                                 <p style={{ fontSize: 12, fontWeight: 700, color: '#64748b', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>
                                   Overall Health Trend
                                 </p>
-                                <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
+                                <div className="health-trend-pills" style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
                                   {[
                                     { label: 'Improving', value: improvingCount, color: '#16a34a', bg: '#f0fdf4', border: '#86efac' },
                                     { label: 'Worsening', value: worseningCount, color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
@@ -660,7 +895,7 @@ export default function HistoryPage() {
                             style={{
                               width: '100%', marginTop: 12, padding: '12px',
                               background: 'white', border: '1.5px solid #e2e8f0',
-                              borderRadius: 12, fontSize: 13, fontWeight: 600,
+                              borderRadius: 12, fontSize: 15, fontWeight: 800,
                               color: '#64748b', cursor: 'pointer',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                               fontFamily: "'Plus Jakarta Sans', sans-serif", transition: 'all 0.2s'
@@ -679,7 +914,7 @@ export default function HistoryPage() {
 
           {/* Bottom CTA */}
           {total > 0 && (
-            <div style={{ marginTop: 24, background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 20, padding: '24px', textAlign: 'center' }}>
+            <div className="bottom-cta" style={{ marginTop: 24, background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 20, padding: '24px', textAlign: 'center' }}>
               <p style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>Aur reports upload karo — better trends milenge</p>
               <p style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>Jitni zyada reports, utna accurate health picture</p>
               <Link href="/upload" style={{ display: 'inline-block', background: '#0d9488', color: 'white', padding: '12px 32px', borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
@@ -687,6 +922,131 @@ export default function HistoryPage() {
               </Link>
             </div>
           )}
+
+          {/* ── History Feedback ── */}
+          <div className="history-feedback" style={{
+            background: 'linear-gradient(150deg, #0f172a, #1e293b)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 24, padding: 24, marginTop: 16,
+          }}>
+            {historySent ? (
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                <div style={{ fontSize: 56, marginBottom: 12, lineHeight: 1 }}>🙏</div>
+                <p style={{ fontSize: 16, fontWeight: 700, color: 'white', marginBottom: 6 }}>Shukriya!</p>
+                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>
+                  Aapka feedback<br />Sehat24 ko better banata hai 💙
+                </p>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                  <div style={{ width: 42, height: 42, borderRadius: 13, background: 'linear-gradient(135deg, #f59e0b, #fbbf24)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0, boxShadow: '0 3px 12px rgba(245,158,11,0.4)' }}>⭐</div>
+                  <div>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 2 }}>History page kaisi lagi?</p>
+                    <p style={{ fontSize: 12, color: '#94a3b8' }}>Aapka feedback feature improve karne mein help karta hai 🙏</p>
+                  </div>
+                </div>
+
+                {/* Stars */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 10 }}>
+                  {[1,2,3,4,5].map(i => {
+                    const active = historyHover || historyRating
+                    return (
+                      <button
+                        key={i}
+                        className="star-btn"
+                        onMouseEnter={() => setHistoryHover(i)}
+                        onMouseLeave={() => setHistoryHover(0)}
+                        onClick={() => setHistoryRating(i)}
+                        aria-label={`${i} star`}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, lineHeight: 1 }}
+                      >
+                        <svg width="40" height="40" viewBox="0 0 24 24"
+                          fill={i <= active ? '#f59e0b' : 'rgba(255,255,255,0.1)'}
+                          stroke={i <= active ? '#f59e0b' : 'rgba(255,255,255,0.2)'}
+                          strokeWidth="1.5"
+                          style={{ transition: 'fill 0.15s, stroke 0.15s', display: 'block' }}
+                        >
+                          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+                        </svg>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* Star label */}
+                {historyRating > 0 && (
+                  <p style={{
+                    fontSize: 13, fontWeight: 700, marginBottom: 14,
+                    color: historyRating <= 1 ? '#f87171' : historyRating === 2 ? '#fb923c' : historyRating === 3 ? '#fbbf24' : historyRating === 4 ? '#86efac' : '#4ade80',
+                  }}>
+                    {['', 'Bilkul helpful nahi', 'Thoda helpful', 'Theek tha', 'Helpful lagi', 'Bahut helpful!'][historyRating]}
+                  </p>
+                )}
+
+                {/* Quick option chips */}
+                {historyRating > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                    {[
+                      '✅ Trends clearly dikh rahe hain',
+                      '📊 Graphs helpful hain',
+                      '😕 Samajhna mushkil tha',
+                      '➕ Aur features chahiye',
+                    ].map((opt, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setHistoryFeedback(prev => prev === opt ? '' : opt)}
+                        style={{
+                          padding: '8px 14px', borderRadius: 100, cursor: 'pointer',
+                          fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
+                          background: historyFeedback === opt ? 'rgba(13,148,136,0.2)' : 'rgba(255,255,255,0.05)',
+                          border: `1px solid ${historyFeedback === opt ? '#0d9488' : 'rgba(255,255,255,0.1)'}`,
+                          color: historyFeedback === opt ? '#2dd4bf' : 'rgba(255,255,255,0.8)',
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Textarea */}
+                <textarea
+                  value={historyFeedback && !['✅ Trends clearly dikh rahe hain','📊 Graphs helpful hain','😕 Samajhna mushkil tha','➕ Aur features chahiye'].includes(historyFeedback) ? historyFeedback : ''}
+                  onChange={e => setHistoryFeedback(e.target.value.slice(0, 300))}
+                  placeholder="Koi specific suggestion? Hindi ya English dono chalte hain 😊"
+                  rows={2}
+                  style={{
+                    width: '100%', background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12,
+                    color: 'white', padding: '12px 14px', fontSize: 13,
+                    lineHeight: 1.6, resize: 'none', outline: 'none',
+                    fontFamily: 'inherit', marginTop: 10, boxSizing: 'border-box',
+                    transition: 'border-color 0.2s',
+                  }}
+                />
+
+                {/* Send button */}
+                <button
+                  onClick={sendHistoryFeedback}
+                  disabled={!historyRating || historySending}
+                  style={{
+                    width: '100%', marginTop: 12, padding: 13,
+                    borderRadius: 14, border: 'none', fontFamily: 'inherit',
+                    background: historyRating > 0 ? 'linear-gradient(135deg, #0d9488, #0891b2)' : 'rgba(255,255,255,0.06)',
+                    color: historyRating > 0 ? 'white' : 'rgba(255,255,255,0.3)',
+                    fontSize: 14, fontWeight: 700,
+                    cursor: historyRating > 0 ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.2s',
+                    boxShadow: historyRating > 0 ? '0 4px 16px rgba(13,148,136,0.3)' : 'none',
+                  }}
+                >
+                  {historySending ? '⏳ Bhej raha hoon...' : '✉️ Feedback Bhejo →'}
+                </button>
+              </>
+            )}
+          </div>
 
         </div>
       </main>

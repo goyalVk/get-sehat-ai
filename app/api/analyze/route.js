@@ -143,7 +143,9 @@ export async function POST(req) {
   try {
     const formData = await req.formData()
     const file    = formData.get('file')
-    const anonId  = formData.get('anonId')?.toString() || null
+    const anonId      = formData.get('anonId')?.toString() || null
+    const userAgent   = req.headers.get('user-agent') || null
+    const visitCount  = parseInt(formData.get('visitCount')) || 1
 
     if (!file) {
       return NextResponse.json(
@@ -259,9 +261,48 @@ export async function POST(req) {
       }
     }
 
+    // ── Bot detection — anonId 10+ uploads today ─────
+    if (anonId && !userId) {
+      const todayStart = new Date()
+      todayStart.setHours(0, 0, 0, 0)
+      const todayCount = await Report.countDocuments({ anonId, createdAt: { $gte: todayStart } })
+      if (todayCount >= 10) {
+        await Report.create({
+          fileName: file.name, fileType: file.type, fileSize: file.size,
+          userId: null, anonId, sessionId: crypto.randomUUID(),
+          status: 'failed', isSpam: true, spamReason: 'bot_suspected', userAgent, visitCount,
+        })
+        return NextResponse.json({ error: 'Bahut zyada uploads — thodi der baad try karo.' }, { status: 429 })
+      }
+    }
+
+    // ── Image too small (<100KB) ──────────────────────
+    if (file.type !== 'application/pdf' && file.size < 100 * 1024) {
+      await Report.create({
+        fileName: file.name, fileType: file.type, fileSize: file.size,
+        userId: user?._id?.toString() || null, anonId, sessionId: crypto.randomUUID(),
+        status: 'failed', preCheckFailed: true, spamReason: 'low_quality', userAgent,
+      })
+      return NextResponse.json({ error: 'Image bahut chhoti hai — report clearly nahi dikh rahi. Dobara photo lo 🙏' }, { status: 400 })
+    }
+
     // ── File buffer ───────────────────────────────────
     const bytes  = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+
+    // ── Password protected PDF check ─────────────────
+    if (file.type === 'application/pdf') {
+      const pdfHeader = buffer.toString('latin1', 0, Math.min(buffer.length, 8192))
+      if (pdfHeader.includes('/Encrypt')) {
+        await Report.create({
+          fileName: file.name, fileType: file.type, fileSize: file.size,
+          userId: user?._id?.toString() || null, anonId, sessionId: crypto.randomUUID(),
+          status: 'failed', isSpam: false, isNonMedical: false,
+          preCheckFailed: true, spamReason: 'password_protected', userAgent,
+        })
+        return NextResponse.json({ error: 'PDF password protected hai — lock hatao aur dobara upload karo 🙏' }, { status: 400 })
+      }
+    }
 
     let finalBuffer        = buffer
     let effectiveMediaType = file.type
@@ -314,6 +355,34 @@ export async function POST(req) {
       isSample:  isSampleFile,
     })
     reportId = report._id.toString()
+
+    // ── Haiku pre-check — is this a medical document? ─
+    try {
+      const preCheckContent = [
+        { type: 'text', text: 'Is this a medical lab report or health test result? Reply with only YES or NO.' },
+        file.type === 'application/pdf'
+          ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } }
+          : { type: 'image',    source: { type: 'base64', media_type: effectiveMediaType,  data: base64 } }
+      ]
+      const preCheckResp = await anthropic.messages.create({
+        model: HAIKU_MODEL, max_tokens: 10,
+        messages: [{ role: 'user', content: preCheckContent }]
+      })
+      const preCheckAnswer = preCheckResp.content[0].text.trim().toUpperCase()
+      if (!preCheckAnswer.startsWith('YES')) {
+        await Report.findByIdAndUpdate(reportId, {
+          status: 'failed', isNonMedical: true, isSpam: false,
+          spamReason: 'non_medical', userAgent,
+        })
+        return NextResponse.json({
+          error: 'Yeh medical lab report nahi lagti. CBC, blood test, ya pathology report upload karein.',
+          isNonMedical: true
+        }, { status: 400 })
+      }
+    } catch (preErr) {
+      console.warn('Pre-check skipped:', preErr.message)
+      // Pre-check failure → continue with full analysis
+    }
 
     const startTime = Date.now()
 
@@ -377,7 +446,12 @@ export async function POST(req) {
       tokensUsed:      tokenUsage,
       analysisTimeMs,
       modelUsed:       modelToUse,
-      isSample:        isSampleFile
+      isSample:        isSampleFile,
+      userAgent,
+      visitCount,
+      isSpam:          false,
+      isNonMedical:    false,
+      preCheckFailed:  false,
     })
 
     if (isSampleFile) {
@@ -403,9 +477,17 @@ export async function POST(req) {
     console.error('Analysis error:', err.message)
 
     if (reportId) {
+      const isCorrupted =
+        err.message.includes('Could not process') ||
+        err.message.includes('JSON repair failed') ||
+        err.message.includes('corrupt') ||
+        err.message.includes('Unable to read') ||
+        err.message.includes('Invalid PDF')
       await Report.findByIdAndUpdate(reportId, {
         status:       'failed',
-        errorMessage: err.message
+        errorMessage: err.message,
+        userAgent,
+        ...(isCorrupted ? { isSpam: false, preCheckFailed: true, spamReason: 'corrupted' } : {}),
       })
     }
 

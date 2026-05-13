@@ -149,6 +149,7 @@ export default function Footer() {
                 { href: '/chat',      label: '💊 Medicine Chat' },
                 { href: '/history',   label: '📈 Report History' },
                 { href: '/dashboard', label: '🏠 Dashboard' },
+                { href: '/blog', label: '📰 Blogs' },
               ].map(link => (
                 <Link key={link.href} href={link.href} className="footer-link">
                   {link.label}

@@ -13,16 +13,6 @@ const THANKYOU = [
 ]
 const STAR_COLORS = ['', '#ef4444', '#f97316', '#f59e0b', '#22c55e', '#0d9488']
 
-const CHIPS = [
-  { q: 'Yeh value normal kab hogi?',      icon: '📈' },
-  { q: 'Kya yeh serious condition hai?',   icon: '⚠️' },
-  { q: 'Doctor se kya poochhu?',           icon: '🏥' },
-  { q: 'Diet mein kya change karoon?',     icon: '🥗' },
-  { q: 'Koi medicine zaruri hai?',         icon: '💊' },
-  { q: 'Aur tests karwane chahiye?',       icon: '🔬' },
-  { q: 'Agar koi aur sujhav ya feedback ho, to zarur batayein', icon: '💬' }
-
-]
 
 export default function FeedbackSection({ reportId }) {
   const [hover, setHover]         = useState(0)
@@ -31,10 +21,8 @@ export default function FeedbackSection({ reportId }) {
   const [question, setQuestion]   = useState('')
   const [sending, setSending]     = useState(false)
   const [sent, setSent]           = useState(false)
-  const [sentQs, setSentQs]       = useState([])
 
   const doRate = useCallback(async (stars) => {
-    if (ratingDone) return
     setRating(stars)
     setRatingDone(true)
     try {
@@ -44,7 +32,7 @@ export default function FeedbackSection({ reportId }) {
         body: JSON.stringify({ reportId, rating: stars }),
       })
     } catch {}
-  }, [reportId, ratingDone])
+  }, [reportId])
 
   const doSend = useCallback(async () => {
     const q = question.trim()
@@ -56,7 +44,6 @@ export default function FeedbackSection({ reportId }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reportId, question: q }),
       })
-      setSentQs(prev => [...prev, q])
       setQuestion('')
       setSent(true)
       setTimeout(() => setSent(false), 4000)
@@ -262,9 +249,15 @@ export default function FeedbackSection({ reportId }) {
       <p style={{ fontSize:16, fontWeight:800, color:'white', marginBottom:6 }}>
         Shukriya! 🙏
       </p>
-      <p style={{ fontSize:13, color:'#94a3b8', lineHeight:1.6 }}>
+      <p style={{ fontSize:13, color:'#94a3b8', lineHeight:1.6, marginBottom:14 }}>
         {THANKYOU[rating]}
       </p>
+      <button
+        onClick={() => setRatingDone(false)}
+        style={{ background:'none', border:'none', fontSize:13, color:'white', cursor:'pointer', textDecoration:'underline', padding:0 }}
+      >
+        Rating badalni hai?
+      </button>
     </div>
   )}
 

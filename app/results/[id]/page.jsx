@@ -6,6 +6,23 @@ import { cookies } from 'next/headers'
 import DownloadButton from '@/components/DownloadButton'
 import FeedbackSection from '@/components/FeedbackSection'
 
+/* ── Dynamic metadata ── */
+export async function generateMetadata({ params }) {
+  const { id } = await params
+  try {
+    await connectDB()
+    const report = await Report.findById(id).lean()
+    const reportType = report?.result?.report_type || 'Medical Report'
+    return {
+      title: `${reportType} Report Analysis — Sehat24`,
+      description: `AI analysis of ${reportType} medical report in Hindi. Har parameter explain kiya gaya hai — CBC, Thyroid, HbA1c aur zyada.`,
+      alternates: { canonical: `https://sehat24.com/results/${id}` },
+    }
+  } catch {
+    return { title: 'Report Analysis — Sehat24' }
+  }
+}
+
 const statusConfig = {
   normal:   { color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0', badge: '#dcfce7', badgeText: '#15803d', label: 'Normal',   icon: '✓' },
   low:      { color: '#d97706', bg: '#fffbeb', border: '#fde68a', badge: '#fef3c7', badgeText: '#92400e', label: 'Low',      icon: '↓' },
@@ -26,13 +43,33 @@ function getValuePosition(value, range) {
   return Math.max(5, Math.min(95, pos))
 }
 
+/* ── Blog recommendations keyed to report type ── */
+const ALL_BLOGS = [
+  { key: ['cbc','blood count','complete blood'],   title: 'CBC Report Hindi mein — Poori Guide',       url: '/blog/cbc-report-hindi-mein',         emoji: '🩸' },
+  { key: ['hemoglobin','anemia','hgb'],             title: 'Hemoglobin Kam Hona — Kya Karen?',          url: '/blog/hemoglobin-kam-hona',            emoji: '💉' },
+  { key: ['thyroid','tsh','t3','t4'],               title: 'Thyroid TSH Report Hindi mein Samjho',      url: '/blog/thyroid-tsh-report-hindi',       emoji: '🦋' },
+  { key: ['hba1c','diabetes','blood sugar','sugar'],title: 'HbA1c Kya Hota Hai? — Puri Jankari',       url: '/blog/hba1c-kya-hota-hai',             emoji: '🩺' },
+  { key: ['vitamin d','vit d','b12','vitamin b'],   title: 'Vitamin D Ki Kami — Symptoms & Solution',   url: '/blog/vitamin-d-ki-kami',              emoji: '☀️' },
+]
+const DEFAULT_BLOGS = [
+  { title: 'CBC Report Hindi mein — Poori Guide',     url: '/blog/cbc-report-hindi-mein',   emoji: '🩸' },
+  { title: 'Hemoglobin Kam Hona — Kya Karen?',        url: '/blog/hemoglobin-kam-hona',     emoji: '💉' },
+  { title: 'Vitamin D Ki Kami — Symptoms & Solution', url: '/blog/vitamin-d-ki-kami',       emoji: '☀️' },
+]
+
+function getBlogRecs(reportType) {
+  const t = (reportType || '').toLowerCase()
+  const matched = ALL_BLOGS.filter(b => b.key.some(k => t.includes(k)))
+  if (matched.length >= 2) return matched.slice(0, 3)
+  return DEFAULT_BLOGS.slice(0, 3)
+}
+
 export default async function ResultsPage({ params }) {
   const { id } = await params
   await connectDB()
   const report = await Report.findById(id).lean()
   if (!report) notFound()
 
-  // Auth check
   const cookieStore = await cookies()
   const userId = cookieStore.get('userId')?.value
   const isLoggedIn = !!userId
@@ -69,9 +106,23 @@ export default async function ResultsPage({ params }) {
   const abnormalCount = result.parameters?.filter(p => p.status?.toLowerCase() !== 'normal' && p.status !== undefined).length || 0
   const criticalCount = result.parameters?.filter(p => p.status?.toLowerCase() === 'critical').length || 0
   const totalCount    = result.parameters?.length || 0
+  const blogRecs      = getBlogRecs(result.report_type)
+
+  const medicalPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalWebPage',
+    name: `${result.report_type || 'Medical Report'} Analysis - Sehat24`,
+    description: `AI analysis of ${result.report_type || 'medical'} report in Hindi`,
+    inLanguage: 'hi',
+    url: `https://sehat24.com/results/${id}`,
+    audience: { '@type': 'Patient' },
+    about: { '@type': 'MedicalCondition', name: result.report_type || 'Medical Report Analysis' },
+  }
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(medicalPageSchema) }} />
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
         * { box-sizing: border-box; }
@@ -79,6 +130,8 @@ export default async function ResultsPage({ params }) {
         .serif { font-family: 'DM Serif Display', serif; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .fade-up { animation: fadeUp 0.4s ease forwards; opacity: 0; }
+
+        /* ── Core cards ── */
         .param-card { background: white; border-radius: 16px; border: 1px solid #f1f5f9; padding: 20px; transition: all 0.2s; }
         .param-card:hover { border-color: #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-1px); }
         .range-track { height: 6px; background: #f1f5f9; border-radius: 3px; position: relative; margin: 12px 0 4px; }
@@ -87,6 +140,113 @@ export default async function ResultsPage({ params }) {
         .pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .herb-btn:hover { opacity: 0.85; transform: translateY(-1px); }
         .login-btn:hover { background: #0f766e !important; transform: translateY(-1px); }
+
+        /* ── Action buttons row ── */
+        .action-buttons { display: flex; gap: 10px; margin-bottom: 12px; }
+
+        /* ── Blog recommendation cards ── */
+        .blog-rec-card {
+          display: flex; align-items: center; justify-content: space-between; gap: 12px;
+          padding: 14px 16px; background: white; border-radius: 12px;
+          border: 1px solid #f1f5f9; border-left: 4px solid #0d9488;
+          text-decoration: none; transition: all 0.2s;
+        }
+        .blog-rec-card:hover { background: #f0fdfa; border-color: #99f6e4; border-left-color: #0d9488; transform: translateX(4px); box-shadow: 0 4px 16px rgba(13,148,136,0.1); }
+        .blog-rec-read { font-size: 12px; font-weight: 700; color: #0d9488; white-space: nowrap; flex-shrink: 0; }
+
+        /* ── Instagram follow card ── */
+        .ig-follow-card {
+          display: flex; align-items: center; gap: 20px;
+          background: linear-gradient(135deg, #fdf0f8, #f5f0ff);
+          border: 1.5px solid #e9d5ff; border-radius: 20px;
+          padding: 22px 24px; margin-bottom: 16px;
+        }
+
+        /* ── Next report nudge ── */
+        .next-report-nudge {
+          background: linear-gradient(135deg, #f0fdfa, #ecfdf5);
+          border: 1.5px solid #99f6e4; border-radius: 20px;
+          padding: 24px; margin-bottom: 16px;
+        }
+
+        /* ── Feedback incentive ── */
+        .feedback-incentive {
+          background: linear-gradient(135deg, #fffbeb, #fef3c7);
+          border: 1px solid #fde68a; border-radius: 20px;
+          padding: 20px 24px; margin-bottom: 16px;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 720px) {
+          .results-page { padding-bottom: 20px; }
+
+          /* Header */
+          h1.serif { font-size: 18px !important; }
+
+          /* Summary / urgent / doctor sections */
+          .summary-card { padding: 16px !important; }
+          .urgent-card  { padding: 16px !important; }
+          .doctor-card  { padding: 16px !important; }
+
+          /* Parameter cards */
+          .param-card { padding: 14px !important; }
+
+          /* All section h2 cap */
+          h2 { font-size: 15px !important; }
+
+          /* Action buttons — stack */
+          .action-buttons { flex-direction: column !important; }
+          .action-buttons a, .action-buttons > * {
+            width: 100% !important;
+            text-align: center !important;
+            justify-content: center !important;
+          }
+
+          /* Instagram card — stack */
+          .ig-follow-card {
+            flex-direction: column !important;
+            text-align: center !important;
+            padding: 16px !important;
+          }
+          .ig-follow-card button,
+          .ig-follow-card a {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+
+          /* Blog rec cards */
+          .blog-rec-card {
+            padding: 10px 12px !important;
+            border-left-width: 3px !important;
+          }
+          .blog-rec-card span:first-child { font-size: 12px !important; }
+          .blog-rec-read { display: inline !important; }
+
+          /* Next report nudge */
+          .next-report-nudge { padding: 20px 16px !important; }
+          .next-report-nudge a {
+            width: 100% !important;
+            justify-content: center !important;
+            text-align: center !important;
+            font-size: 14px !important;
+          }
+
+          /* Feedback incentive */
+          .feedback-incentive { padding: 14px 16px !important; }
+          .feedback-incentive a, .feedback-incentive button {
+            width: 100% !important;
+            text-align: center !important;
+            justify-content: center !important;
+          }
+
+          /* Star rating tap targets — applied to FeedbackSection inner stars */
+          [aria-label*="star"], [class*="star"], button[value] {
+            min-width: 44px !important;
+            min-height: 44px !important;
+            font-size: 28px !important;
+          }
+          .rating-change-hint { display: block !important; }
+        }
       `}</style>
 
       <div className="results-page">
@@ -155,7 +315,7 @@ export default async function ResultsPage({ params }) {
 
           {/* ── Urgent Flags ── */}
           {result.urgent_flags?.length > 0 && (
-            <div className="fade-up" style={{ background: 'linear-gradient(135deg, #fef2f2, #fff1f2)', border: '1.5px solid #fecaca', borderRadius: 20, padding: 24, marginBottom: 20, animationDelay: '0.05s' }}>
+            <div className="fade-up urgent-card" style={{ background: 'linear-gradient(135deg, #fef2f2, #fff1f2)', border: '1.5px solid #fecaca', borderRadius: 20, padding: 24, marginBottom: 20, animationDelay: '0.05s' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>⚠️</div>
                 <div>
@@ -175,45 +335,28 @@ export default async function ResultsPage({ params }) {
           )}
 
           {/* ── AI Summary ── */}
-        <div className="fade-up" style={{ background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 20, padding: 28, marginBottom: 24, animationDelay: '0.1s', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(13,148,136,0.06)' }} />
-          <p style={{ fontSize: 11, color: '#0d9488', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>AI Summary</p>
-          {result.summary && result.summary.length > 20 ? (
-            <p style={{ fontSize: 15, color: '#134e4a', lineHeight: 1.75, fontWeight: 500 }}>{result.summary}</p>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '8px 0' }}>
-              <p style={{ fontSize: 22, marginBottom: 8 }}>🤖</p>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>
-                Aapki report bahut detailed hai!
-              </p>
-              <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.7, marginBottom: 6 }}>
-                Main free mein itna hi kar sakta hoon — 
-                aapki report meri free limit se badi hai. 
-                <strong> Neeche saare parameters dikh rahe hain.</strong>
-              </p>
-              <p style={{ fontSize: 13, color: '#0d9488', fontWeight: 600, marginBottom: 16 }}>
-                Pro mein meri limit badh jaati hai — 
-                wahan aapko poori summary, lifestyle tips 
-                aur ayurvedic suggestions bhi dunga 😊
-              </p>
-
-          <a href="/upgrade"
-          style={{
-            display: 'inline-block',
-            background: '#0d9488',
-            color: 'white',
-            padding: '12px 28px',
-            borderRadius: 12,
-            textDecoration: 'none',
-            fontSize: 14,
-            fontWeight: 700
-          }}
-        >
-          Pro lo sirf ₹199/month →
-        </a>
-            </div>
-          )}
-        </div>
+          <div className="fade-up summary-card" style={{ background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 20, padding: 28, marginBottom: 24, animationDelay: '0.1s', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(13,148,136,0.06)' }} />
+            <p style={{ fontSize: 11, color: '#0d9488', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>AI Summary</p>
+            {result.summary && result.summary.length > 20 ? (
+              <p style={{ fontSize: 15, color: '#134e4a', lineHeight: 1.75, fontWeight: 500 }}>{result.summary}</p>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                <p style={{ fontSize: 22, marginBottom: 8 }}>🤖</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Aapki report bahut detailed hai!</p>
+                <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.7, marginBottom: 6 }}>
+                  Main free mein itna hi kar sakta hoon — aapki report meri free limit se badi hai.{' '}
+                  <strong>Neeche saare parameters dikh rahe hain.</strong>
+                </p>
+                <p style={{ fontSize: 13, color: '#0d9488', fontWeight: 600, marginBottom: 16 }}>
+                  Pro mein meri limit badh jaati hai — wahan aapko poori summary, lifestyle tips aur ayurvedic suggestions bhi dunga 😊
+                </p>
+                <a href="/upgrade" style={{ display: 'inline-block', background: '#0d9488', color: 'white', padding: '12px 28px', borderRadius: 12, textDecoration: 'none', fontSize: 14, fontWeight: 700 }}>
+                  Pro lo sirf ₹199/month →
+                </a>
+              </div>
+            )}
+          </div>
 
           {/* ── Parameters ── */}
           <div className="fade-up" style={{ marginBottom: 24, animationDelay: '0.15s' }}>
@@ -223,16 +366,16 @@ export default async function ResultsPage({ params }) {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {result.parameters?.map((param, i) => {
-                const style = statusConfig[param.status?.toLowerCase()] || statusConfig.normal
+                const cfg = statusConfig[param.status?.toLowerCase()] || statusConfig.normal
                 const pos = getValuePosition(param.value, param.reference_range)
                 const isAbnormal = param.status !== 'normal'
                 return (
-                  <div key={i} className="param-card" style={{ borderColor: isAbnormal ? style.border : '#f1f5f9', background: isAbnormal ? style.bg : 'white' }}>
+                  <div key={i} className="param-card" style={{ borderColor: isAbnormal ? cfg.border : '#f1f5f9', background: isAbnormal ? cfg.bg : 'white' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{param.name}</span>
-                          <span style={{ fontSize: 18, fontWeight: 700, color: style.color }}>
+                          <span style={{ fontSize: 18, fontWeight: 700, color: cfg.color }}>
                             {param.value}
                             <span style={{ fontSize: 12, fontWeight: 500, color: '#94a3b8', marginLeft: 3 }}>{param.unit}</span>
                           </span>
@@ -241,22 +384,22 @@ export default async function ResultsPage({ params }) {
                           <div>
                             <div className="range-track">
                               <div className="range-normal" style={{ left: '20%', width: '60%' }} />
-                              <div className="range-marker" style={{ left: `${pos}%`, background: style.color }} />
+                              <div className="range-marker" style={{ left: `${pos}%`, background: cfg.color }} />
                             </div>
                             <p style={{ fontSize: 11, color: '#94a3b8' }}>Normal range: {param.reference_range}</p>
                           </div>
                         )}
                         <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.6, marginTop: 10 }}>{param.explanation}</p>
                         {isAbnormal && param.action && (
-                          <div style={{ marginTop: 12, padding: '10px 14px', background: 'white', borderRadius: 10, border: `1px solid ${style.border}`, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                          <div style={{ marginTop: 12, padding: '10px 14px', background: 'white', borderRadius: 10, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                             <span style={{ fontSize: 13, flexShrink: 0 }}>💡</span>
                             <p style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, fontWeight: 500 }}>{param.action}</p>
                           </div>
                         )}
                       </div>
-                      <div style={{ flexShrink: 0, background: style.badge, color: style.badgeText, fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span>{style.icon}</span>
-                        <span>{style.label}</span>
+                      <div style={{ flexShrink: 0, background: cfg.badge, color: cfg.badgeText, fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span>{cfg.icon}</span>
+                        <span>{cfg.label}</span>
                       </div>
                     </div>
                   </div>
@@ -267,7 +410,7 @@ export default async function ResultsPage({ params }) {
 
           {/* ── Doctor Questions ── */}
           {result.doctor_questions?.length > 0 && (
-            <div className="fade-up" style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', padding: 24, marginBottom: 16, animationDelay: '0.2s' }}>
+            <div className="fade-up doctor-card" style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', padding: 24, marginBottom: 16, animationDelay: '0.2s' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>💬</div>
                 <div>
@@ -286,34 +429,34 @@ export default async function ResultsPage({ params }) {
             </div>
           )}
 
-            {/* ── Lifestyle Tips ── */}
-            {result.lifestyle && (
-              <div className="fade-up" style={{ background: 'linear-gradient(135deg, #fffbeb, #fef9ee)', border: '1px solid #fde68a', borderRadius: 20, padding: 24, marginBottom: 16, animationDelay: '0.25s' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🌿</div>
-                  <div>
-                    <h2 style={{ fontSize: 15, fontWeight: 700, color: '#92400e' }}>Lifestyle Tips</h2>
-                    <p style={{ fontSize: 12, color: '#b45309' }}>Aapki report ke hisaab se suggestions</p>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {[
-                    { icon: '🥗', label: 'Diet',          value: result.lifestyle.diet },
-                    { icon: '🚶', label: 'Activity',      value: result.lifestyle.activity },
-                    { icon: '😴', label: 'Sleep & Stress', value: result.lifestyle.sleep_stress },
-                    { icon: '🚫', label: 'Avoid',         value: result.lifestyle.avoid },
-                  ].filter(item => item.value).map((item, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, background: 'white', borderRadius: 12, padding: '12px 14px', border: '1px solid #fde68a' }}>
-                      <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
-                      <div>
-                        <p style={{ fontSize: 11, fontWeight: 700, color: '#92400e', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</p>
-                        <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>{item.value}</p>
-                      </div>
-                    </div>
-                  ))}
+          {/* ── Lifestyle Tips ── */}
+          {result.lifestyle && (
+            <div className="fade-up" style={{ background: 'linear-gradient(135deg, #fffbeb, #fef9ee)', border: '1px solid #fde68a', borderRadius: 20, padding: 24, marginBottom: 16, animationDelay: '0.25s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🌿</div>
+                <div>
+                  <h2 style={{ fontSize: 15, fontWeight: 700, color: '#92400e' }}>Lifestyle Tips</h2>
+                  <p style={{ fontSize: 12, color: '#b45309' }}>Aapki report ke hisaab se suggestions</p>
                 </div>
               </div>
-            )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { icon: '🥗', label: 'Diet',           value: result.lifestyle.diet },
+                  { icon: '🚶', label: 'Activity',       value: result.lifestyle.activity },
+                  { icon: '😴', label: 'Sleep & Stress', value: result.lifestyle.sleep_stress },
+                  { icon: '🚫', label: 'Avoid',          value: result.lifestyle.avoid },
+                ].filter(item => item.value).map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, background: 'white', borderRadius: 12, padding: '12px 14px', border: '1px solid #fde68a' }}>
+                    <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
+                    <div>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: '#92400e', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</p>
+                      <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}>{item.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* ── Ayurvedic Herbs ── */}
           {result.ayurvedic_herbs?.length > 0 && (
@@ -325,14 +468,12 @@ export default async function ResultsPage({ params }) {
                   <p style={{ fontSize: 12, color: '#16a34a' }}>Natural support — doctor se pooch ke lo</p>
                 </div>
               </div>
-
               <div style={{ background: '#fefce8', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                 <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
                 <p style={{ fontSize: 12, color: '#92400e', lineHeight: 1.6 }}>
                   Yeh herbs <strong>sirf general wellness ke liye</strong> hain. Koi bhi herb lene se <strong>pehle doctor se milein</strong> — especially agar aap koi medicine le rahe hain.
                 </p>
               </div>
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {result.ayurvedic_herbs.map((herb, i) => (
                   <div key={i} style={{ background: 'white', borderRadius: 14, padding: '14px 16px', border: '1px solid #86efac' }}>
@@ -346,24 +487,14 @@ export default async function ResultsPage({ params }) {
                   </div>
                 ))}
               </div>
-
               <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                <a
-                  href="https://satvikhavan.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="herb-btn"
-                  style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 14px', background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#15803d', transition: 'all 0.2s' }}
-                >
+                <a href="https://satvikhavan.com" target="_blank" rel="noopener noreferrer" className="herb-btn"
+                  style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 14px', background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#15803d', transition: 'all 0.2s' }}>
                   🛒 Shop Satvik havan
                 </a>
-                <a
-                  href={`https://wa.me/918076170877?text=${encodeURIComponent(`Namaste! Sehat24 se aaya hoon. Mujhe yeh herbs chahiye: ${result.ayurvedic_herbs.map(h => h.name.split('(')[0].trim()).join(', ')}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="herb-btn"
-                  style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 14px', background: '#f0fff4', border: '1.5px solid #86efac', borderRadius: 10, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#15803d', transition: 'all 0.2s' }}
-                >
+                <a href={`https://wa.me/918076170877?text=${encodeURIComponent(`Namaste! Sehat24 se aaya hoon. Mujhe yeh herbs chahiye: ${result.ayurvedic_herbs.map(h => h.name.split('(')[0].trim()).join(', ')}`)}`}
+                  target="_blank" rel="noopener noreferrer" className="herb-btn"
+                  style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 14px', background: '#f0fff4', border: '1.5px solid #86efac', borderRadius: 10, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#15803d', transition: 'all 0.2s' }}>
                   💬 WhatsApp Order
                 </a>
               </div>
@@ -377,7 +508,8 @@ export default async function ResultsPage({ params }) {
               <div>
                 <p style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', marginBottom: 6 }}>Medical Disclaimer — Zaroor Padhein</p>
                 <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.8 }}>
-                  Yeh report summary sirf <strong>samajhne ke liye</strong> hai — doctor ka replacement nahi hai. Apni health ke baare mein koi bhi <strong>decision doctor ki salah ke baad hi lein.</strong>
+                  Yeh report summary sirf <strong>samajhne ke liye</strong> hai — doctor ka replacement nahi hai. Apni health ke baare mein koi bhi{' '}
+                  <strong>decision doctor ki salah ke baad hi lein.</strong>
                   <br />
                   <span style={{ display: 'inline-block', marginTop: 8, background: '#dc2626', color: 'white', padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
                     ⚠️ Doctor se milein — yeh medical advice nahi hai
@@ -392,71 +524,157 @@ export default async function ResultsPage({ params }) {
             <FeedbackSection reportId={String(report._id)} />
           </div>
 
-         {/* ── Action Buttons ── */}
-          <div
+          {/* ══ NEW: Feedback Incentive (4-5 star prompt) ══ */}
+          {/* <div className="fade-up feedback-incentive" style={{ animationDelay: '0.36s' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <span style={{ fontSize: 28 }}>⭐</span>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#92400e', marginBottom: 2 }}>Helpful lagi report?</p>
+                <p style={{ fontSize: 12, color: '#b45309' }}>Apne dost ya family ko bhi batao — bilkul free hai</p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`Yaar, is site se apni medical report Hindi mein samjho — bilkul free! Maine try ki, bahut helpful tha 🙏\n\nsehat24.com`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 16px', background: '#25d366', color: 'white', borderRadius: 12, textDecoration: 'none', fontSize: 13, fontWeight: 700 }}
+              >
+                📤 WhatsApp pe Share karo
+              </a>
+              <a
+                href="https://g.page/r/sehat24/review"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 16px', background: 'white', border: '1.5px solid #fde68a', color: '#92400e', borderRadius: 12, textDecoration: 'none', fontSize: 13, fontWeight: 700 }}
+              >
+                ⭐ Google Review Do
+              </a>
+            </div>
+          </div> */}
+
+          {/* ══ NEW: Blog Recommendations ══ */}
+          <nav
+            role="navigation"
+            aria-label="Related health articles"
             className="fade-up"
-            style={{
-              display: 'flex',
-              gap: 10,
-              marginBottom: 12,
-              animationDelay: '0.35s'
-            }}
+            style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', padding: 20, marginBottom: 16, animationDelay: '0.38s' }}
           >
-            <Link
-              href="/upload"
-              style={{
-                flex: 1,
-                padding: '14px',
-                borderRadius: 14,
-                border: '1px solid #e2e8f0',
-                background: 'white',
-                fontSize: 14,
-                fontWeight: 600,
-                color: '#64748b',
-                textDecoration: 'none',
-                textAlign: 'center'
-              }}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <span style={{ fontSize: 18 }}>📚</span>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 0 }}>Aur samjho — Related Articles</p>
+                <p style={{ fontSize: 11, color: '#94a3b8' }}>Aapki report se related guides Hindi mein</p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {blogRecs.map((b, i) => (
+                <Link
+                  key={i}
+                  href={b.url}
+                  className="blog-rec-card"
+                  title={`${b.title} - Sehat24`}
+                  rel="internal"
+                  aria-label={b.title}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 20, flexShrink: 0 }}>{b.emoji}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', lineHeight: 1.4 }}>{b.title}</span>
+                  </div>
+                  <span className="blog-rec-read">Padhein →</span>
+                </Link>
+              ))}
+            </div>
+          </nav>
+
+          {/* ══ NEW: Instagram Follow Card ══ */}
+          <section
+            role="complementary"
+            aria-label="Follow Sehat24 on Instagram"
+            className="fade-up ig-follow-card"
+            style={{ animationDelay: '0.40s' }}
+          >
+            {/* Left — branding */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1 }}>
+              <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg, #f9a8d4, #c084fc, #818cf8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, flexShrink: 0 }}>
+                📸
+              </div>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#4c1d95', marginBottom: 3 }}>
+                  @sehat24ai
+                </p>
+                <p style={{ fontSize: 12, color: '#6d28d9', lineHeight: 1.5 }}>
+                  Daily health tips, report guides &amp; Indian wellness — sab Hindi mein 🇮🇳
+                </p>
+              </div>
+            </div>
+            {/* Right — CTA */}
+            <a
+              href="https://instagram.com/sehat24ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Follow Sehat24 on Instagram"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 20px', background: 'linear-gradient(135deg, #f9a8d4, #c084fc)', color: 'white', borderRadius: 12, textDecoration: 'none', fontSize: 13, fontWeight: 700, flexShrink: 0, whiteSpace: 'nowrap' }}
             >
+              ❤️ Follow Karo
+            </a>
+          </section>
+
+          {/* ══ NEW: Next Report Nudge ══ */}
+          <section
+            aria-label="Upload another report"
+            className="fade-up next-report-nudge"
+            style={{ animationDelay: '0.42s' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: '#f0fdfa', border: '1.5px solid #99f6e4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
+                📋
+              </div>
+              <div>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#134e4a', marginBottom: 4 }}>
+                  Aur reports analyze karo — Free
+                </p>
+                <p style={{ fontSize: 13, color: '#0d9488', lineHeight: 1.6 }}>
+                  Thyroid, HbA1c, Vitamin D, Liver — koi bhi report upload karo. 30 seconds mein Hindi mein results.
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <Link
+                href="/upload"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 20px', background: '#0d9488', color: 'white', borderRadius: 12, textDecoration: 'none', fontSize: 14, fontWeight: 700, flex: 1, minWidth: 180, justifyContent: 'center' }}
+              >
+                📤 Naya Report Upload Karo →
+              </Link>
+              <Link
+                href="/dashboard"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 20px', background: 'white', border: '1.5px solid #99f6e4', color: '#0d9488', borderRadius: 12, textDecoration: 'none', fontSize: 14, fontWeight: 600, flex: 1, minWidth: 140, justifyContent: 'center' }}
+              >
+                📊 Dashboard Dekho
+              </Link>
+            </div>
+          </section>
+
+          {/* ── Action Buttons ── */}
+          <div className="fade-up action-buttons" style={{ animationDelay: '0.45s' }}>
+            <Link href="/upload" style={{ flex: 1, padding: '14px', borderRadius: 14, border: '1px solid #e2e8f0', background: 'white', fontSize: 14, fontWeight: 600, color: '#64748b', textDecoration: 'none', textAlign: 'center' }}>
               New Report
             </Link>
-
-            {/* WhatsApp Share */}
             <a
               href={`https://wa.me/?text=${encodeURIComponent(`Maine apni ${result.report_type || 'health'} report Sehat24 pe analyze ki — Hindi mein results dekho! 🇮🇳\n\n👉 sehat24.com/results/${id}\n\nSehat24 — Free medical report analyzer for India`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                flex: 1, padding: '14px', borderRadius: 14,
-                background: '#25d366', color: 'white',
-                fontSize: 14, fontWeight: 600,
-                textDecoration: 'none', textAlign: 'center',
-                display: 'flex', alignItems: 'center',
-                justifyContent: 'center', gap: 6
-              }}
+              style={{ flex: 1, padding: '14px', borderRadius: 14, background: '#25d366', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
             >
               📤 Share
             </a>
-
-            <Link
-              href="/dashboard"
-              style={{
-                flex: 1,
-                padding: '14px',
-                borderRadius: 14,
-                background: '#0d9488',
-                color: 'white',
-                fontSize: 14,
-                fontWeight: 600,
-                textDecoration: 'none',
-                textAlign: 'center'
-              }}
-            >
+            <Link href="/dashboard" style={{ flex: 1, padding: '14px', borderRadius: 14, background: '#0d9488', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', textAlign: 'center' }}>
               Dashboard →
             </Link>
           </div>
 
           {/* ── PDF Download — Conditional ── */}
-          <div className="fade-up" style={{ animationDelay: '0.4s' }}>
+          <div className="fade-up" style={{ animationDelay: '0.48s' }}>
             {isLoggedIn ? (
               <DownloadButton
                 report={JSON.parse(JSON.stringify(report))}

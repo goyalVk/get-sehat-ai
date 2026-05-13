@@ -1,12 +1,12 @@
 export const metadata = {
-  title:       'Report Upload — Medical Report Analyze Karo Free',
-  description: 'Blood test, MRI, X-Ray, Ultrasound — koi bhi PDF ya photo upload karo. AI 30 seconds mein Hindi mein sab explain karega. Bilkul free.',
-  alternates:  { canonical: 'https://www.sehat24.com/upload' },
-  openGraph: {
-    title:       'Sehat24 — Report Upload Karo Free',
-    description: 'Koi bhi medical report upload karo — 30 seconds mein Hindi mein results.',
-    url:         'https://www.sehat24.com/upload',
-  },
+  title: 'Medical Report Upload — Hindi Mein Analyze Karo | Sehat24',
+  description: 'Apni koi bhi lab report upload karo — CBC, Thyroid, HbA1c, Vitamin D. 30 seconds mein Hindi mein result. SRL, Lal PathLabs, Apollo, Thyrocare supported. Free.',
+  keywords: [
+    'lab report upload hindi', 'blood test report analyzer',
+    'medical report hindi mein', 'CBC report analyze',
+    'thyroid report hindi', 'free medical report analyzer india',
+  ],
+  alternates: { canonical: 'https://sehat24.com/upload' },
 }
 
 export default function UploadLayout({ children }) {
