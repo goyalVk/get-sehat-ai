@@ -119,8 +119,8 @@ export default function UploadPage() {
         if (returning) window.gtag('event', 'returning_user_upload')
       }
       incrementUploadCount()
-      setTimeout(async () => { await requestPushPermission() }, 3000)
       setLoadingMsg('Ho gaya! Results load ho rahe hain...')
+      requestPushPermission().catch(console.error)
       router.push(`/results/${data.reportId}`)
     } catch (err) {
       if (err.message?.includes('timeout') || err.message?.includes('ETIMEDOUT')) {
