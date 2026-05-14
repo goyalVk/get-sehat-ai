@@ -5,6 +5,7 @@ import { auth } from '@/lib/firebase'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import Link from 'next/link'
 import { events } from '@/components/Analytics'
+import { requestPushPermission } from '@/lib/pushNotification'
 
 function LoginForm() {
   const router       = useRouter()
@@ -139,12 +140,24 @@ function LoginForm() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       if (isNewUser) {
-      events.signupCompleted()
-    } else {
-      events.loginCompleted()
-    }
+        events.signupCompleted()
+      } else {
+        events.loginCompleted()
+      }
 
-    router.push(redirectTo)
+      // Link any existing push token / anonId to the newly authenticated user
+      const pushToken = localStorage.getItem('s24_push_token')
+      const anonId    = localStorage.getItem('s24_uid')
+      if (pushToken || anonId) {
+        fetch('/api/push/link-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: pushToken || null, anonId: anonId || null })
+        }).catch(console.error)
+      }
+      await requestPushPermission()
+
+      router.push(redirectTo)
     } catch (err) {
       console.error(err)
       setError('OTP galat hai ya expire ho gaya. Dobara try karo.')

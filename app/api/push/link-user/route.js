@@ -9,28 +9,27 @@ export async function POST(req) {
     await connectDB()
     const { token, anonId } = await req.json()
 
-    if (!token) {
-      return NextResponse.json({ error: 'Token required' }, { status: 400 })
-    }
-
     const cookieStore = await cookies()
     const userId = cookieStore.get('userId')?.value
-    const user   = userId ? await User.findById(userId).lean() : null
+    if (!userId) {
+      return NextResponse.json({ error: 'Not logged in' }, { status: 401 })
+    }
 
-    await PushToken.findOneAndUpdate(
-      { token },
-      {
-        token,
-        userId:   user?._id || null,
-        anonId:   anonId || null,
-        active:   true,
-        platform: 'web',
-      },
-      { upsert: true, new: true }
-    )
+    const user = await User.findById(userId).lean()
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
 
-    // If user is already logged in, backfill any other anon tokens for the same anonId
-    if (anonId && user?._id) {
+    // Link the specific FCM token to this user
+    if (token) {
+      await PushToken.findOneAndUpdate(
+        { token },
+        { $set: { userId: user._id } }
+      )
+    }
+
+    // Backfill all anonymous tokens with the same anonId
+    if (anonId) {
       await PushToken.updateMany(
         { anonId, userId: null },
         { $set: { userId: user._id } }
@@ -39,7 +38,7 @@ export async function POST(req) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('Save token error:', err.message)
+    console.error('Link user error:', err.message)
     return NextResponse.json({ error: 'Failed' }, { status: 500 })
   }
 }
