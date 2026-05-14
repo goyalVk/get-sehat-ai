@@ -1,0 +1,733 @@
+{
+  "period": {
+    "from": "2026-05-10T07:30:00.000Z",
+    "to": "2026-05-13T07:30:00.000Z"
+  },
+  "accuracy": 98.03,
+  "severeRate": 0.53,
+  "mediumRate": 1.45,
+  "totalReports": 104,
+  "totalParams": 1142,
+  "evaluated": 761,
+  "correct": 746,
+  "wrongSevere": 4,
+  "wrongMedium": 11,
+  "unitNormalized": 3,
+  "worstParams": {
+    "LDL slash HDL Ratio": 1,
+    "TC slash HDL Ratio": 1,
+    "Absolute Basophil Count": 1,
+    "Platelet Count": 1
+  },
+  "severeErrors": [
+    {
+      "reportId": "6a0066c18394bc0f6d09a0fd",
+      "storedAt": "10-May-2026, 04:36 pm",
+      "reportType": "Summarized Comparative Report - Cardiac Wellness, Vitamins, Thyroid",
+      "fileName": "IMG_7574.png",
+      "paramName": "LDL slash HDL Ratio",
+      "storedValue": "1.19",
+      "normalizedValue": null,
+      "referenceRange": "1.5-3.5",
+      "parsedRange": "1.5–3.5",
+      "aiSaid": "normal",
+      "shouldBe": "low",
+      "aiExplanation": "Cholesterol ka ratio bilkul healthy hai, dil ka risk bohot kam hai.",
+      "aiAction": "Bilkul theek hai.",
+      "aiSummary": "Mansimran ji, aapki report mein almost sab values normal hain aur cholesterol bilkul control mein hai jo dil ke liye bahut achha sign hai. Sirf B12 level thoda low hai jo thakaan aur weakness cause kar sakta hai. B12 supplement start karein aur iron-rich vegetarian foods khana badhao, sab theek ho jayega."
+    },
+    {
+      "reportId": "6a0066c18394bc0f6d09a0fd",
+      "storedAt": "10-May-2026, 04:36 pm",
+      "reportType": "Summarized Comparative Report - Cardiac Wellness, Vitamins, Thyroid",
+      "fileName": "IMG_7574.png",
+      "paramName": "TC slash HDL Ratio",
+      "storedValue": "2.49",
+      "normalizedValue": null,
+      "referenceRange": "3-5",
+      "parsedRange": "3–5",
+      "aiSaid": "normal",
+      "shouldBe": "low",
+      "aiExplanation": "Total cholesterol se HDL ka ratio achha hai.",
+      "aiAction": "Normal hai.",
+      "aiSummary": "Mansimran ji, aapki report mein almost sab values normal hain aur cholesterol bilkul control mein hai jo dil ke liye bahut achha sign hai. Sirf B12 level thoda low hai jo thakaan aur weakness cause kar sakta hai. B12 supplement start karein aur iron-rich vegetarian foods khana badhao, sab theek ho jayega."
+    },
+    {
+      "reportId": "6a01b2701d6aa2746dd23d00",
+      "storedAt": "11-May-2026, 04:11 pm",
+      "reportType": "Complete Blood Counts (Whole Blood - EDTA) with Differential Count",
+      "fileName": "IMG_20260504_125412.jpg",
+      "paramName": "Absolute Basophil Count",
+      "storedValue": "0.00",
+      "normalizedValue": null,
+      "referenceRange": "0.02 - 0.1",
+      "parsedRange": "0.02–0.1",
+      "aiSaid": "normal",
+      "shouldBe": "low",
+      "aiExplanation": "Histamine release wale cells bilkul theek hain.",
+      "aiAction": "Yeh normal hai.",
+      "aiSummary": "Aapke report mein hemoglobin significantly kam hai aur eosinophil count bahut zyada hai — yeh dono concern ke baatein hain. Khoon mein oxygen le jane wali capacity mein kaafi kami hai aur allergy ya kisi infection ka signal ho sakta hai. Doctor se jald miln aur iron deficiency aur allergy testing karawaana zaroori hai."
+    },
+    {
+      "reportId": "6a02754de30f035328ddaf79",
+      "storedAt": "12-May-2026, 06:03 am",
+      "reportType": "Complete Blood Count",
+      "fileName": "Screenshot_2026-05-12-05-34-06-73.jpg",
+      "paramName": "Platelet Count",
+      "storedValue": "215",
+      "normalizedValue": null,
+      "referenceRange": "1.5-4.0 Lac/cumm",
+      "parsedRange": "1.5–4",
+      "aiSaid": "normal",
+      "shouldBe": "high",
+      "aiExplanation": "Aapki platelets bilkul normal hain, khun thalne mein koi problem nahi.",
+      "aiAction": "Sab theek hai.",
+      "aiSummary": "Aapka blood report bilkul normal hai bas hemoglobin thoda kam hai jo 13.2 hai — yeh koi badi problem nahi hai. Iron-rich khana khayen aur doctor se ek bar pooch lena theek rahega. Baaki sab values bilkul theek hain, ghabraiye mat."
+    }
+  ],
+  "mediumErrors": [
+    {
+      "reportId": "6a00541d2a289f0500f357dc",
+      "storedAt": "10-May-2026, 03:17 pm",
+      "reportType": "Complete Blood Count",
+      "fileName": "IMG-20260510-WA0003.jpg",
+      "paramName": "MCH",
+      "storedValue": "32.8",
+      "normalizedValue": null,
+      "referenceRange": "27-33",
+      "parsedRange": "27–33",
+      "aiSaid": "high",
+      "shouldBe": "normal",
+      "aiExplanation": "Har red cell mein hemoglobin thoda zyada hai",
+      "aiSummary": "Uttam Kumar ji, aapke report mein kaafi saari values normal se bahar hain aur bohot serious abnormalities dikh rahe hain. Platelets bahut zyada badh gaye hain jo 3 guna normal se jyada hain, aur safed khoon cells bhi badhe hue hain jo infection ka sign hai. RBC ke size mein bhi bahut variation hai. Aaj hi doctor se milo aur zaroor blood clotting au"
+    },
+    {
+      "reportId": "6a0065a643e1603b1f76c0fd",
+      "storedAt": "10-May-2026, 04:31 pm",
+      "reportType": "Summarized Comparative Report",
+      "fileName": "IMG_7571.png",
+      "paramName": "Total Bilirubin",
+      "storedValue": "1.17",
+      "normalizedValue": null,
+      "referenceRange": "0.2-1.3",
+      "parsedRange": "0.2–1.3",
+      "aiSaid": "high",
+      "shouldBe": "normal",
+      "aiExplanation": "Liver se bilirubin thoda bahar aa rha hai, jaundice ka light risk ho sakta hai.",
+      "aiSummary": "Mansimran, aapka hemoglobin thoda low hai jo weakness aur thakaan de sakta hai - iron-rich foods aur supplements zaroori hain. Bilirubin aur globulin bhi slightly abnormal hain jo liver mein kuch inflammation suggest karte hain - yeh values dhyan dene layak hain. Overall health check ke liye doctor se milna zaroori hai kyunki kaafi values normal se"
+    },
+    {
+      "reportId": "6a00806b20d5cf2807e4d664",
+      "storedAt": "10-May-2026, 06:26 pm",
+      "reportType": "Complete Blood Count",
+      "fileName": "IMG-20260510-WA0016.jpg",
+      "paramName": "P-LCC",
+      "storedValue": "134",
+      "normalizedValue": null,
+      "referenceRange": "44-140",
+      "parsedRange": "44–140",
+      "aiSaid": "high",
+      "shouldBe": "normal",
+      "aiExplanation": "Large clotting cells normal se zyada hain.",
+      "aiSummary": "Aapki report mein kaafi serious abnormalities hain. White blood cells bahut zyada badhey hain aur neutrophil cells bhi very high hain — yeh serious infection ya leukemia ka signal ho sakta hai. Saath hi hemoglobin aur hematocrit dono low hain jo khoon ki kami dikha raha hai. Aaj hi doctor se milo aur urgent tests karao."
+    },
+    {
+      "reportId": "6a01554a3e279b077ee2712d",
+      "storedAt": "11-May-2026, 09:34 am",
+      "reportType": "Complete Blood Counts (CBC), Whole Blood EDTA",
+      "fileName": "IMG_20260511_093408.jpg",
+      "paramName": "Basophils",
+      "storedValue": "00",
+      "normalizedValue": null,
+      "referenceRange": "< 1-2",
+      "parsedRange": "0–1",
+      "aiSaid": "low",
+      "shouldBe": "normal",
+      "aiExplanation": "Basophil count zero hai jo allergy response mein rol karte hain.",
+      "aiSummary": "Aapka blood report mostly normal hai lekin platelet count aur red cell distribution mein thoda dhyan dene ki baat hai. Platelet count 146 hai jo normal se thoda kam hai aur red cell variation bhi normal se zyada dikha hai. Jald doctor se check karao aur follow-up test karwao taaki koi serious baat na ho."
+    },
+    {
+      "reportId": "6a01c1eb8a27cf04840d0c57",
+      "storedAt": "11-May-2026, 05:17 pm",
+      "reportType": "Complete Blood Count",
+      "fileName": "17785000237234754034320859823615.jpg",
+      "paramName": "Differential WBC Count - Monocytes",
+      "storedValue": "9.7",
+      "normalizedValue": null,
+      "referenceRange": "2-10",
+      "parsedRange": "2–10",
+      "aiSaid": "high",
+      "shouldBe": "normal",
+      "aiExplanation": "Monocytes slightly zyada hain, koi infection ho sakta hai.",
+      "aiSummary": "Report mein kaafi serious abnormalities hain — hemoglobin bahut zyada hai, basophil count bahut zyada hai aur kuch white blood cells bahut kam hain. Yeh leukemia ya blood disorder suggest karte hain. Doctor se aaj hi milo aur urgent bone marrow test ya aur investigation zaroori hai."
+    },
+    {
+      "reportId": "6a0290e91565eb90ad9804fc",
+      "storedAt": "12-May-2026, 08:01 am",
+      "reportType": "ABG Report",
+      "fileName": "IMG_20260512_080042.jpg",
+      "paramName": "Sodium",
+      "storedValue": "145",
+      "normalizedValue": null,
+      "referenceRange": "135-145",
+      "parsedRange": "135–145",
+      "aiSaid": "high",
+      "shouldBe": "normal",
+      "aiExplanation": "Sodium level normal range ke boundary par hai",
+      "aiSummary": "Aapki ABG report mein multiple concerning values dikhai de rahi hain. Blood sugar 229 mg/dL bahut high hai, potassium kum hai aur base excess bilkul abnormal hai — yeh saare milke respiratory aur metabolic problem dikha rahe hain. Aaj hi doctor se milo."
+    },
+    {
+      "reportId": "6a0290e91565eb90ad9804fc",
+      "storedAt": "12-May-2026, 08:01 am",
+      "reportType": "ABG Report",
+      "fileName": "IMG_20260512_080042.jpg",
+      "paramName": "Lactate",
+      "storedValue": "1.9",
+      "normalizedValue": null,
+      "referenceRange": "0.5-2.0",
+      "parsedRange": "0.5–2",
+      "aiSaid": "high",
+      "shouldBe": "normal",
+      "aiExplanation": "Lactate level boundary par zyada hai jo stress dikha raha hai",
+      "aiSummary": "Aapki ABG report mein multiple concerning values dikhai de rahi hain. Blood sugar 229 mg/dL bahut high hai, potassium kum hai aur base excess bilkul abnormal hai — yeh saare milke respiratory aur metabolic problem dikha rahe hain. Aaj hi doctor se milo."
+    },
+    {
+      "reportId": "6a02b2960b81112e45643ebe",
+      "storedAt": "12-May-2026, 10:24 am",
+      "reportType": "Complete Blood Count",
+      "fileName": "17785616700053333054143666123204.jpg",
+      "paramName": "Erythrocytes",
+      "storedValue": "6.23",
+      "normalizedValue": null,
+      "referenceRange": "3.80-6.30",
+      "parsedRange": "3.8–6.3",
+      "aiSaid": "high",
+      "shouldBe": "normal",
+      "aiExplanation": "Red blood cells normal range se thoda zyada hain.",
+      "aiSummary": "Aapke report mein platelets normal se zyada hain aur RDW-CV thoda bahar hai, yeh dono values dhyan dene wali hain. Baki sab parameters bilkul normal hain. Doctor se milo aur poochh le ke aap kya khaye ya kya lifestyle changes kare."
+    },
+    {
+      "reportId": "6a040c17cb4cdd4de394db49",
+      "storedAt": "13-May-2026, 10:58 am",
+      "reportType": "Complete Blood Count",
+      "fileName": "Screenshot_2026-05-13-10-57-31-35_680d03679600f7af0b4c700c6b270fe7.jpg",
+      "paramName": "MCH",
+      "storedValue": "31.8436",
+      "normalizedValue": null,
+      "referenceRange": "27 - 32 pg",
+      "parsedRange": "27–32",
+      "aiSaid": "high",
+      "shouldBe": "normal",
+      "aiExplanation": "Har khoon cell mein hemoglobin thoda zyada hai",
+      "aiSummary": "Asha ji, aapke blood report mein kaafi abnormalities hain. Hemoglobin aur RBC dono low hain jo anemia ka sign hai, aur MCV aur RDW bhi zyada hain jo B12 ki kami suggest karte hain. Neutrophil bhi high hai jo infection ya inflammation ka indicator ho sakta hai. Yeh sab mila kar kaafi serious abnormalities hain - aaj hi doctor se milo aur B12, folate"
+    },
+    {
+      "reportId": "6a0412f6e0f129bb4acce64b",
+      "storedAt": "13-May-2026, 11:28 am",
+      "reportType": "Complete Blood Count (CBC)",
+      "fileName": "IMG-20260513-WA0010.jpeg",
+      "paramName": "Platelet Count",
+      "storedValue": "0",
+      "normalizedValue": null,
+      "referenceRange": "0-15 mm",
+      "parsedRange": "0–15",
+      "aiSaid": "low",
+      "shouldBe": "normal",
+      "aiExplanation": "Platelets bilkul nahi dikh rahe — yeh bahut serious hai.",
+      "aiSummary": "Sahana ji, aapke blood report mein do chintaaye ki cheezein hain — RBC count normal se kam hai jo thakaan de sakta hai, aur zyada tension ki baat yeh hai ke platelet count bilkul zero aa raha hai jo bahut serious hai. Body mein khoon theek tarah ban nahi raha aur immune system weak pad raha hai. Aaj hi ek experienced hematologist se milo aur bone m"
+    },
+    {
+      "reportId": "6a04273ddfa462a27b6616fd",
+      "storedAt": "13-May-2026, 12:54 pm",
+      "reportType": "Complete Blood Count",
+      "fileName": "IMG_20260513_125424.jpg",
+      "paramName": "PCV",
+      "storedValue": "25.5",
+      "normalizedValue": null,
+      "referenceRange": "up to 45",
+      "parsedRange": "0–45",
+      "aiSaid": "low",
+      "shouldBe": "normal",
+      "aiExplanation": "Blood volume percentage kam hai jo anemia ke saath related hai.",
+      "aiSummary": "Rashida ji, aapki report mein kaafi serious abnormalities hain — hemoglobin 7.8 hai jo bilkul low hai aur platelet bhi bahut kam hai 0.85 jo bleeding risk badhata hai. Lymphocyte bhi kam hai aur eosinophil zyada hai jo possible infection ya allergy indicate karte hain. Doctor se aaj hi milna bilkul zaroori hai aur hone possible blood transfusion ya"
+    }
+  ],
+  "byReportType": {
+    "Complete Blood Count": {
+      "count": 18,
+      "evaluated": 270,
+      "correct": 263,
+      "severe": 1,
+      "medium": 6
+    },
+    "Summarized Comparative Report": {
+      "count": 1,
+      "evaluated": 25,
+      "correct": 24,
+      "severe": 0,
+      "medium": 1
+    },
+    "Summarized Comparative Report - Cardiac Wellness, Vitamins, Thyroid": {
+      "count": 1,
+      "evaluated": 13,
+      "correct": 11,
+      "severe": 2,
+      "medium": 0
+    },
+    "Report on USG of Scrotum": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Unknown": {
+      "count": 16,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Serum Bilirubin Profile": {
+      "count": 1,
+      "evaluated": 3,
+      "correct": 3,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count and C-Reactive Protein": {
+      "count": 1,
+      "evaluated": 23,
+      "correct": 23,
+      "severe": 0,
+      "medium": 0
+    },
+    "CA 125, Serum": {
+      "count": 1,
+      "evaluated": 1,
+      "correct": 1,
+      "severe": 0,
+      "medium": 0
+    },
+    "USG Whole Abdomen": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count (Haemogram on Cell Counter)": {
+      "count": 1,
+      "evaluated": 19,
+      "correct": 19,
+      "severe": 0,
+      "medium": 0
+    },
+    "COVID-19 RT-PCR Test": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Medicine Package - Nasai Drops": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count (CBC) 5 PART": {
+      "count": 1,
+      "evaluated": 22,
+      "correct": 22,
+      "severe": 0,
+      "medium": 0
+    },
+    "Reticulocyte Count, Ferritin Serum, Macrocytic Anemia Panel": {
+      "count": 1,
+      "evaluated": 3,
+      "correct": 3,
+      "severe": 0,
+      "medium": 0
+    },
+    "Lipid Profile, Serum": {
+      "count": 1,
+      "evaluated": 8,
+      "correct": 8,
+      "severe": 0,
+      "medium": 0
+    },
+    "Diabetes Monitoring Report": {
+      "count": 1,
+      "evaluated": 1,
+      "correct": 1,
+      "severe": 0,
+      "medium": 0
+    },
+    "Haematology Report": {
+      "count": 3,
+      "evaluated": 33,
+      "correct": 33,
+      "severe": 0,
+      "medium": 0
+    },
+    "Biochemistry and Haematology Report": {
+      "count": 1,
+      "evaluated": 3,
+      "correct": 3,
+      "severe": 0,
+      "medium": 0
+    },
+    "Clinical Records and Prescription": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Counts (CBC), Whole Blood EDTA": {
+      "count": 1,
+      "evaluated": 19,
+      "correct": 18,
+      "severe": 0,
+      "medium": 1
+    },
+    "Pre-operative Assessment Form": {
+      "count": 1,
+      "evaluated": 2,
+      "correct": 2,
+      "severe": 0,
+      "medium": 0
+    },
+    "Biochemistry Report": {
+      "count": 1,
+      "evaluated": 8,
+      "correct": 8,
+      "severe": 0,
+      "medium": 0
+    },
+    "Ultrasound - Abdomen and Pelvis": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Not a Medical Lab Report": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Ultrasound Abdomen": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Obstetric NT Scan": {
+      "count": 1,
+      "evaluated": 2,
+      "correct": 2,
+      "severe": 0,
+      "medium": 0
+    },
+    "First Trimester Prenatal Ultrasound Screening": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Lipid Profile and Liver Function Test": {
+      "count": 1,
+      "evaluated": 9,
+      "correct": 9,
+      "severe": 0,
+      "medium": 0
+    },
+    "CBC Hemogram": {
+      "count": 1,
+      "evaluated": 22,
+      "correct": 22,
+      "severe": 0,
+      "medium": 0
+    },
+    "Physiotherapy Notes": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Medical Report - Physiotherapy Notes": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count and Biochemistry Panel": {
+      "count": 1,
+      "evaluated": 11,
+      "correct": 11,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Counts (Whole Blood - EDTA) with Differential Count": {
+      "count": 1,
+      "evaluated": 20,
+      "correct": 19,
+      "severe": 1,
+      "medium": 0
+    },
+    "NCCT Brain": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Diagnostic Biopsy - Histopathology": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Urine Routine": {
+      "count": 1,
+      "evaluated": 4,
+      "correct": 4,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count with Haematology and Biochemistry": {
+      "count": 1,
+      "evaluated": 31,
+      "correct": 31,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count with Widal Test": {
+      "count": 1,
+      "evaluated": 21,
+      "correct": 21,
+      "severe": 0,
+      "medium": 0
+    },
+    "Ultrasonography Report": {
+      "count": 2,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Ultrasound Whole Abdomen": {
+      "count": 2,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count, Biochemistry and Serology": {
+      "count": 1,
+      "evaluated": 13,
+      "correct": 13,
+      "severe": 0,
+      "medium": 0
+    },
+    "Physiotherapy Treatment Notes": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Haematology Report and Thyroid Function Test": {
+      "count": 1,
+      "evaluated": 29,
+      "correct": 29,
+      "severe": 0,
+      "medium": 0
+    },
+    "Abdominal Ultrasound": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count (CBC), Whole Blood": {
+      "count": 1,
+      "evaluated": 19,
+      "correct": 19,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count (CBC) 6 Part": {
+      "count": 1,
+      "evaluated": 25,
+      "correct": 25,
+      "severe": 0,
+      "medium": 0
+    },
+    "Serology - Widal Test": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count (C.B.C.) with Serology": {
+      "count": 1,
+      "evaluated": 17,
+      "correct": 17,
+      "severe": 0,
+      "medium": 0
+    },
+    "ABG Report": {
+      "count": 1,
+      "evaluated": 9,
+      "correct": 7,
+      "severe": 0,
+      "medium": 2
+    },
+    "Complete Blood Count and Liver Function Test": {
+      "count": 1,
+      "evaluated": 12,
+      "correct": 12,
+      "severe": 0,
+      "medium": 0
+    },
+    "Examination of Stool": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Abdominal Ultrasound Scan": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Medical Test Report - Unable to Extract": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Ultrasound Study of Whole Abdomen": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Skin Hair Loss Clinic Report": {
+      "count": 1,
+      "evaluated": 10,
+      "correct": 10,
+      "severe": 0,
+      "medium": 0
+    },
+    "Plain CT-Scan of Brain": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "MRI Dorsolumbar Spine": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Tuberculosis - Gamma Interferon Quantiferon": {
+      "count": 1,
+      "evaluated": 1,
+      "correct": 1,
+      "severe": 0,
+      "medium": 0
+    },
+    "Stool Examination Routine": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "USG Whole Abdomen 3D/4D Colour Doppler": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Spine Lumbar X-Ray": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count with Differential": {
+      "count": 1,
+      "evaluated": 12,
+      "correct": 12,
+      "severe": 0,
+      "medium": 0
+    },
+    "CBC/Complete Haemogram": {
+      "count": 1,
+      "evaluated": 13,
+      "correct": 13,
+      "severe": 0,
+      "medium": 0
+    },
+    "Serological Report - WIDAL Test": {
+      "count": 1,
+      "evaluated": 0,
+      "correct": 0,
+      "severe": 0,
+      "medium": 0
+    },
+    "Lipid Profile Screen Serum and Thyroid Profile Total Serum": {
+      "count": 1,
+      "evaluated": 9,
+      "correct": 9,
+      "severe": 0,
+      "medium": 0
+    },
+    "Department of Hematology - Complete Blood Count": {
+      "count": 1,
+      "evaluated": 4,
+      "correct": 4,
+      "severe": 0,
+      "medium": 0
+    },
+    "Complete Blood Count (CBC)": {
+      "count": 1,
+      "evaluated": 5,
+      "correct": 4,
+      "severe": 0,
+      "medium": 1
+    },
+    "Complete Blood Count and Serology": {
+      "count": 1,
+      "evaluated": 10,
+      "correct": 10,
+      "severe": 0,
+      "medium": 0
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { events } from '@/components/Analytics'
 import AnalyzingLoader from '@/components/AnalyzingLoader'
 import { isReturningUser, incrementUploadCount, getUploadCount, getVisitCount } from '@/utils/anonId'
+import { requestPushPermission } from '@/lib/pushNotification'
 
 
 const STATS_CHIPS = [
@@ -118,6 +119,7 @@ export default function UploadPage() {
         if (returning) window.gtag('event', 'returning_user_upload')
       }
       incrementUploadCount()
+      setTimeout(async () => { await requestPushPermission() }, 3000)
       setLoadingMsg('Ho gaya! Results load ho rahe hain...')
       router.push(`/results/${data.reportId}`)
     } catch (err) {
