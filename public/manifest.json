@@ -1,0 +1,35 @@
+{
+  "name": "Sehat24 — Health Report Analyzer",
+  "short_name": "Sehat24",
+  "description": "Apni lab report Hindi mein samjho — Free",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1a1a",
+  "theme_color": "#0d9488",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["health", "medical"],
+  "lang": "hi",
+  "dir": "ltr"
+}

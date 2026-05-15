@@ -3,6 +3,8 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import ClientChatWidget from '@/components/ClientChatWidget'
 import Script from 'next/script'
+import NotificationBanner from '@/components/NotificationBanner'
+import PWAInstallPrompt from '@/components/PWAInstallPrompt'
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -69,7 +71,7 @@ export const metadata = {
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
     shortcut: '/favicon.ico',
   },
-  manifest: '/site.webmanifest',
+  manifest: '/manifest.json',
   other: {
     'mobile-web-app-capable':      'yes',
     'apple-mobile-web-app-capable':'yes',
@@ -121,9 +123,9 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d9488" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Sehat24" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
 
         {/* Critical CSS inline */}
@@ -169,6 +171,8 @@ export default function RootLayout({ children }) {
         </div>
       </div>
         <ClientChatWidget />
+        <NotificationBanner />
+        <PWAInstallPrompt />
       </body>
     </html>
   )
