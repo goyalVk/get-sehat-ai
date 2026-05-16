@@ -8,7 +8,7 @@ const PushTokenSchema = new mongoose.Schema({
   platform: { type: String, default: 'web' },
 }, { timestamps: true })
 
-PushTokenSchema.index({ token: 1 })
+// token index removed — unique:true already creates it
 PushTokenSchema.index({ userId: 1 })
 PushTokenSchema.index({ anonId: 1 })
 PushTokenSchema.index({ active: 1 })
