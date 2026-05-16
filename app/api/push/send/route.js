@@ -68,6 +68,16 @@ export async function POST(req) {
         }
       })
 
+    results.responses.forEach((r, i) => {
+      if (!r.success) {
+        console.error('Token failed:', {
+          token: tokens[i].substring(0, 20),
+          errorCode: r.error?.code,
+          errorMessage: r.error?.message
+        })
+      }
+    })
+
     const failedTokens = results.responses
       .map((r, i) => !r.success ? tokens[i] : null)
       .filter(Boolean)
