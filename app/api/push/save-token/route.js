@@ -17,6 +17,21 @@ export async function POST(req) {
     const userId = cookieStore.get('userId')?.value
     const user   = userId ? await User.findById(userId).lean() : null
 
+    // Delete old tokens for same user
+    if (user?._id) {
+      await PushToken.deleteMany({
+        userId: user._id,
+        token: { $ne: token }
+      })
+    }
+
+    if (anonId) {
+      await PushToken.deleteMany({
+        anonId,
+        token: { $ne: token }
+      })
+    }
+
     await PushToken.findOneAndUpdate(
       { token },
       {
@@ -26,7 +41,7 @@ export async function POST(req) {
         active:   true,
         platform: 'web',
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     )
 
     // If user is already logged in, backfill any other anon tokens for the same anonId

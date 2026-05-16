@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import admin from '@/lib/firebaseAdmin'
 import { connectDB } from '@/lib/mongodb'
 import PushToken from '@/models/PushToken'
+import mongoose from 'mongoose'
 
 export async function POST(req) {
   try {
@@ -9,45 +10,66 @@ export async function POST(req) {
     const {
       title,
       body,
-      url        = 'https://sehat24.com',
-      sendToAll  = false,
-      userId     = null,
-      anonId     = null,
+      url       = 'https://sehat24.com',
+      sendToAll = false,
+      userId    = null,
+      anonId    = null,
     } = await req.json()
 
     if (!title || !body) {
-      return NextResponse.json({ error: 'title and body required' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'title and body required' },
+        { status: 400 }
+      )
     }
 
     const query = { active: true }
     if (!sendToAll) {
-      if (userId) query.userId = userId
+      if (userId) {
+        try {
+          query.userId = new mongoose.Types
+            .ObjectId(userId)
+        } catch {
+          return NextResponse.json(
+            { error: 'Invalid userId' },
+            { status: 400 }
+          )
+        }
+      }
       if (anonId) query.anonId = anonId
     }
 
-    const docs   = await PushToken.find(query).lean()
+    console.log('Push query:', 
+      JSON.stringify(query))
+
+    const docs = await PushToken
+      .find(query).lean()
     const tokens = docs.map(d => d.token)
 
+    console.log('Tokens found:', tokens.length)
+
     if (tokens.length === 0) {
-      return NextResponse.json({ success: false, message: 'No tokens found' })
+      return NextResponse.json({
+        success: false,
+        message: 'No tokens found'
+      })
     }
 
-    const results = await admin.messaging().sendEachForMulticast({
-      tokens,
-      notification: { title, body },
-      webpush: {
-        fcmOptions: { link: url },
-        notification: {
-          title,
-          body,
-          icon: 'https://sehat24.com/icon-192x192.png',
-        },
-      },
-    })
+    const results = await admin.messaging()
+      .sendEachForMulticast({
+        tokens,
+        notification: { title, body },
+        webpush: {
+          fcmOptions: { link: url },
+          notification: {
+            title, body,
+            icon: 'https://sehat24.com/icon-192x192.png'
+          }
+        }
+      })
 
-    // Deactivate tokens that bounced
     const failedTokens = results.responses
-      .map((r, i) => (!r.success ? tokens[i] : null))
+      .map((r, i) => !r.success ? tokens[i] : null)
       .filter(Boolean)
 
     if (failedTokens.length > 0) {
@@ -59,11 +81,15 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      sent:    results.successCount,
-      failed:  results.failureCount,
+      sent:   results.successCount,
+      failed: results.failureCount
     })
+
   } catch (err) {
     console.error('Push send error:', err.message)
-    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed' },
+      { status: 500 }
+    )
   }
 }
