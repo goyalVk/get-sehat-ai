@@ -91,6 +91,10 @@ export default function UploadPage() {
       const formData = new FormData()
       formData.append('file', file)
       formData.append('visitCount', getVisitCount())
+      const urlParams = new URLSearchParams(window.location.search)
+      const ref = urlParams.get('ref') || document.referrer || 'direct'
+      formData.append('ref', ref)
+      formData.append('_hp', document.getElementById('_hp_field')?.value || '')
       setLoadingMsg('AI aapki report padh raha hai... (20-30 seconds)')
       const res  = await fetch('/api/analyze', { method: 'POST', body: formData })
       const data = await res.json()
@@ -261,6 +265,16 @@ export default function UploadPage() {
           opacity: loading ? 0.6 : 1,
         }}
       >
+        {/* Honeypot — leave blank */}
+        <input
+          id="_hp_field"
+          type="text"
+          name="_hp"
+          autoComplete="off"
+          tabIndex={-1}
+          aria-hidden="true"
+          style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
+        />
         <input
           id="fileInput"
           type="file"

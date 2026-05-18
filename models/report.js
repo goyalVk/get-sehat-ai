@@ -118,6 +118,14 @@ const ReportSchema = new mongoose.Schema(
 
     userAgent:     { type: String, default: null },
     visitCount:    { type: Number, default: 1 },
+
+    ipAddress:      { type: String, default: null },
+    deviceType:     { type: String, default: 'unknown' },
+    os:             { type: String, default: 'unknown' },
+    browser:        { type: String, default: 'unknown' },
+    referralSource: { type: String, default: 'direct' },
+    uploadHour:     { type: Number, default: null },
+    uploadDay:      { type: Number, default: null },
   },
   { timestamps: true } // createdAt, updatedAt automatic
 )

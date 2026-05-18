@@ -7,6 +7,8 @@ import { buildHealthPrompt } from '@/lib/healthPrompt'
 import { cookies } from 'next/headers'
 import User from '@/models/user'
 import { jsonrepair } from 'jsonrepair'
+import { parseDeviceInfo, getIPAddress, getUploadTime } from '@/lib/deviceInfo'
+import { rateLimit } from '@/lib/rateLimit'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -146,11 +148,39 @@ export async function POST(req) {
     const anonId      = formData.get('anonId')?.toString() || null
     const userAgent   = req.headers.get('user-agent') || null
     const visitCount  = parseInt(formData.get('visitCount')) || 1
+    const honeypot    = formData.get('_hp') || ''
+    const ip                           = getIPAddress(req)
+    const { deviceType, os, browser }  = parseDeviceInfo(userAgent || '')
+    const { uploadHour, uploadDay }    = getUploadTime()
+    const referralSource               = formData.get('ref') || 'direct'
+    console.log('Device info:', { ip, deviceType, os, browser })
 
     if (!file) {
       return NextResponse.json(
         { error: 'No file uploaded' },
         { status: 400 }
+      )
+    }
+
+    // ── Honeypot check ────────────────────────────────
+    if (honeypot) {
+      await Report.create({
+        fileName: file.name, fileType: file.type, fileSize: file.size,
+        userId: null, anonId, sessionId: crypto.randomUUID(),
+        status: 'failed', isSpam: true, spamReason: 'honeypot', userAgent,
+      })
+      return NextResponse.json(
+        { error: 'Invalid request' },
+        { status: 400 }
+      )
+    }
+
+    // ── IP rate limit: 5 req/min ──────────────────────
+    const { allowed } = rateLimit(ip, 5, 60_000)
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Bahut zyada requests — ek minute baad try karo 🙏' },
+        { status: 429 }
       )
     }
 
@@ -193,8 +223,26 @@ export async function POST(req) {
     ]
 
     if (!allowedTypes.includes(file.type)) {
+      await Report.create({
+        fileName: file.name, fileType: file.type, fileSize: file.size,
+        userId: null, anonId, sessionId: crypto.randomUUID(),
+        status: 'failed', isSpam: true, spamReason: 'invalid_file_type', userAgent,
+      })
       return NextResponse.json(
         { error: 'Invalid file type. Upload PDF or image.' },
+        { status: 400 }
+      )
+    }
+
+    // ── Min file size: 10KB ───────────────────────────
+    if (file.size < 10 * 1024) {
+      await Report.create({
+        fileName: file.name, fileType: file.type, fileSize: file.size,
+        userId: null, anonId, sessionId: crypto.randomUUID(),
+        status: 'failed', isSpam: true, spamReason: 'file_too_small', userAgent,
+      })
+      return NextResponse.json(
+        { error: 'File bahut chhoti hai — valid report upload karo 🙏' },
         { status: 400 }
       )
     }
@@ -353,6 +401,13 @@ export async function POST(req) {
       sessionId: crypto.randomUUID(),
       status:    'processing',
       isSample:  isSampleFile,
+      ipAddress:      ip,
+      deviceType,
+      os,
+      browser,
+      referralSource,
+      uploadHour,
+      uploadDay,
     })
     reportId = report._id.toString()
 
@@ -447,8 +502,15 @@ export async function POST(req) {
       analysisTimeMs,
       modelUsed:       modelToUse,
       isSample:        isSampleFile,
-      userAgent,
+      userAgent:       userAgent ? userAgent.substring(0, 300) : null,
       visitCount,
+      ipAddress:       ip,
+      deviceType,
+      os,
+      browser,
+      referralSource,
+      uploadHour,
+      uploadDay,
       isSpam:          false,
       isNonMedical:    false,
       preCheckFailed:  false,
