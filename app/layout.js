@@ -170,7 +170,6 @@ export default function RootLayout({ children }) {
           <ClientChatWidget />
         </div>
       </div>
-        <ClientChatWidget />
         <NotificationBanner />
         <PWAInstallPrompt />
       </body>

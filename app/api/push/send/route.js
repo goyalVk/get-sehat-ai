@@ -39,11 +39,9 @@ export async function POST(req) {
       if (anonId) query.anonId = anonId
     }
 
-    console.log('Push query:', 
-      JSON.stringify(query))
+    console.log('Push query:', JSON.stringify(query))
 
-    const docs = await PushToken
-      .find(query).lean()
+    const docs = await PushToken.find(query).lean()
     const tokens = docs.map(d => d.token)
 
     console.log('Tokens found:', tokens.length)
@@ -58,11 +56,12 @@ export async function POST(req) {
     const results = await admin.messaging()
       .sendEachForMulticast({
         tokens,
-        notification: { title, body },
         webpush: {
           fcmOptions: { link: url },
-          notification: {
-            title, body,
+          data: {
+            title,
+            body,
+            url,
             icon: 'https://sehat24.com/icon-192x192.png'
           }
         }
@@ -91,8 +90,8 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      sent:   results.successCount,
-      failed: results.failureCount
+      sent:    results.successCount,
+      failed:  results.failureCount
     })
 
   } catch (err) {

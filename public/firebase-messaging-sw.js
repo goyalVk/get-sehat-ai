@@ -12,20 +12,26 @@ firebase.initializeApp({
 const messaging = firebase.messaging()
 
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title || 'Sehat24'
-  const body  = payload.notification?.body  || ''
-  const link  = payload.data?.url || 'https://sehat24.com'
+  const title = payload.data?.title
+    || 'Sehat24'
+  const body = payload.data?.body
+    || ''
+  const link = payload.data?.url
+    || 'https://sehat24.com'
+  const icon = payload.data?.icon
+    || '/icon-192x192.png'
 
   self.registration.showNotification(title, {
     body,
-    icon:   '/icon-192x192.png',
-    badge:  '/icon-192x192.png',
-    data:   { url: link, ...( payload.data || {}) },
+    icon,
+    badge: '/icon-192x192.png',
+    data:  { url: link }
   })
 })
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
-  const url = event.notification.data?.url || 'https://sehat24.com'
+  const url = event.notification.data?.url
+    || 'https://sehat24.com'
   event.waitUntil(clients.openWindow(url))
 })
