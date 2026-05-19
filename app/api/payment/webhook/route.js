@@ -65,6 +65,39 @@ export async function POST(req) {
           )
         })
         console.log('✅ User upgraded:', user.phone)
+
+        // ── Pro welcome push notification ─────────────
+        try {
+          const { default: PushToken } = await import('@/models/PushToken')
+          const { default: mongoose }  = await import('mongoose')
+          const adminSdk               = await import('@/lib/firebaseAdmin')
+
+          const proTokens = await PushToken.find({
+            active: true,
+            userId: new mongoose.Types.ObjectId(user._id)
+          }).lean()
+
+          const proList = proTokens.map(t => t.token)
+
+          if (proList.length > 0) {
+            await adminSdk.default.messaging()
+              .sendEachForMulticast({
+                tokens: proList,
+                webpush: {
+                  fcmOptions: { link: 'https://sehat24.com/upload' },
+                  data: {
+                    title: '🎉 Welcome to Sehat24 Pro!',
+                    body:  'Unlimited reports, PDF download, History — sab unlock ho gaya!',
+                    url:   'https://sehat24.com/upload',
+                    icon:  'https://sehat24.com/icon-192x192.png'
+                  }
+                }
+              }).catch(console.error)
+          }
+        } catch (notifErr) {
+          console.error('Pro welcome notif error:', notifErr.message)
+        }
+
       } else {
         console.log('❌ User not found for:', cleanPhone)
       }

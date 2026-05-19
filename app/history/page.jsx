@@ -131,8 +131,12 @@ export default function HistoryPage() {
       const groups = {}
       all.forEach(r => {
         const type = r.reportType || 'Other'
-        if (!groups[type]) groups[type] = []
-        groups[type].push(r)
+        const patientName = r.patient?.name?.trim()?.toLowerCase() || 'unknown'
+        const groupKey = patientName !== 'unknown'
+          ? `${type}__${patientName}`
+          : type
+        if (!groups[groupKey]) groups[groupKey] = []
+        groups[groupKey].push(r)
       })
 
       Object.keys(groups).forEach(k => {
@@ -294,23 +298,35 @@ export default function HistoryPage() {
 
           {/* Report Groups */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {Object.entries(grouped).map(([type, reports], gi) => {
+            {Object.entries(grouped).map(([groupKey, reports], gi) => {
+              const type = groupKey.includes('__')
+                ? groupKey.split('__')[0]
+                : groupKey
+              const patientName = groupKey.includes('__')
+                ? groupKey.split('__')[1]
+                : null
+              const displayTitle = patientName && patientName !== 'unknown'
+                ? `${type} — ${patientName
+                    .split(' ')
+                    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                    .join(' ')}`
+                : type
               const latest     = reports[reports.length - 1]
-              const isExpanded = expanded[type]
+              const isExpanded = expanded[groupKey]
               const hasTrend   = reports.length > 1
               const abnormal   = latest?.parameters?.filter(p => p.status !== 'normal') || []
               const allParams  = [...new Set(reports.flatMap(r => r.parameters?.map(p => p.name) || []))]
               const trendParams = allParams.filter(name => getTrend(reports, name).length > 1)
 
               return (
-                <div key={type} className="fade-up" style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', overflow: 'hidden', animationDelay: `${gi * 0.08}s` }}>
+                <div key={groupKey} className="fade-up" style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', overflow: 'hidden', animationDelay: `${gi * 0.08}s` }}>
 
                   {/* Group Header */}
                   <div style={{ padding: '20px 24px', borderBottom: isExpanded ? '1px solid #f1f5f9' : 'none' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
-                          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{type}</h2>
+                          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{displayTitle}</h2>
                           {hasTrend && (
                             <span style={{ background: '#f0fdf4', border: '1px solid #86efac', color: '#16a34a', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>
                               📈 TREND AVAILABLE
@@ -354,7 +370,7 @@ export default function HistoryPage() {
                         </div>
                       </div>
 
-                      <button className="expand-btn" onClick={() => setExpanded(prev => ({ ...prev, [type]: !prev[type] }))} style={{
+                      <button className="expand-btn" onClick={() => setExpanded(prev => ({ ...prev, [groupKey]: !prev[groupKey] }))} style={{
                         background: isExpanded ? '#f0fdfa' : 'white',
                         border: `1px solid ${isExpanded ? '#99f6e4' : '#e2e8f0'}`,
                         borderRadius: 12, padding: '8px 16px',

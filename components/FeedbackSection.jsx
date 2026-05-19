@@ -181,7 +181,7 @@ export default function FeedbackSection({ reportId }) {
             Yeh analysis kaisi lagi?
           </h3>
           <p style={{ fontSize:12, color:'#94a3b8' }}>
-            1 click — humari bahut help hoti hai 🙏
+            Helpful laga? 5 star. Problem tha? Batao kya fix karein
           </p>
         </div>
       </div>

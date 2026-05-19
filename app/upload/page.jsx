@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { events } from '@/components/Analytics'
 import AnalyzingLoader from '@/components/AnalyzingLoader'
@@ -39,6 +39,14 @@ export default function UploadPage() {
   const [loadingMsg, setLoadingMsg]       = useState('')
   const [error, setError]                 = useState('')
   const [sampleLoading, setSampleLoading] = useState(false)
+  const [showLoginNudge, setShowLoginNudge] = useState(false)
+
+  useEffect(() => {
+    const count     = parseInt(localStorage.getItem('s24_upload_count')) || 0
+    const dismissed = localStorage.getItem('s24_login_nudge_dismissed')
+    const hasUserId = document.cookie.includes('userId')
+    if (count >= 1 && !dismissed && !hasUserId) setShowLoginNudge(true)
+  }, [])
 
   /* ── All logic unchanged ── */
   const handleFile = (f) => {
@@ -246,6 +254,44 @@ export default function UploadPage() {
           <span key={i} className="stat-chip">{c.icon} {c.label}</span>
         ))}
       </div>
+
+      {/* ── Login nudge banner ── */}
+      {showLoginNudge && (
+        <div style={{
+          background: 'linear-gradient(135deg,#f0fdfa,#ecfdf5)',
+          border: '1.5px solid #0d9488',
+          borderRadius: 14,
+          padding: '14px 16px',
+          marginBottom: 16,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12
+        }}>
+          <span style={{ fontSize: 24 }}>📊</span>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#0d9488', marginBottom: 2 }}>
+              Pehli report yaad hai?
+            </p>
+            <p style={{ fontSize: 12, color: '#134e4a' }}>
+              Login karo — sab save rehta hai 🇮🇳
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <a href="/auth/login" style={{
+              background: '#0d9488', color: 'white',
+              padding: '8px 14px', borderRadius: 10,
+              fontSize: 12, fontWeight: 700, textDecoration: 'none'
+            }}>Login Karo</a>
+            <button onClick={() => {
+              localStorage.setItem('s24_login_nudge_dismissed', 'true')
+              setShowLoginNudge(false)
+            }} style={{
+              background: 'transparent', border: 'none',
+              color: '#94a3b8', cursor: 'pointer', fontSize: 16
+            }}>✕</button>
+          </div>
+        </div>
+      )}
 
       {/* ── SECTION 3: Drop Zone ── */}
       <div

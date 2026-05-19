@@ -1,5 +1,6 @@
 import { connectDB } from '@/lib/mongodb'
 import Report from '@/models/report'
+import User from '@/models/user'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
@@ -71,8 +72,12 @@ export default async function ResultsPage({ params }) {
   if (!report) notFound()
 
   const cookieStore = await cookies()
-  const userId = cookieStore.get('userId')?.value
+  const userId    = cookieStore.get('userId')?.value
   const isLoggedIn = !!userId
+  const currentUser = userId ? await User.findById(userId).lean() : null
+  const isFreeLimitReached =
+    currentUser?.plan === 'free' &&
+    currentUser?.reportsUsed >= currentUser?.reportsLimit
 
   if (report.status === 'processing') {
     return (
@@ -357,6 +362,58 @@ export default async function ResultsPage({ params }) {
               </div>
             )}
           </div>
+
+          {/* ── Card 1: Login nudge — anonymous users ── */}
+          {!isLoggedIn && (
+            <div className="fade-up" style={{
+              background: 'linear-gradient(135deg,#0d9488,#0891b2)',
+              borderRadius: 16, padding: 20,
+              marginBottom: 16, textAlign: 'center',
+              animationDelay: '0.12s'
+            }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>🔓</div>
+              <p style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 6 }}>
+                Yeh report save karna hai?
+              </p>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginBottom: 16, lineHeight: 1.5 }}>
+                Login karo — history mein hamesha milegi. Bilkul free 🇮🇳
+              </p>
+              <a href="/auth/login" style={{
+                display: 'block', background: 'white', color: '#0d9488',
+                padding: 12, borderRadius: 12, fontWeight: 700,
+                fontSize: 14, textDecoration: 'none'
+              }}>
+                🔓 Login Karo — Free →
+              </a>
+            </div>
+          )}
+
+          {/* ── Card 2: Upgrade nudge — free limit reached ── */}
+          {isLoggedIn && isFreeLimitReached && (
+            <div className="fade-up" style={{
+              background: 'linear-gradient(135deg,#fffbeb,#fef3c7)',
+              border: '2px solid #fde68a',
+              borderRadius: 16, padding: 20,
+              marginBottom: 16, textAlign: 'center',
+              animationDelay: '0.12s'
+            }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>⚡</div>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
+                Free reports khatam ho gayi!
+              </p>
+              <p style={{ fontSize: 13, color: '#78350f', marginBottom: 16, lineHeight: 1.5 }}>
+                Pro lo — Unlimited reports + PDF download + History track. Sirf ₹199/month 🇮🇳
+              </p>
+              <a href="/upgrade" style={{
+                display: 'block',
+                background: 'linear-gradient(135deg,#0d9488,#0891b2)',
+                color: 'white', padding: 12, borderRadius: 12,
+                fontWeight: 700, fontSize: 14, textDecoration: 'none'
+              }}>
+                ⚡ Pro Upgrade Karo →
+              </a>
+            </div>
+          )}
 
           {/* ── Parameters ── */}
           <div className="fade-up" style={{ marginBottom: 24, animationDelay: '0.15s' }}>

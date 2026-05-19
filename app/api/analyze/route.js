@@ -537,6 +537,191 @@ export async function POST(req) {
       })
     }
 
+    // ── Upgrade nudge — free limit reached ───────────
+    try {
+      if (userId && user?.plan === 'free') {
+        const updatedUser = await User.findById(userId).lean()
+
+        if (updatedUser?.reportsUsed >= updatedUser?.reportsLimit) {
+          const { default: PushToken } = await import('@/models/PushToken')
+          const { default: mongoose }  = await import('mongoose')
+
+          const upgradeTokens = await PushToken.find({
+            active: true,
+            $or: [
+              { userId: new mongoose.Types.ObjectId(userId) },
+              ...(anonId ? [{ anonId }] : [])
+            ]
+          }).lean()
+
+          const upgradeList = upgradeTokens.map(t => t.token)
+
+          if (upgradeList.length > 0) {
+            const adminSdk = await import('@/lib/firebaseAdmin')
+            await adminSdk.default.messaging()
+              .sendEachForMulticast({
+                tokens: upgradeList,
+                webpush: {
+                  fcmOptions: { link: 'https://sehat24.com/upgrade' },
+                  data: {
+                    title: '📄 Free limit khatam ho gayi!',
+                    body:  'Pro lo — Unlimited reports + History + PDF. Sirf ₹199/month',
+                    url:   'https://sehat24.com/upgrade',
+                    icon:  'https://sehat24.com/icon-192x192.png'
+                  }
+                }
+              }).catch(console.error)
+          }
+        }
+      }
+    } catch (upgradeNotifErr) {
+      console.error('Upgrade nudge error:', upgradeNotifErr.message)
+    }
+
+    // ── History nudge — 2nd same-type+patient report ─
+    try {
+      if (userId) {
+        const patientName = interpretation?.patient?.name
+          ?.trim()?.toLowerCase() || null
+
+        if (patientName) {
+          const { default: mongoose } = await import('mongoose')
+
+          const samePatientCount = await Report.countDocuments({
+            userId,
+            status:     'completed',
+            reportType: interpretation.report_type,
+            'patient.name': { $regex: new RegExp(patientName, 'i') }
+          })
+
+          if (samePatientCount === 2) {
+            const { default: PushToken } = await import('@/models/PushToken')
+
+            const historyTokens = await PushToken.find({
+              active: true,
+              $or: [
+                { userId: new mongoose.Types.ObjectId(userId) },
+                ...(anonId ? [{ anonId }] : [])
+              ]
+            }).lean()
+
+            const historyList = historyTokens.map(t => t.token)
+
+            if (historyList.length > 0) {
+              const adminSdk = await import('@/lib/firebaseAdmin')
+              await adminSdk.default.messaging()
+                .sendEachForMulticast({
+                  tokens: historyList,
+                  webpush: {
+                    fcmOptions: { link: 'https://sehat24.com/history' },
+                    data: {
+                      title: '📈 Trend ready hai!',
+                      body:  `${interpretation.report_type} ka trend dekho — 2 reports analyze ho gayi hain`,
+                      url:   'https://sehat24.com/history',
+                      icon:  'https://sehat24.com/icon-192x192.png'
+                    }
+                  }
+                }).catch(console.error)
+            }
+          }
+        }
+      }
+    } catch (historyNotifErr) {
+      console.error('History nudge error:', historyNotifErr.message)
+    }
+
+    // ── Login nudge — anonymous user ─────────────────
+    if (!userId && anonId) {
+      try {
+        const { default: PushTokenModel } = await import('@/models/PushToken')
+        const adminSdk = await import('@/lib/firebaseAdmin')
+
+        const anonTokens = await PushTokenModel.find({
+          active: true,
+          anonId,
+          userId: null
+        }).lean()
+
+        const anonList = anonTokens.map(t => t.token)
+
+        if (anonList.length > 0) {
+          await adminSdk.default.messaging()
+            .sendEachForMulticast({
+              tokens: anonList,
+              webpush: {
+                fcmOptions: { link: 'https://sehat24.com/auth/login' },
+                data: {
+                  title: '🔓 Login karo — Full Access Pao!',
+                  body:  'History dekho, trends track karo, PDF download karo — bilkul free!',
+                  url:   'https://sehat24.com/auth/login',
+                  icon:  'https://sehat24.com/icon-192x192.png'
+                }
+              }
+            }).catch(console.error)
+        }
+      } catch (err) {
+        console.error('Login nudge error:', err.message)
+      }
+    }
+
+    // ── Push notification ─────────────────────────────
+    try {
+      const { default: adminApp } =
+        await import('@/lib/firebaseAdmin')
+      const { default: PushToken } =
+        await import('@/models/PushToken')
+
+      const tokenQuery = { active: true }
+
+      if (userId) {
+        const { default: mongoose } =
+          await import('mongoose')
+        tokenQuery.$or = [
+          { userId: new mongoose.Types.ObjectId(userId) },
+          { anonId: anonId || '' }
+        ].filter(q => Object.values(q)[0])
+      } else if (anonId) {
+        tokenQuery.anonId = anonId
+      }
+
+      if (tokenQuery.$or || tokenQuery.anonId) {
+        const pushTokens = await PushToken
+          .find(tokenQuery).lean()
+        const tokens = pushTokens
+          .map(t => t.token)
+          .filter(Boolean)
+
+        if (tokens.length > 0) {
+          const reportType =
+            interpretation.report_type || 'Report'
+
+          await adminApp.messaging()
+            .sendEachForMulticast({
+              tokens,
+              webpush: {
+                fcmOptions: {
+                  link: `https://sehat24.com/results/${reportId}`
+                },
+                data: {
+                  title: `✅ ${reportType} ready hai!`,
+                  body:  'Hindi mein result dekho →',
+                  url:   `https://sehat24.com/results/${reportId}`,
+                  icon:  'https://sehat24.com/icon-192x192.png'
+                }
+              }
+            }).catch(err =>
+              console.error('Push error:', err.message)
+            )
+
+          console.log('📲 Notification sent:',
+            tokens.length, 'devices')
+        }
+      }
+    } catch (pushErr) {
+      console.error('Push notification error:',
+        pushErr.message)
+    }
+
     return NextResponse.json({
       success:   true,
       reportId,

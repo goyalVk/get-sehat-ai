@@ -38,6 +38,43 @@ export async function POST(req) {
       path: '/'
     })
 
+    // ── Welcome notification — new users only ────────
+    const isNewUser =
+      (Date.now() - new Date(user.createdAt).getTime()) < 5 * 60 * 1000
+
+    if (isNewUser) {
+      try {
+        const { default: PushTokenModel } = await import('@/models/PushToken')
+        const { default: mongoose }       = await import('mongoose')
+        const adminSdk                    = await import('@/lib/firebaseAdmin')
+
+        const welcomeTokens = await PushTokenModel.find({
+          active: true,
+          userId: new mongoose.Types.ObjectId(user._id)
+        }).lean()
+
+        const welcomeList = welcomeTokens.map(t => t.token)
+
+        if (welcomeList.length > 0) {
+          await adminSdk.default.messaging()
+            .sendEachForMulticast({
+              tokens: welcomeList,
+              webpush: {
+                fcmOptions: { link: 'https://sehat24.com/upload' },
+                data: {
+                  title: '👋 Sehat24 mein swagat hai!',
+                  body:  'Apni reports upload karo — Hindi mein sab explain hoga. Free 🇮🇳',
+                  url:   'https://sehat24.com/upload',
+                  icon:  'https://sehat24.com/icon-192x192.png'
+                }
+              }
+            }).catch(console.error)
+        }
+      } catch (err) {
+        console.error('Welcome notif error:', err.message)
+      }
+    }
+
     return NextResponse.json({
       success: true,
       user: {
