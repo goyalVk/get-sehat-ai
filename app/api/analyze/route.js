@@ -203,6 +203,11 @@ export async function POST(req) {
 
       if (cachedReport) {
         console.log('Sample cache hit ✅ — 0 tokens used!')
+        const sampleCookies = await cookies()
+        const sampleUserId  = sampleCookies.get('userId')?.value
+        if (sampleUserId) {
+          await User.findByIdAndUpdate(sampleUserId, { $inc: { reportsUsed: 1 } })
+        }
         return NextResponse.json({
           success:   true,
           reportId:  cachedReport._id.toString(),
@@ -291,9 +296,9 @@ export async function POST(req) {
     }
 
     // ── Model selection ───────────────────────────────
-    // Pro user + large file → Sonnet (better for complex reports)
-    // Everyone else         → Haiku  (fast + cost effective)
-    const useSonnet  = isPro && file.size > FREE_MAX_SIZE
+    // Pro user          → Sonnet (better analysis)
+    // Free user         → Haiku  (fast + cost effective)
+    const useSonnet  = isPro
     const modelToUse = useSonnet ? SONNET_MODEL : HAIKU_MODEL
 
     console.log(`File: ${(file.size/1024/1024).toFixed(2)}MB | Plan: ${isPro ? 'pro' : 'free'} | Model: ${modelToUse}`)
@@ -382,6 +387,9 @@ export async function POST(req) {
         $inc:          { uploadCount: 1 },
         lastUploadedAt: new Date()
       })
+      if (userId) {
+        await User.findByIdAndUpdate(userId, { $inc: { reportsUsed: 1 } })
+      }
       return NextResponse.json({
         success:   true,
         reportId:  cachedByHash._id.toString(),
