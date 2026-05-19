@@ -281,7 +281,8 @@ export async function POST(req) {
 
     if (userId) {
       user  = await User.findById(userId)
-      isPro = user?.plan === 'pro'
+      isPro = user?.plan === 'pro' ||
+              user?.plan === 'paid'
     }
 
     // ── Large file + free user → upgrade prompt ───────
