@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import DownloadButton from '@/components/DownloadButton'
 import FeedbackSection from '@/components/FeedbackSection'
+import ConversionTracker from '@/components/ConversionTracker'
 
 /* ── Dynamic metadata ── */
 export async function generateMetadata({ params }) {
@@ -127,6 +128,7 @@ export default async function ResultsPage({ params }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(medicalPageSchema) }} />
+      <ConversionTracker />
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
