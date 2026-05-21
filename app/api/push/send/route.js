@@ -62,7 +62,7 @@ export async function POST(req) {
             title,
             body,
             url,
-            icon: 'https://sehat24.com/icon-192x192.png'
+            icon: 'https://sehat24.com/android-chrome-192x192.png'
           }
         }
       })
