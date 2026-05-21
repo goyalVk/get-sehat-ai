@@ -23,7 +23,7 @@ messaging.onBackgroundMessage((payload) => {
 
   self.registration.showNotification(title, {
     body,
-    icon,
+    icon: 'https://sehat24.com/android-chrome-192x192.png',
     badge: '/icon-192x192.png',
     data:  { url: link }
   })
