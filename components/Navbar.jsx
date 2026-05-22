@@ -83,7 +83,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           <span className="nav-logo-text" style={{ fontSize: 20, color: '#0d9488', fontFamily: "'DM Serif Display', serif", fontWeight: 400 }}>
-            Sehat24
+            Sehat24<sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>™</sup>
           </span>
           <span className="nav-beta-badge" style={{ fontSize: 10, fontWeight: 700, color: '#0d9488', background: '#f0fdfa', border: '1px solid #99f6e4', padding: '2px 7px', borderRadius: 20 }}>
             BETA

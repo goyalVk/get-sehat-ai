@@ -128,7 +128,7 @@ export default function FAQSection() {
             💬 WhatsApp
           </a>
           
-            <a href="mailto:teamsehat24@gmail.com"
+            <a href="mailto:hello@sehat24.com"
             style={{
               background: 'rgba(255,255,255,0.08)',
               border: '1px solid rgba(255,255,255,0.12)',

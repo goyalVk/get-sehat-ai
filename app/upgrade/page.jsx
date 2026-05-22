@@ -332,7 +332,7 @@ export default function UpgradePage() {
           animation: 'fadeUp 0.6s ease 0.6s both',
         }}>
           <p style={{ fontSize: 12, color: '#475569', margin: 0 }}>
-            Koi problem? <strong style={{ color: '#0d9488' }}>teamsehat24@gmail.com</strong> pe likhein — hum hain 🙏
+            Koi problem? <strong style={{ color: '#0d9488' }}>hello@sehat24.com</strong> pe likhein — hum hain 🙏
           </p>
         </div>
 

@@ -18,10 +18,10 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-XXXXXXXXXX'
 export const metadata = {
   metadataBase: new URL('https://www.sehat24.com'),
   title: {
-    default:  'Sehat24 — Medical Report Hindi Mein Samjho | Free AI Health',
+    default:  'Sehat24™ — Medical Report Hindi Mein Samjho | Free AI Health',
     template: '%s | Sehat24'
   },
-  description: 'Blood test, MRI, X-Ray — koi bhi medical report upload karo. 30 seconds mein Hindi mein sab explain ho jaata hai. Ayurvedic herbs, medicine info, report history — bilkul free. India ka #1 AI health report analyzer.',
+  description: "Sehat24™ is India's free AI health report analyzer. Blood test, MRI, X-Ray — koi bhi report upload karo. 30 seconds mein Hindi mein sab explain. Ayurvedic herbs, medicine info, report history — bilkul free.",
   keywords: [
     'blood test hindi mein', 'medical report explain',
     'lab report samjhna', 'sehat24',
@@ -87,11 +87,11 @@ export const metadata = {
 
 const organizationSchema = {
   '@context': 'https://schema.org', '@type': 'Organization',
-  name: 'Sehat24', url: 'https://www.sehat24.com',
+  name: 'Sehat24™', url: 'https://www.sehat24.com',
   logo: 'https://www.sehat24.com/android-chrome-512x512.png',
   description: 'India ka AI health companion — medical reports Hindi mein explain karta hai.',
   foundingDate: '2024',
-  contactPoint: { '@type': 'ContactPoint', telephone: '+91-8076170877', contactType: 'customer support', availableLanguage: ['Hindi', 'English'] },
+  contactPoint: { '@type': 'ContactPoint', email: 'hello@sehat24.com', telephone: '+91-8076170877', contactType: 'customer support', availableLanguage: ['Hindi', 'English'] },
   sameAs: ['https://instagram.com/sehat24ai', 'https://x.com/sehat24ai'],
   address: { '@type': 'PostalAddress', addressCountry: 'IN', addressLocality: 'Delhi NCR' }
 }

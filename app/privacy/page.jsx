@@ -31,11 +31,11 @@ export default function PrivacyPage() {
         },
         {
           title: 'Your rights',
-          content: 'You can delete your account and all associated data at any time. Contact us at vkgoyal.vk85@gmail.com to request complete data deletion.'
+          content: 'You can delete your account and all associated data at any time. Contact us at hello@sehat24.com to request complete data deletion.'
         },
         {
           title: 'Contact',
-          content: 'For any privacy concerns, email us at vkgoyal.vk85@gmail.com. We will respond within 48 hours.'
+          content: 'For any privacy concerns, email us at hello@sehat24.com. We will respond within 48 hours.'
         }
       ].map((section, i) => (
         <div key={i} style={{ marginBottom: 32 }}>

@@ -47,7 +47,7 @@ export default function TermsPage() {
         },
         {
           title: '10. Contact',
-          content: 'For any questions about these terms, contact us at vkgoyal.vk85@gmail.com.'
+          content: 'For any questions about these terms, contact us at hello@sehat24.com.'
         }
       ].map((section, i) => (
         <div key={i} style={{ marginBottom: 32 }}>

@@ -115,7 +115,7 @@ export default function Footer() {
             {/* Brand */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <span style={{ fontSize: 20, color: '#2dd4bf', fontFamily: "'DM Serif Display', serif" }}>Sehat24</span>
+                <span style={{ fontSize: 20, color: '#2dd4bf', fontFamily: "'DM Serif Display', serif" }}>Sehat24<sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>™</sup></span>
                 <span style={{ fontSize: 10, color: '#2dd4bf', background: 'rgba(45,212,191,0.1)', border: '1px solid rgba(45,212,191,0.3)', padding: '2px 7px', borderRadius: 20 }}>BETA</span>
               </div>
               <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.65, marginBottom: 16 }}>
@@ -127,7 +127,7 @@ export default function Footer() {
                 {[
                   { href: 'https://instagram.com/sehat24ai',     icon: '📸', label: 'Instagram' },
                   { href: 'https://x.com/sehat24ai',             icon: '𝕏',  label: 'X' },
-                  { href: 'mailto:teamsehat24@gmail.com',         icon: '✉️', label: 'Email' },
+                  { href: 'mailto:hello@sehat24.com', icon: '✉️', label: 'Email' },
                   { href: 'https://wa.me/918076170877?text=Namaste%20Sehat24!', icon: '💬', label: 'WhatsApp' },
                 ].map((s, i) => (
                   <a key={i} href={s.href}
@@ -138,6 +138,12 @@ export default function Footer() {
                     {s.icon}
                   </a>
                 ))}
+              </div>
+              <div style={{ marginTop: 16 }}>
+                <p style={{ fontSize: 11, color: '#475569', marginBottom: 4 }}>Contact us:</p>
+                <a href="mailto:hello@sehat24.com" style={{ color: '#0d9488', fontSize: 13, textDecoration: 'none' }}>
+                  hello@sehat24.com
+                </a>
               </div>
             </div>
 
@@ -209,7 +215,10 @@ export default function Footer() {
           {/* Bottom */}
           <div className="footer-bottom">
             <p style={{ fontSize: 11, color: '#334155', margin: 0 }}>
-              © {new Date().getFullYear()} Sehat24. Built in India 🇮🇳
+              © {new Date().getFullYear()} Sehat24™ All rights reserved.
+            </p>
+            <p style={{ fontSize: 10, color: '#475569', margin: '4px 0 0' }}>
+              Trademark Application No: 14321776 | Class 44 — Medical Services 🇮🇳
             </p>
             <p style={{ fontSize: 11, color: '#334155', margin: 0, textAlign: 'center' }}>
               Educational purposes only. Not medical advice.

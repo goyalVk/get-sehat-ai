@@ -316,7 +316,7 @@ export default function Home() {
             <div style={{ textAlign:'center', marginBottom:52 }}>
               <p className="t-overline" style={{ marginBottom:12 }}>Real Patient Data</p>
               <h2 className="sec-h2" style={{ fontFamily:'var(--font-display)', fontSize:40, fontWeight:300, color:'var(--ink)', lineHeight:1.2, marginBottom:12 }}>
-                Sehat24 ke 2,300+ Reports ka{' '}<em style={{ fontStyle:'italic', color:'var(--teal-600)' }}>Sach</em>
+                Sehat24<sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>™</sup> ke 2,300+ Reports ka{' '}<em style={{ fontStyle:'italic', color:'var(--teal-600)' }}>Sach</em>
               </h2>
               <p style={{ fontFamily:'var(--font-body)', fontSize:15, color:'var(--ink-ghost)', maxWidth:520, margin:'0 auto' }}>
                 Yeh fake numbers nahi hain — yeh real Indian patients ka data hai
