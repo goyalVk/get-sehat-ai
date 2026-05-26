@@ -180,7 +180,7 @@ export default function FeedbackSection({ reportId }) {
           <h3 style={{ fontSize:15, fontWeight:700, color:'white', marginBottom:2 }}>
             Yeh analysis kaisi lagi?
           </h3>
-          <p style={{ fontSize:12, color:'#94a3b8' }}>
+          <p style={{ fontSize:16, color:'#94a3b8' }}>
             Helpful laga? 5 star. Problem tha? Batao kya fix karein
           </p>
         </div>

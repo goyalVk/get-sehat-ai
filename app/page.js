@@ -4,7 +4,7 @@ import FAQSection from '@/components/FAQSection'
 
 export const metadata = {
   title: 'Sehat24 — Free Medical Report Analyzer in Hindi | Lab Report Samjho',
-  description: 'Koi bhi lab report Hindi mein samjho — CBC, Thyroid, HbA1c, Vitamin D. 2300+ reports analyzed. SRL, Lal PathLabs, Apollo, Thyrocare sab supported. Bilkul Free.',
+  description: 'Koi bhi lab report Hindi mein samjho — CBC, Thyroid, HbA1c, Vitamin D. 2700+ reports analyzed. SRL, Lal PathLabs, Apollo, Thyrocare sab supported. Bilkul Free.',
   keywords: [
     'medical report hindi mein','lab report analyzer hindi',
     'blood test report hindi','CBC report hindi mein samjho',
@@ -15,7 +15,7 @@ export const metadata = {
   ],
   openGraph: {
     title: 'Sehat24 — Apni Report Hindi Mein Samjho',
-    description: '2300+ reports analyzed. Free. 30 seconds. Hindi mein.',
+    description: '2700+ reports analyzed. Free. 30 seconds. Hindi mein.',
     url: 'https://sehat24.com',
     siteName: 'Sehat24',
     locale: 'hi_IN',
@@ -24,7 +24,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Sehat24 — Free Medical Report Analyzer in Hindi',
-    description: '2300+ reports analyzed. Free. 30 seconds.',
+    description: '2700+ reports analyzed. Free. 30 seconds.',
   },
   alternates: { canonical: 'https://sehat24.com' },
 }
@@ -255,7 +255,7 @@ export default function Home() {
             {/* Stat strip */}
             <div className="a3 stat-strip" style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap', marginBottom:36 }}>
               {[
-                { num:'2,300+', label:'Reports Analyzed' },
+                { num:'2700+', label:'Reports Analyzed' },
                 { num:'49%',    label:'Hemoglobin Low mila' },
                 { num:'69%',    label:'Vitamin D ki kami' },
                 { num:'46%',    label:'Urgent Health Flags' },
@@ -316,7 +316,7 @@ export default function Home() {
             <div style={{ textAlign:'center', marginBottom:52 }}>
               <p className="t-overline" style={{ marginBottom:12 }}>Real Patient Data</p>
               <h2 className="sec-h2" style={{ fontFamily:'var(--font-display)', fontSize:40, fontWeight:300, color:'var(--ink)', lineHeight:1.2, marginBottom:12 }}>
-                Sehat24<sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>™</sup> ke 2,300+ Reports ka{' '}<em style={{ fontStyle:'italic', color:'var(--teal-600)' }}>Sach</em>
+                Sehat24<sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>™</sup> ke 2700+ Reports ka{' '}<em style={{ fontStyle:'italic', color:'var(--teal-600)' }}>Sach</em>
               </h2>
               <p style={{ fontFamily:'var(--font-body)', fontSize:15, color:'var(--ink-ghost)', maxWidth:520, margin:'0 auto' }}>
                 Yeh fake numbers nahi hain — yeh real Indian patients ka data hai

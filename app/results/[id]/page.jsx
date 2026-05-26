@@ -518,47 +518,57 @@ export default async function ResultsPage({ params }) {
           )}
 
           {/* ── Ayurvedic Herbs ── */}
-          {result.ayurvedic_herbs?.length > 0 && (
-            <div className="fade-up" style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #86efac', borderRadius: 20, padding: 24, marginBottom: 16, animationDelay: '0.28s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🌱</div>
-                <div>
-                  <h2 style={{ fontSize: 15, fontWeight: 700, color: '#14532d' }}>Ayurvedic Herbs</h2>
-                  <p style={{ fontSize: 12, color: '#16a34a' }}>Natural support — doctor se pooch ke lo</p>
-                </div>
-              </div>
-              <div style={{ background: '#fefce8', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
-                <p style={{ fontSize: 12, color: '#92400e', lineHeight: 1.6 }}>
-                  Yeh herbs <strong>sirf general wellness ke liye</strong> hain. Koi bhi herb lene se <strong>pehle doctor se milein</strong> — especially agar aap koi medicine le rahe hain.
-                </p>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {result.ayurvedic_herbs.map((herb, i) => (
-                  <div key={i} style={{ background: 'white', borderRadius: 14, padding: '14px 16px', border: '1px solid #86efac' }}>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: '#14532d', marginBottom: 6 }}>🌿 {herb.name}</p>
-                    <p style={{ fontSize: 13, color: '#166534', lineHeight: 1.6, marginBottom: 6 }}><strong>Faida:</strong> {herb.benefit}</p>
-                    <p style={{ fontSize: 13, color: '#166534', lineHeight: 1.6, marginBottom: 6 }}><strong>Kaise lein:</strong> {herb.how_to_use}</p>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, background: '#fefce8', borderRadius: 8, padding: '8px 10px', border: '1px solid #fde68a', marginTop: 8 }}>
-                      <span style={{ fontSize: 12, flexShrink: 0 }}>⚠️</span>
-                      <p style={{ fontSize: 11, color: '#92400e', lineHeight: 1.5 }}>{herb.caution}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                <a href="https://satvikhavan.com" target="_blank" rel="noopener noreferrer" className="herb-btn"
-                  style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 14px', background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#15803d', transition: 'all 0.2s' }}>
-                  🛒 Shop Satvik havan
-                </a>
-                <a href={`https://wa.me/918076170877?text=${encodeURIComponent(`Namaste! Sehat24 se aaya hoon. Mujhe yeh herbs chahiye: ${result.ayurvedic_herbs.map(h => h.name.split('(')[0].trim()).join(', ')}`)}`}
-                  target="_blank" rel="noopener noreferrer" className="herb-btn"
-                  style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 14px', background: '#f0fff4', border: '1.5px solid #86efac', borderRadius: 10, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#15803d', transition: 'all 0.2s' }}>
-                  💬 WhatsApp Order
-                </a>
-              </div>
+         {result.ayurvedic_herbs?.length > 0 && (
+  <div className="fade-up" style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #86efac', borderRadius: 20, padding: 24, marginBottom: 16, animationDelay: '0.28s' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+      <div style={{ width: 36, height: 36, borderRadius: 10, background: '#bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🌱</div>
+      <div>
+        <h2 style={{ fontSize: 15, fontWeight: 700, color: '#14532d' }}>Ayurvedic Herbs</h2>
+        <p style={{ fontSize: 12, color: '#16a34a' }}>Natural support — doctor se pooch ke lo</p>
+      </div>
+    </div>
+    <div style={{ background: '#fefce8', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+      <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
+      <p style={{ fontSize: 12, color: '#92400e', lineHeight: 1.6 }}>
+        Yeh herbs <strong>sirf general wellness ke liye</strong> hain. Koi bhi herb lene se <strong>pehle doctor se milein</strong> — especially agar aap koi medicine le rahe hain.
+      </p>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {result.ayurvedic_herbs.map((herb, i) => (
+        <div key={i} style={{ background: 'white', borderRadius: 14, padding: '14px 16px', border: '1px solid #86efac' }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: '#14532d', marginBottom: 6 }}>🌿 {herb.name}</p>
+          {herb.benefit && (
+            <p style={{ fontSize: 13, color: '#166534', lineHeight: 1.6, marginBottom: 6 }}>
+              <strong>Faida:</strong> {herb.benefit}
+            </p>
+          )}
+          {herb.how_to_use && (
+            <p style={{ fontSize: 13, color: '#166534', lineHeight: 1.6, marginBottom: 6 }}>
+              <strong>Kaise lein:</strong> {herb.how_to_use}
+            </p>
+          )}
+          {herb.caution && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, background: '#fefce8', borderRadius: 8, padding: '8px 10px', border: '1px solid #fde68a', marginTop: 8 }}>
+              <span style={{ fontSize: 12, flexShrink: 0 }}>⚠️</span>
+              <p style={{ fontSize: 11, color: '#92400e', lineHeight: 1.5 }}>{herb.caution}</p>
             </div>
           )}
+        </div>
+      ))}
+    </div>
+    <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+      <a href="https://satvikhavan.com" target="_blank" rel="noopener noreferrer" className="herb-btn"
+        style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 14px', background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 10, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#15803d', transition: 'all 0.2s' }}>
+        🛒 Shop Satvik Havan
+      </a>
+      <a href={`https://wa.me/918076170877?text=${encodeURIComponent(`Namaste! Sehat24 se aaya hoon. Mujhe yeh herbs chahiye: ${result.ayurvedic_herbs.map(h => h.name.split('(')[0].trim()).join(', ')}`)}`}
+        target="_blank" rel="noopener noreferrer" className="herb-btn"
+        style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 14px', background: '#f0fff4', border: '1.5px solid #86efac', borderRadius: 10, textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#15803d', transition: 'all 0.2s' }}>
+        💬 WhatsApp Order
+      </a>
+    </div>
+  </div>
+)}
 
           {/* ── Disclaimer ── */}
           <div className="fade-up" style={{ background: 'linear-gradient(135deg, #fef2f2, #fff1f2)', border: '1.5px solid #fecaca', borderRadius: 16, padding: '18px 20px', marginBottom: 24, animationDelay: '0.3s' }}>
@@ -612,43 +622,9 @@ export default async function ResultsPage({ params }) {
             </div>
           </div> */}
 
-          {/* ══ NEW: Blog Recommendations ══ */}
-          <nav
-            role="navigation"
-            aria-label="Related health articles"
-            className="fade-up"
-            style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', padding: 20, marginBottom: 16, animationDelay: '0.38s' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-              <span style={{ fontSize: 18 }}>📚</span>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 0 }}>Aur samjho — Related Articles</p>
-                <p style={{ fontSize: 11, color: '#94a3b8' }}>Aapki report se related guides Hindi mein</p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {blogRecs.map((b, i) => (
-                <Link
-                  key={i}
-                  href={b.url}
-                  className="blog-rec-card"
-                  title={`${b.title} - Sehat24`}
-                  rel="internal"
-                  aria-label={b.title}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 20, flexShrink: 0 }}>{b.emoji}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', lineHeight: 1.4 }}>{b.title}</span>
-                  </div>
-                  <span className="blog-rec-read">Padhein →</span>
-                </Link>
-              ))}
-            </div>
-          </nav>
-
           {/* ══ NEW: Instagram Follow Card ══ */}
           <section
-            role="complementary"
+            role="complementary"  
             aria-label="Follow Sehat24 on Instagram"
             className="fade-up ig-follow-card"
             style={{ animationDelay: '0.40s' }}
@@ -752,6 +728,40 @@ export default async function ResultsPage({ params }) {
               </div>
             )}
           </div>
+
+          {/* ══ NEW: Blog Recommendations ══ */}
+          <nav
+            role="navigation"
+            aria-label="Related health articles"
+            className="fade-up"
+            style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', padding: 20, marginBottom: 16, animationDelay: '0.38s' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <span style={{ fontSize: 18 }}>📚</span>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 0 }}>Aur samjho — Related Articles</p>
+                <p style={{ fontSize: 11, color: '#94a3b8' }}>Aapki report se related guides Hindi mein</p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {blogRecs.map((b, i) => (
+                <Link
+                  key={i}
+                  href={b.url}
+                  className="blog-rec-card"
+                  title={`${b.title} - Sehat24`}
+                  rel="internal"
+                  aria-label={b.title}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 20, flexShrink: 0 }}>{b.emoji}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', lineHeight: 1.4 }}>{b.title}</span>
+                  </div>
+                  <span className="blog-rec-read">Padhein →</span>
+                </Link>
+              ))}
+            </div>
+          </nav>
 
         </div>
       </div>
