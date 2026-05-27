@@ -6,12 +6,15 @@ export default function NotificationBanner() {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
-    const asked = localStorage.getItem('s24_notif_asked')
-    const token = localStorage.getItem('s24_push_token')
-    const permission = Notification?.permission
-
-    if (!asked && !token && permission === 'default') {
-      setTimeout(() => setShow(true), 5000)
+    try {
+      const asked = localStorage.getItem('s24_notif_asked')
+      const token = localStorage.getItem('s24_push_token')
+      const permission = Notification?.permission
+      if (!asked && !token && permission === 'default') {
+        setTimeout(() => setShow(true), 5000)
+      }
+    } catch {
+      // localStorage blocked in Instagram IAB / iOS WKWebView restricted mode
     }
   }, [])
 

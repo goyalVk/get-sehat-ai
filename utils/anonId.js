@@ -4,14 +4,29 @@ const LAST_KEY   = 's24_last_upload'
 const VISIT_KEY  = 's24_visit_count'
 const VISIT_TS   = 's24_last_visit'
 
+function generateUUID() {
+  // crypto.randomUUID() available from iOS 15.4+ only; fall back to getRandomValues (iOS 6+)
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = crypto.getRandomValues(new Uint8Array(1))[0] & 15
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
+  })
+}
+
 export function getAnonId() {
   if (typeof window === 'undefined') return null
-  let id = localStorage.getItem(UID_KEY)
-  if (!id) {
-    id = crypto.randomUUID()
-    localStorage.setItem(UID_KEY, id)
+  try {
+    let id = localStorage.getItem(UID_KEY)
+    if (!id) {
+      id = generateUUID()
+      localStorage.setItem(UID_KEY, id)
+    }
+    return id
+  } catch {
+    return generateUUID()
   }
-  return id
 }
 
 export function isReturningUser() {

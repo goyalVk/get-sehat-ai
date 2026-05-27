@@ -42,10 +42,14 @@ export default function UploadPage() {
   const [showLoginNudge, setShowLoginNudge] = useState(false)
 
   useEffect(() => {
-    const count     = parseInt(localStorage.getItem('s24_upload_count')) || 0
-    const dismissed = localStorage.getItem('s24_login_nudge_dismissed')
-    const hasUserId = document.cookie.includes('userId')
-    if (count >= 1 && !dismissed && !hasUserId) setShowLoginNudge(true)
+    try {
+      const count     = parseInt(localStorage.getItem('s24_upload_count')) || 0
+      const dismissed = localStorage.getItem('s24_login_nudge_dismissed')
+      const hasUserId = document.cookie.includes('userId')
+      if (count >= 1 && !dismissed && !hasUserId) setShowLoginNudge(true)
+    } catch {
+      // localStorage blocked in Instagram IAB / iOS WKWebView restricted mode
+    }
   }, [])
 
   /* ── All logic unchanged ── */
