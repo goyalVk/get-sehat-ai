@@ -27,8 +27,6 @@ export default function Navbar() {
   const firstName  = user?.firstName || user?.phone?.slice(-4) || ''
   const isAuthPage = pathname?.startsWith('/auth')
 
-  if (pathname === '/links') return null
-
   return (
 <>
       <style>{`
