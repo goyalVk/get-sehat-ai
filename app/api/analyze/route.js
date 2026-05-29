@@ -56,13 +56,36 @@ function parseClaudeResponse(rawText) {
   }
 
   // Step 3 — jsonrepair se fix karo
+  let parsed
   try {
     const repaired = jsonrepair(text)
-    return JSON.parse(repaired)
+    parsed = JSON.parse(repaired)
   } catch (e) {
     console.error('JSON repair failed:', e.message)
-    throw new Error('Report analyze nahi ho saki — dobara try karo 🙏')
+    console.error('[parseClaudeResponse] Raw response:\n', rawText)
+    const err = new Error('Report clearly nahi dikhi 😕 — PDF format mein try karo ya achhi roshni mein photo lo')
+    err.isParseError = true
+    throw err
   }
+
+  // Step 4 — Required fields validate karo
+  if (!parsed.report_type || !parsed.lab) {
+    console.error('[parseClaudeResponse] Missing fields — report_type:', parsed.report_type, 'lab:', !!parsed.lab)
+    console.error('[parseClaudeResponse] Raw response:\n', rawText)
+    const err = new Error('Report clearly nahi dikhi 😕 — PDF format mein try karo ya achhi roshni mein photo lo')
+    err.isParseError = true
+    throw err
+  }
+
+  return parsed
+}
+
+// ── Retry classification ──────────────────────────────
+function isRetriableError(err) {
+  if (err.isTruncated) return false  // same large report will always truncate
+  if (err.isParseError) return true
+  const msg = err.message || ''
+  return /timeout|ETIMEDOUT|ECONNRESET|fetch failed|overload|529|rate.?limit|503|502/i.test(msg)
 }
 
 // ── Token cost — model aware ──────────────────────────
@@ -104,12 +127,28 @@ function normalizeParameters(parameters) {
   }))
 }
 
+// Detect real MIME type from magic bytes — browser-reported type can be wrong
+// (e.g. JPEG files sometimes arrive declared as image/webp on some Android browsers)
+function detectMimeFromBuffer(buf) {
+  if (!buf || buf.length < 12) return null
+  // JPEG: FF D8 FF
+  if (buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF) return 'image/jpeg'
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47) return 'image/png'
+  // WebP: RIFF????WEBP
+  if (buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46 &&
+      buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50) return 'image/webp'
+  // PDF: %PDF
+  if (buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46) return 'application/pdf'
+  return null
+}
+
 async function compressImage(buffer) {
   const sharp = (await import('sharp')).default
 
   let compressed = await sharp(buffer)
-    .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
-    .jpeg({ quality: 70 })
+    .resize(2000, 2000, { fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 80 })
     .toBuffer()
 
   console.log(`After first compress: ${compressed.length} bytes`)
@@ -131,7 +170,7 @@ async function compressImage(buffer) {
   }
 
   if (compressed.length > 4.5 * 1024 * 1024) {
-    throw new Error('Image bahut badi hai — compress karke upload karo 🙏')
+    throw new Error('Photo bahut badi hai 😕 — 5MB se chhoti photo try karo')
   }
 
   console.log(`✅ Compressed: ${buffer.length} → ${compressed.length} bytes`)
@@ -234,7 +273,7 @@ export async function POST(req) {
         status: 'failed', isSpam: true, spamReason: 'invalid_file_type', userAgent,
       })
       return NextResponse.json(
-        { error: 'Invalid file type. Upload PDF or image.' },
+        { error: 'Yeh file type support nahi hoti 😕 — sirf PDF ya photo (JPG, PNG) upload karo' },
         { status: 400 }
       )
     }
@@ -247,7 +286,7 @@ export async function POST(req) {
         status: 'failed', isSpam: true, spamReason: 'file_too_small', userAgent,
       })
       return NextResponse.json(
-        { error: 'File bahut chhoti hai — valid report upload karo 🙏' },
+        { error: 'File bahut chhoti hai 😕 — original lab report ka clear photo lo' },
         { status: 400 }
       )
     }
@@ -259,7 +298,7 @@ export async function POST(req) {
 
     if (isNonMedical) {
       return NextResponse.json({
-        error: 'Yeh medical lab report nahi lagti. Kripya blood test, MRI, ya pathology report upload karein.',
+        error: 'Yeh medical report nahi lagti 🩺 — CBC, blood test ya thyroid report upload karo',
         isNonMedical: true
       }, { status: 400 })
     }
@@ -267,7 +306,7 @@ export async function POST(req) {
     // ── Absolute max size ─────────────────────────────
     if (file.size > PRO_MAX_SIZE) {
       return NextResponse.json(
-        { error: 'File too large. Max 20MB allowed.' },
+        { error: 'File bahut badi hai 😕 — 20MB se chhoti file bhejo' },
         { status: 400 }
       )
     }
@@ -326,7 +365,7 @@ export async function POST(req) {
           userId: null, anonId, sessionId: crypto.randomUUID(),
           status: 'failed', isSpam: true, spamReason: 'bot_suspected', userAgent, visitCount,
         })
-        return NextResponse.json({ error: 'Bahut zyada uploads — thodi der baad try karo.' }, { status: 429 })
+        return NextResponse.json({ error: 'Bahut zyada requests ⏳ — 1 minute baad dobara try karo' }, { status: 429 })
       }
     }
 
@@ -337,15 +376,28 @@ export async function POST(req) {
         userId: user?._id?.toString() || null, anonId, sessionId: crypto.randomUUID(),
         status: 'failed', preCheckFailed: true, spamReason: 'low_quality', userAgent,
       })
-      return NextResponse.json({ error: 'Image bahut chhoti hai — report clearly nahi dikh rahi. Dobara photo lo 🙏' }, { status: 400 })
+      return NextResponse.json({ error: 'Photo thodi unclear hai 📸 — achhi roshni mein seedha camera se report ki photo lo' }, { status: 400 })
     }
 
     // ── File buffer ───────────────────────────────────
     const bytes  = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
+    // ── Resolve true MIME type from magic bytes ───────
+    // Overrides browser-declared type when they differ (e.g. JPEG mis-declared as image/webp)
+    const detectedMime     = detectMimeFromBuffer(buffer)
+    const resolvedFileType = detectedMime ?? file.type
+    if (detectedMime && detectedMime !== file.type) {
+      console.warn(`MIME mismatch — declared: ${file.type}, actual: ${detectedMime} — using actual`)
+    }
+
+    // ── PDF size check ────────────────────────────────
+    if (resolvedFileType === 'application/pdf' && buffer.length > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'PDF bahut bada hai 📄 — 5MB se chhota wala upload karo' }, { status: 400 })
+    }
+
     // ── Password protected PDF check ─────────────────
-    if (file.type === 'application/pdf') {
+    if (resolvedFileType === 'application/pdf') {
       const pdfHeader = buffer.toString('latin1', 0, Math.min(buffer.length, 8192))
       if (pdfHeader.includes('/Encrypt')) {
         await Report.create({
@@ -354,15 +406,15 @@ export async function POST(req) {
           status: 'failed', isSpam: false, isNonMedical: false,
           preCheckFailed: true, spamReason: 'password_protected', userAgent,
         })
-        return NextResponse.json({ error: 'PDF password protected hai — lock hatao aur dobara upload karo 🙏' }, { status: 400 })
+        return NextResponse.json({ error: 'PDF pe lock laga hai 🔒 — pehle password hataao, phir upload karo' }, { status: 400 })
       }
     }
 
     let finalBuffer        = buffer
-    let effectiveMediaType = file.type
+    let effectiveMediaType = resolvedFileType
 
-    if (file.type !== 'application/pdf') {
-      if (buffer.length > 1 * 1024 * 1024) {
+    if (resolvedFileType !== 'application/pdf') {
+      if (buffer.length > 4 * 1024 * 1024) {
         console.log('Compressing:', buffer.length, 'bytes')
         finalBuffer        = await compressImage(buffer)
         effectiveMediaType = 'image/jpeg'
@@ -371,7 +423,7 @@ export async function POST(req) {
 
       if (finalBuffer.length > 4.5 * 1024 * 1024) {
         return NextResponse.json({
-          error: 'Image bahut badi hai — compress karke upload karo 🙏'
+          error: 'Photo bahut badi hai 😕 — 5MB se chhoti photo try karo'
         }, { status: 400 })
       }
     }
@@ -424,7 +476,7 @@ export async function POST(req) {
     try {
       const preCheckContent = [
         { type: 'text', text: 'Is this a medical lab report or health test result? Reply with only YES or NO.' },
-        file.type === 'application/pdf'
+        resolvedFileType === 'application/pdf'
           ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } }
           : { type: 'image',    source: { type: 'base64', media_type: effectiveMediaType,  data: base64 } }
       ]
@@ -439,7 +491,7 @@ export async function POST(req) {
           spamReason: 'non_medical', userAgent,
         })
         return NextResponse.json({
-          error: 'Yeh medical lab report nahi lagti. CBC, blood test, ya pathology report upload karein.',
+          error: 'Yeh medical report nahi lagti 🩺 — CBC, blood test ya thyroid report upload karo',
           isNonMedical: true
         }, { status: 400 })
       }
@@ -450,19 +502,38 @@ export async function POST(req) {
 
     const startTime = Date.now()
 
-    // ── AI Analysis ───────────────────────────────────
-    let interpretation
-    let tokenUsage
+    // ── AI Analysis with retry + 60s timeout ─────────
+    const MAX_RETRIES = 2
 
-    if (file.type === 'application/pdf') {
-      const result   = await analyzeWithPDF(base64, modelToUse)
-      interpretation = result.interpretation
-      tokenUsage     = result.tokenUsage
-    } else {
-      const result   = await analyzeWithVision(base64, effectiveMediaType, modelToUse)
-      interpretation = result.interpretation
-      tokenUsage     = result.tokenUsage
+    const doAnalysis = async () => {
+      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          return resolvedFileType === 'application/pdf'
+            ? await analyzeWithPDF(base64, modelToUse)
+            : await analyzeWithVision(base64, effectiveMediaType, modelToUse)
+        } catch (e) {
+          if (attempt < MAX_RETRIES && isRetriableError(e)) {
+            console.warn(`Analysis attempt ${attempt + 1} failed (${e.message}) — retrying in 2s`)
+            if (reportId) await Report.findByIdAndUpdate(reportId, { $inc: { retryCount: 1 } })
+            await new Promise(r => setTimeout(r, 2000))
+          } else {
+            throw e
+          }
+        }
+      }
     }
+
+    let timeoutId
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutId = setTimeout(() => {
+        const err = new Error('Analysis timeout — server busy hai, thodi der baad try karo ⏳')
+        err.isTimeout = true
+        reject(err)
+      }, 60_000)
+    })
+
+    const { interpretation, tokenUsage } = await Promise.race([doAnalysis(), timeoutPromise])
+      .finally(() => clearTimeout(timeoutId))
 
     const analysisTimeMs = Date.now() - startTime
 
@@ -739,20 +810,30 @@ export async function POST(req) {
         err.message.includes('corrupt') ||
         err.message.includes('Unable to read') ||
         err.message.includes('Invalid PDF')
+      const errorType = err.isTruncated                                                      ? 'report_too_large'
+        : err.isParseError                                                                   ? 'parse_error'
+        : /timeout|ETIMEDOUT/i.test(err.message)                                            ? 'timeout'
+        : /overload|529|rate.?limit/i.test(err.message)                                     ? 'rate_limit'
+        : /Could not process|corrupt|Unable to read|Invalid PDF/i.test(err.message)         ? 'corrupted'
+        : 'unknown'
       await Report.findByIdAndUpdate(reportId, {
         status:       'failed',
         errorMessage: err.message,
+        errorType,
         userAgent,
         ...(isCorrupted ? { isSpam: false, preCheckFailed: true, spamReason: 'corrupted' } : {}),
       })
     }
 
-    const userMessage = err.message.includes('bahut badi')
+    // Truncated — return 400 with flag so frontend can show upgrade upsell
+    if (err.isTruncated) {
+      return NextResponse.json({ error: err.message, isTruncated: true }, { status: 400 })
+    }
+
+    const userMessage = err.isParseError || err.message.includes('bahut badi') || err.message.includes('bahut bada')
   ? err.message
-  : err.message.includes('JSON repair failed')
-  ? 'Report samajh nahi aayi — clearer photo ya PDF upload karo 🙏'
   : err.message.includes('Could not process')
-  ? 'Photo clear nahi hai — achhi roshni mein dobara photo lo 🙏'
+  ? 'Photo padh nahi paaye 😕 — dobara clear photo lo ya PDF try karo'
   : err.message.includes('timeout') || err.message.includes('ETIMEDOUT')
   ? 'Server busy hai — thodi der baad try karo 🙏'
   : err.message.includes('ECONNRESET') || err.message.includes('fetch failed')
@@ -768,7 +849,7 @@ export async function POST(req) {
 
 // ── analyzeWithPDF — model aware ──────────────────────
 async function analyzeWithPDF(base64, model = HAIKU_MODEL) {
-  const response = await anthropic.messages.create({
+  const params = {
     model,
     max_tokens: model === SONNET_MODEL ? 12000 : 8000,
     messages: [{
@@ -781,15 +862,19 @@ async function analyzeWithPDF(base64, model = HAIKU_MODEL) {
         },
         {
           type: 'document',
-          source: {
-            type:       'base64',
-            media_type: 'application/pdf',
-            data:       base64
-          }
+          source: { type: 'base64', media_type: 'application/pdf', data: base64 }
         }
       ]
     }]
-  })
+  }
+
+  const response = await anthropic.messages.create(params)
+
+  if (response.stop_reason === 'max_tokens') {
+    const err = new Error('Report bahut badi hai — Pro plan mein badi reports analyze hoti hain 🚀')
+    err.isTruncated = true
+    throw err
+  }
 
   const interpretation = parseClaudeResponse(response.content[0].text)
   const tokenUsage     = calculateTokenUsage(response.usage, model)
@@ -798,7 +883,7 @@ async function analyzeWithPDF(base64, model = HAIKU_MODEL) {
 
 // ── analyzeWithVision — model aware ───────────────────
 async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL) {
-  const response = await anthropic.messages.create({
+  const params = {
     model,
     max_tokens: model === SONNET_MODEL ? 12000 : 8000,
     messages: [{
@@ -811,15 +896,19 @@ async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL) {
         },
         {
           type: 'image',
-          source: {
-            type:       'base64',
-            media_type: mediaType,
-            data:       base64
-          }
+          source: { type: 'base64', media_type: mediaType, data: base64 }
         }
       ]
     }]
-  })
+  }
+
+  const response = await anthropic.messages.create(params)
+
+  if (response.stop_reason === 'max_tokens') {
+    const err = new Error('Report bahut badi hai — Pro plan mein badi reports analyze hoti hain 🚀')
+    err.isTruncated = true
+    throw err
+  }
 
   const interpretation = parseClaudeResponse(response.content[0].text)
   const tokenUsage     = calculateTokenUsage(response.usage, model)

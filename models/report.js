@@ -112,6 +112,11 @@ const ReportSchema = new mongoose.Schema(
     isNonMedical:  { type: Boolean, default: false },
     preCheckFailed:{ type: Boolean, default: false },
 
+    // Retry tracking
+    retryCount:  { type: Number, default: 0 },
+    errorType:   { type: String, default: null },
+    // Values: 'parse_error', 'timeout', 'rate_limit', 'corrupted', 'unknown'
+
     // Bot detection
     uploadSource:  { type: String, default: 'web' },
     // Values: 'web', 'api', 'unknown'

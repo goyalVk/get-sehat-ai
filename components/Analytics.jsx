@@ -68,4 +68,7 @@ export const events = {
 
   whatsappClick: (source) =>
     trackEvent('whatsapp_click', { source, category: 'engagement' }),
+
+  reportTooLargeUpsell: () =>
+    trackEvent('report_too_large_upsell_shown', { category: 'conversion' }),
 }

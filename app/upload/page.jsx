@@ -36,17 +36,28 @@ export default function UploadPage() {
   const [file, setFile]                   = useState(null)
   const [dragging, setDragging]           = useState(false)
   const [loading, setLoading]             = useState(false)
-  const [loadingMsg, setLoadingMsg]       = useState('')
   const [error, setError]                 = useState('')
+  const [errorType, setErrorType]         = useState('')
   const [sampleLoading, setSampleLoading] = useState(false)
   const [showLoginNudge, setShowLoginNudge] = useState(false)
+  const [isGuest, setIsGuest]               = useState(true)
+  const [showRetryNudge, setShowRetryNudge] = useState(false)
 
   useEffect(() => {
     try {
       const count     = parseInt(localStorage.getItem('s24_upload_count')) || 0
       const dismissed = localStorage.getItem('s24_login_nudge_dismissed')
       const hasUserId = document.cookie.includes('userId')
+      setIsGuest(!hasUserId)
       if (count >= 1 && !dismissed && !hasUserId) setShowLoginNudge(true)
+
+      // Post-login retry: user just came back after logging in
+      if (hasUserId && localStorage.getItem('s24_retry_upload')) {
+        localStorage.removeItem('s24_retry_upload')
+        setShowRetryNudge(true)
+        // Auto-open file picker after a brief pause so the page renders first
+        setTimeout(() => document.getElementById('fileInput')?.click(), 700)
+      }
     } catch {
       // localStorage blocked in Instagram IAB / iOS WKWebView restricted mode
     }
@@ -59,8 +70,12 @@ export default function UploadPage() {
       setError('Sirf PDF ya image (JPG, PNG) upload kar sakte hain')
       return
     }
-    if (f.size > 10 * 1024 * 1024) {
-      setError('File bahut badi hai — 10MB se kam rakho')
+    if (f.type === 'application/pdf' && f.size > 5 * 1024 * 1024) {
+      setError('PDF bahut bada hai — 5MB se chhota PDF upload karo 📄')
+      return
+    }
+    if (f.type !== 'application/pdf' && f.size > 10 * 1024 * 1024) {
+      setError('Photo bahut badi hai — 10MB se chhoti image try karo')
       return
     }
     setError('')
@@ -99,7 +114,6 @@ export default function UploadPage() {
     setLoading(true); setError('')
     events.reportUpload(file.type)
     try {
-      setLoadingMsg('Report upload ho rahi hai...')
       const formData = new FormData()
       formData.append('file', file)
       formData.append('visitCount', getVisitCount())
@@ -107,23 +121,27 @@ export default function UploadPage() {
       const ref = urlParams.get('ref') || document.referrer || 'direct'
       formData.append('ref', ref)
       formData.append('_hp', document.getElementById('_hp_field')?.value || '')
-      setLoadingMsg('AI aapki report padh raha hai... (20-30 seconds)')
       const res  = await fetch('/api/analyze', { method: 'POST', body: formData })
       const data = await res.json()
       if (!res.ok) {
-        if (data.limitReached) {
+        if (data.limitReached || data.requiresUpgrade) {
           setError('✨ Aapki free report use ho gayi! Pro plan pe redirect ho rahe hain...')
+          setErrorType('limit')
           setTimeout(() => router.push('/upgrade'), 2000)
           setLoading(false)
           return
         }
         if (data.loginRequired) {
           setError('Report analyze karne ke liye login karo 🙏')
+          setErrorType('login')
           setTimeout(() => router.push('/auth/login'), 2000)
           setLoading(false)
           return
         }
-        setError(data.error || 'Kuch problem aayi — report dobara upload karo 🙏')
+        const mapped = mapError(data.error, data)
+        setError(mapped.msg)
+        setErrorType(mapped.type)
+        if (mapped.type === 'report_too_large') events.reportTooLargeUpsell()
         setLoading(false)
         return
       }
@@ -135,19 +153,60 @@ export default function UploadPage() {
         if (returning) window.gtag('event', 'returning_user_upload')
       }
       incrementUploadCount()
-      setLoadingMsg('Ho gaya! Results load ho rahe hain...')
       requestPushPermission().catch(console.error)
       router.push(`/results/${data.reportId}`)
     } catch (err) {
       if (err.message?.includes('timeout') || err.message?.includes('ETIMEDOUT')) {
         setError('Server busy hai — thodi der baad try karo 🙏')
+        setErrorType('rate_limit')
       } else if (err.message?.includes('fetch') || err.message?.includes('network')) {
         setError('Internet connection check karo aur dobara try karo 🙏')
+        setErrorType('network')
       } else {
         setError('Kuch problem aayi — report dobara upload karo 🙏')
+        setErrorType('generic')
       }
       setLoading(false)
     }
+  }
+
+  // Map raw API error strings → user-friendly Hinglish messages
+  function mapError(apiError, data) {
+    if (!apiError) return { msg: 'Kuch problem aayi 😕 — dobara try karo', type: 'generic' }
+    if (data?.isTruncated) return { msg: 'Yeh report thodi badi hai! 📋', type: 'report_too_large' }
+    const e = apiError.toLowerCase()
+    // timeout / network first — prevents "dobara try karo" matching parse_error
+    if (e.includes('timeout') || e.includes('server busy') || e.includes('thodi der baad'))
+      return { msg: 'Server thoda busy hai ⏳ — 30 second baad dobara try karo', type: 'timeout' }
+    if (e.includes('internet') || e.includes('connection') || e.includes('econnreset') || e.includes('fetch'))
+      return { msg: 'Internet check karo 📶 — connection theek karo aur dobara try karo', type: 'network' }
+    if (e.includes('bahut zyada') || e.includes('ek minute') || e.includes('1 minute'))
+      return { msg: '1 minute baad dobara try karo — server busy hai ⏳', type: 'rate_limit' }
+    if (data?.isNonMedical || e.includes('medical report nahi lagti') || e.includes('medical lab report'))
+      return { msg: 'Yeh medical report nahi lagti 🩺 — CBC, blood test ya thyroid report upload karo', type: 'non_medical' }
+    if (e.includes('lock laga hai') || e.includes('password') || e.includes('lock hatao'))
+      return { msg: 'PDF pe lock laga hai 🔒 — iLovePDF.com se password hataao, phir upload karo', type: 'password' }
+    if (e.includes('unclear hai') || e.includes('seedha camera') || e.includes('dobara photo lo'))
+      return { msg: 'Photo thodi unclear hai 📸 — achhi roshni mein seedha camera se photo lo', type: 'low_quality' }
+    if (e.includes('bahut chhoti') || e.includes('original lab report'))
+      return { msg: 'File bahut chhoti hai 😕 — original lab report ka clear photo lo', type: 'too_small' }
+    if (e.includes('clearly nahi dikhi') || e.includes('padh nahi paaye') || e.includes('samajh nahi'))
+      return { msg: 'Report samajh nahi aayi 😕 — PDF format mein try karo ya achhi roshni mein photo lo', type: 'parse_error' }
+    if (e.includes('bahut badi') || e.includes('bahut bada') || e.includes('too large') || e.includes('5mb'))
+      return { msg: 'File bahut badi hai 📁 — 5MB se chhoti file bhejo', type: 'too_large' }
+    if (e.includes('"type":"error"') || e.includes('invalid_request_error'))
+      return { msg: 'Kuch technical problem aayi 🙏 — dobara try karo ya WhatsApp pe contact karo', type: 'api_error' }
+    return { msg: 'Kuch problem aayi 😕 — dobara try karo', type: 'generic' }
+  }
+
+  const resetUpload = () => { setError(''); setErrorType(''); setFile(null) }
+
+  const handleLoginForRetry = () => {
+    try {
+      localStorage.setItem('s24_retry_upload', '1')
+      if (file?.name) localStorage.setItem('s24_retry_upload_name', file.name)
+    } catch {}
+    router.push('/auth/login?redirect=/upload')
   }
 
   const noFile = !file && !loading
@@ -294,6 +353,29 @@ export default function UploadPage() {
               color: '#94a3b8', cursor: 'pointer', fontSize: 16
             }}>✕</button>
           </div>
+        </div>
+      )}
+
+      {/* ── Post-login retry nudge ── */}
+      {showRetryNudge && (
+        <div style={{
+          background: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
+          border: '1.5px solid #22c55e', borderRadius: 14,
+          padding: '14px 16px', marginBottom: 16,
+          display: 'flex', alignItems: 'center', gap: 12,
+        }}>
+          <span style={{ fontSize: 24 }}>✅</span>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#15803d', marginBottom: 2 }}>
+              Login ho gaya! Ab report upload karo
+            </p>
+            <p style={{ fontSize: 12, color: '#166534' }}>
+              Apni report select karo — is baar save bhi hogi 📊
+            </p>
+          </div>
+          <button onClick={() => setShowRetryNudge(false)} style={{
+            background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 16,
+          }}>✕</button>
         </div>
       )}
 
@@ -498,26 +580,160 @@ export default function UploadPage() {
       )}
 
       {/* ── SECTION 8: Error ── */}
-      {error && (
+      {error && errorType === 'report_too_large' && (
         <div style={{
           marginTop: 16,
-          padding: '14px 16px',
-          background: '#fef2f2', border: '1px solid #fecaca',
-          borderRadius: 16, fontSize: 13, color: '#dc2626',
+          background: 'linear-gradient(135deg,#fffbeb,#fef3c7)',
+          border: '1.5px solid #fcd34d',
+          borderRadius: 16, overflow: 'hidden',
         }}>
-          {error}
-          {error.includes('free report use ho gayi') && (
+          <div style={{ padding: '18px 16px 14px' }}>
+            <p style={{ fontSize: 16, fontWeight: 800, color: '#92400e', margin: '0 0 8px' }}>
+              Yeh report thodi badi hai! 📋
+            </p>
+            <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6, margin: '0 0 16px' }}>
+              Aapki report mein bahut saari details hain — Pro plan mein unlimited badi reports analyze hoti hain. Abhi upgrade karo sirf ₹199/month mein! 🚀
+            </p>
             <button
               onClick={() => router.push('/upgrade')}
               style={{
-                display: 'block', width: '100%', marginTop: 10,
-                padding: '12px', background: '#0d9488', color: 'white',
-                border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                display: 'block', width: '100%', padding: '12px',
+                background: '#d97706', color: 'white',
+                border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 800,
+                cursor: 'pointer', fontFamily: 'inherit', marginBottom: 8,
+              }}
+            >
+              🚀 Pro Upgrade Karo ₹199/month
+            </button>
+            <button
+              onClick={() => { resetUpload(); router.push('/upload') }}
+              style={{
+                display: 'block', width: '100%', padding: '11px',
+                background: 'white', color: '#92400e',
+                border: '1.5px solid #fcd34d', borderRadius: 10, fontSize: 13, fontWeight: 700,
                 cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
-              🚀 Pro Upgrade Karo — ₹199/month
+              📄 Chhoti report try karo
             </button>
+          </div>
+        </div>
+      )}
+
+      {error && errorType !== 'report_too_large' && (
+        <div style={{
+          marginTop: 16,
+          background: '#fef2f2', border: '1.5px solid #fecaca',
+          borderRadius: 16, overflow: 'hidden',
+        }}>
+          {/* Message row */}
+          <div style={{ padding: '14px 16px 10px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>⚠️</span>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#dc2626', lineHeight: 1.55, margin: 0 }}>
+              {error}
+            </p>
+          </div>
+
+          {/* Contextual tip */}
+          {errorType === 'low_quality' && (
+            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 Seedha camera se photo lo, achhi roshni mein. WhatsApp se forward karne se quality bahut kam ho jaati hai.
+            </p>
+          )}
+          {errorType === 'non_medical' && (
+            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 Blood test, CBC, sugar report, thyroid report — inhe upload karo.
+            </p>
+          )}
+          {errorType === 'password' && (
+            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 iLovePDF.com pe PDF upload karo → Security → Remove Password
+            </p>
+          )}
+          {errorType === 'parse_error' && (
+            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 PDF format best kaam karta hai. Image blur ho toh achhe se dobara photo lo.
+            </p>
+          )}
+          {errorType === 'too_small' && (
+            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 Screenshot ya thumbnail mat bhejo — original report ka pura photo lo.
+            </p>
+          )}
+
+          {/* Upgrade button */}
+          {errorType === 'limit' && (
+            <div style={{ padding: '0 16px 14px' }}>
+              <button
+                onClick={() => router.push('/upgrade')}
+                style={{
+                  display: 'block', width: '100%', padding: '12px',
+                  background: '#0d9488', color: 'white',
+                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                🚀 Pro Upgrade Karo — ₹199/month
+              </button>
+            </div>
+          )}
+
+          {/* Retry + WhatsApp — shown for all errors except limit/login redirects */}
+          {errorType !== 'limit' && errorType !== 'login' && (
+            <div style={{ padding: '0 16px 14px', display: 'flex', gap: 8 }}>
+              <button
+                onClick={resetUpload}
+                style={{
+                  flex: 1, padding: '11px',
+                  background: '#dc2626', color: 'white',
+                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                🔄 Dobara Try Karo
+              </button>
+              <a
+                href="https://wa.me/918076170877?text=Meri+report+upload+nahi+ho+rahi+%F0%9F%99%8F"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  flex: 1, padding: '11px',
+                  background: '#22c55e', color: 'white',
+                  borderRadius: 10, fontSize: 13, fontWeight: 700,
+                  textDecoration: 'none',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                }}
+              >
+                💬 WhatsApp Help
+              </a>
+            </div>
+          )}
+
+          {/* Guest login prompt — shown when not logged in */}
+          {isGuest && errorType !== 'limit' && errorType !== 'login' && (
+            <div style={{
+              margin: '0 16px 14px',
+              background: 'linear-gradient(135deg,#f0fdfa,#ecfdf5)',
+              border: '1.5px solid #0d9488', borderRadius: 12, padding: '14px',
+            }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#0d9488', marginBottom: 4 }}>
+                📱 Login karo aur report save karo — dobara analyze karte hain free mein!
+              </p>
+              <p style={{ fontSize: 11, color: '#134e4a', lineHeight: 1.55, marginBottom: 10 }}>
+                Login ke baad report history, abnormal alerts aur AI chat bhi milega.
+              </p>
+              <button
+                onClick={handleLoginForRetry}
+                style={{
+                  width: '100%', padding: '11px',
+                  background: '#0d9488', color: 'white',
+                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                📱 OTP se Login Karo
+              </button>
+            </div>
           )}
         </div>
       )}

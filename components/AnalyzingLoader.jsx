@@ -29,6 +29,12 @@ export default function AnalyzingLoader({ fileName }) {
   const [progress, setProgress]         = useState(0)
   const [stepDone, setStepDone]         = useState([])
   const [factVisible, setFactVisible]   = useState(true)
+  const [isRetrying, setIsRetrying]     = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsRetrying(true), 15000)
+    return () => clearTimeout(t)
+  }, [])
 
   // Progress bar — 30 seconds mein 95% tak
   useEffect(() => {
@@ -325,6 +331,25 @@ export default function AnalyzingLoader({ fileName }) {
           ))}
         </div>
       </div>
+
+      {/* Retry banner — shown after 15s */}
+      {isRetrying && (
+        <div style={{
+          background: '#fffbeb',
+          border: '1px solid #fcd34d',
+          borderRadius: 12,
+          padding: '10px 14px',
+          marginTop: 12,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span style={{ fontSize: 16, flexShrink: 0 }}>🔄</span>
+          <p style={{ fontSize: 12, color: '#92400e', margin: 0, fontWeight: 600 }}>
+            Dobara try kar rahe hain... thoda aur wait karo 🙏
+          </p>
+        </div>
+      )}
 
       {/* Small note */}
       <p style={{

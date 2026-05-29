@@ -1,0 +1,694 @@
+{
+  "meta": {
+    "generatedAt": "2026-05-29T21:09:20.294Z",
+    "scriptVersion": "1.0.0"
+  },
+  "summary": {
+    "totalFailed": 655,
+    "dateRange": {
+      "first": "2026-04-23T09:48:24.572Z",
+      "last": "2026-05-29T20:30:56.176Z"
+    },
+    "guestCount": 614,
+    "loggedInCount": 41,
+    "avgFileSizeBytes": 1090877,
+    "avgFileSizeHuman": "1.04 MB"
+  },
+  "categoryBreakdown": {
+    "ai_overloaded": {
+      "label": "AI API Overloaded / Rate Limited",
+      "count": 4,
+      "percentage": "0.6%",
+      "samples": [
+        {
+          "_id": "69f240eec83b130d96906ee0",
+          "userId": "69f2409ac83b130d96906ec2",
+          "createdAt": "2026-04-29T17:33:34.538Z",
+          "fileType": "image/jpeg",
+          "fileSize": 4146793,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.image.source.base64: image exceeds 5 MB maximum: 5529060 bytes > 5242880 bytes\"},\"request_id\":\"req_011CaYTr3hVxvXqQkWh3hu8d\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69f240e1c83b130d96906eda",
+          "userId": "69f2409ac83b130d96906ec2",
+          "createdAt": "2026-04-29T17:33:21.189Z",
+          "fileType": "image/jpeg",
+          "fileSize": 4146793,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.image.source.base64: image exceeds 5 MB maximum: 5529060 bytes > 5242880 bytes\"},\"request_id\":\"req_011CaYTq4ZpHftbZXc3d8y8x\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69f240d2c83b130d96906ed4",
+          "userId": "69f2409ac83b130d96906ec2",
+          "createdAt": "2026-04-29T17:33:06.074Z",
+          "fileType": "image/jpeg",
+          "fileSize": 4146793,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.image.source.base64: image exceeds 5 MB maximum: 5529060 bytes > 5242880 bytes\"},\"request_id\":\"req_011CaYTowY7pAhWfrpmUAt1J\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69f2360cb65636d390819c9c",
+          "userId": null,
+          "createdAt": "2026-04-29T16:47:08.690Z",
+          "fileType": "image/jpeg",
+          "fileSize": 49289,
+          "errorMessage": "429 {\"type\":\"error\",\"error\":{\"type\":\"rate_limit_error\",\"message\":\"This request would exceed your organization's rate limit of 10,000 output tokens per minute (org: c51424d6-f4aa-41f5-a792-968de84a64bc, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase.\"},\"request_id\":\"req_011CaYQKgWrQsNgFxiVAo6CH\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        }
+      ]
+    },
+    "ai_timeout": {
+      "label": "AI API Timeout / Slow Response",
+      "count": 0,
+      "percentage": "0.0%",
+      "samples": []
+    },
+    "api_credits": {
+      "label": "API Credits Exhausted",
+      "count": 280,
+      "percentage": "42.7%",
+      "samples": [
+        {
+          "_id": "69f24ebd848769cbe7400841",
+          "userId": null,
+          "createdAt": "2026-04-29T18:32:29.354Z",
+          "fileType": "image/jpeg",
+          "fileSize": 407002,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011CaYYLbf7PpNVZEyPvq55T\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69f24e98db661d60c57fdaa5",
+          "userId": null,
+          "createdAt": "2026-04-29T18:31:52.426Z",
+          "fileType": "image/jpeg",
+          "fileSize": 407002,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011CaYYHskei1gx4AkcJtSh4\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69f24e8bdb661d60c57fdaa1",
+          "userId": null,
+          "createdAt": "2026-04-29T18:31:39.631Z",
+          "fileType": "image/jpeg",
+          "fileSize": 407002,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011CaYYGwEiwLdHMob8gB4Wf\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69f24dacdb661d60c57fda9a",
+          "userId": null,
+          "createdAt": "2026-04-29T18:27:56.714Z",
+          "fileType": "image/jpeg",
+          "fileSize": 2788292,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011CaYXzWMZrdX6LAycZ5aMJ\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69f24d79db661d60c57fda97",
+          "userId": null,
+          "createdAt": "2026-04-29T18:27:05.473Z",
+          "fileType": "image/jpeg",
+          "fileSize": 2788292,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011CaYXvjXibX9WKbkvMKb1D\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        }
+      ]
+    },
+    "parse_error": {
+      "label": "AI Response Parse Error (JSON)",
+      "count": 65,
+      "percentage": "9.9%",
+      "samples": [
+        {
+          "_id": "6a02cb301a3191a3fd5c9bad",
+          "userId": null,
+          "createdAt": "2026-05-12T06:39:44.625Z",
+          "fileType": "image/jpeg",
+          "fileSize": 124625,
+          "errorMessage": "Report analyze nahi ho saki — dobara try karo 🙏",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "6a01c2618a27cf04840d0c62",
+          "userId": null,
+          "createdAt": "2026-05-11T11:49:53.612Z",
+          "fileType": "image/jpeg",
+          "fileSize": 145563,
+          "errorMessage": "Report analyze nahi ho saki — dobara try karo 🙏",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "6a017e80d9203b5f817c46fb",
+          "userId": null,
+          "createdAt": "2026-05-11T07:00:16.177Z",
+          "fileType": "image/jpeg",
+          "fileSize": 1106712,
+          "errorMessage": "Report analyze nahi ho saki — dobara try karo 🙏",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "6a01563940b15eb543045b11",
+          "userId": null,
+          "createdAt": "2026-05-11T04:08:25.798Z",
+          "fileType": "image/jpeg",
+          "fileSize": 3052320,
+          "errorMessage": "Report analyze nahi ho saki — dobara try karo 🙏",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "6a00296650ab933aad362207",
+          "userId": null,
+          "createdAt": "2026-05-10T06:44:54.473Z",
+          "fileType": "image/jpeg",
+          "fileSize": 146834,
+          "errorMessage": "Report analyze nahi ho saki — dobara try karo 🙏",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        }
+      ]
+    },
+    "invalid_file_type": {
+      "label": "File Format Not Supported",
+      "count": 0,
+      "percentage": "0.0%",
+      "samples": []
+    },
+    "file_too_small": {
+      "label": "File Too Small",
+      "count": 3,
+      "percentage": "0.5%",
+      "samples": [
+        {
+          "_id": "6a19cc00bfdd941289db0810",
+          "userId": null,
+          "createdAt": "2026-05-29T17:25:20.979Z",
+          "fileType": "application/pdf",
+          "fileSize": 2107,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "file_too_small",
+          "preCheckFailed": false,
+          "isSpam": true,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a198de078eb450f62192f62",
+          "userId": null,
+          "createdAt": "2026-05-29T13:00:16.667Z",
+          "fileType": "application/pdf",
+          "fileSize": 4319,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "file_too_small",
+          "preCheckFailed": false,
+          "isSpam": true,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a198dd478eb450f62192f58",
+          "userId": null,
+          "createdAt": "2026-05-29T13:00:04.016Z",
+          "fileType": "application/pdf",
+          "fileSize": 4319,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "file_too_small",
+          "preCheckFailed": false,
+          "isSpam": true,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        }
+      ]
+    },
+    "file_too_large": {
+      "label": "File Too Large",
+      "count": 0,
+      "percentage": "0.0%",
+      "samples": []
+    },
+    "corrupt_file": {
+      "label": "Empty / Corrupt File",
+      "count": 0,
+      "percentage": "0.0%",
+      "samples": []
+    },
+    "password_protected": {
+      "label": "Password Protected PDF",
+      "count": 3,
+      "percentage": "0.5%",
+      "samples": [
+        {
+          "_id": "6a19c7fcdf59fe61a88ef7fa",
+          "userId": null,
+          "createdAt": "2026-05-29T17:08:12.666Z",
+          "fileType": "application/pdf",
+          "fileSize": 955488,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "password_protected",
+          "preCheckFailed": true,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "69f4a3cdaed1db5f4a5b19c3",
+          "userId": null,
+          "createdAt": "2026-05-01T12:59:57.712Z",
+          "fileType": "application/pdf",
+          "fileSize": 626700,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.pdf.source.base64.data: The PDF specified is password protected.\"},\"request_id\":\"req_011Cabtbi2biytRFfZZm5Jcw\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69f4a3c6aed1db5f4a5b19c0",
+          "userId": null,
+          "createdAt": "2026-05-01T12:59:50.597Z",
+          "fileType": "application/pdf",
+          "fileSize": 626700,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.pdf.source.base64.data: The PDF specified is password protected.\"},\"request_id\":\"req_011CabtbBxLxXUZ3wT9YyK5Z\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        }
+      ]
+    },
+    "low_quality": {
+      "label": "Low Quality / Blurry Image",
+      "count": 165,
+      "percentage": "25.2%",
+      "samples": [
+        {
+          "_id": "6a19f1d89838d6fadf2a33a4",
+          "userId": null,
+          "createdAt": "2026-05-29T20:06:48.468Z",
+          "fileType": "image/jpeg",
+          "fileSize": 61526,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "low_quality",
+          "preCheckFailed": true,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a19f1cf9838d6fadf2a33a2",
+          "userId": null,
+          "createdAt": "2026-05-29T20:06:39.413Z",
+          "fileType": "image/jpeg",
+          "fileSize": 61526,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "low_quality",
+          "preCheckFailed": true,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a19f1cd9838d6fadf2a33a0",
+          "userId": null,
+          "createdAt": "2026-05-29T20:06:37.312Z",
+          "fileType": "image/jpeg",
+          "fileSize": 61526,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "low_quality",
+          "preCheckFailed": true,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a19f1b69838d6fadf2a339b",
+          "userId": null,
+          "createdAt": "2026-05-29T20:06:14.321Z",
+          "fileType": "image/jpeg",
+          "fileSize": 61526,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "low_quality",
+          "preCheckFailed": true,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a19f1af9838d6fadf2a3394",
+          "userId": null,
+          "createdAt": "2026-05-29T20:06:07.841Z",
+          "fileType": "image/jpeg",
+          "fileSize": 61526,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "low_quality",
+          "preCheckFailed": true,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        }
+      ]
+    },
+    "non_medical_doc": {
+      "label": "Non-Medical Document Uploaded",
+      "count": 52,
+      "percentage": "7.9%",
+      "samples": [
+        {
+          "_id": "6a19f7809838d6fadf2a33e3",
+          "userId": null,
+          "createdAt": "2026-05-29T20:30:56.176Z",
+          "fileType": "image/jpeg",
+          "fileSize": 545941,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "non_medical",
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": true,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a19e9da9838d6fadf2a32ed",
+          "userId": null,
+          "createdAt": "2026-05-29T19:32:42.121Z",
+          "fileType": "image/jpeg",
+          "fileSize": 158986,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "non_medical",
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": true,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a19e93a9838d6fadf2a32d1",
+          "userId": null,
+          "createdAt": "2026-05-29T19:30:02.402Z",
+          "fileType": "image/png",
+          "fileSize": 1132789,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "non_medical",
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": true,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a19e92a9838d6fadf2a32c5",
+          "userId": null,
+          "createdAt": "2026-05-29T19:29:46.205Z",
+          "fileType": "image/png",
+          "fileSize": 1132789,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "non_medical",
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": true,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a19e2ee39f833c3c8854fd1",
+          "userId": null,
+          "createdAt": "2026-05-29T19:03:10.586Z",
+          "fileType": "image/jpeg",
+          "fileSize": 2961706,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "non_medical",
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": true,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        }
+      ]
+    },
+    "pre_check_failed": {
+      "label": "Pre-Check Failed (Spam Filter)",
+      "count": 0,
+      "percentage": "0.0%",
+      "samples": []
+    },
+    "bot_spam": {
+      "label": "Bot / Spam Detection",
+      "count": 0,
+      "percentage": "0.0%",
+      "samples": []
+    },
+    "unknown": {
+      "label": "Unknown Error",
+      "count": 83,
+      "percentage": "12.7%",
+      "samples": [
+        {
+          "_id": "69fef6335280499d2e68d5c0",
+          "userId": null,
+          "createdAt": "2026-05-09T08:54:11.672Z",
+          "fileType": "image/webp",
+          "fileSize": 73021,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: The image was specified using the image/webp media type, but the image appears to be a image/jpeg image\"},\"request_id\":\"req_011CariL3Ajg6rCPsc6tdaPZ\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69fef6305280499d2e68d5bc",
+          "userId": null,
+          "createdAt": "2026-05-09T08:54:08.316Z",
+          "fileType": "image/webp",
+          "fileSize": 73021,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: The image was specified using the image/webp media type, but the image appears to be a image/jpeg image\"},\"request_id\":\"req_011CariKnrWjyCvUUdmfsHTi\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69fef6265280499d2e68d5b8",
+          "userId": null,
+          "createdAt": "2026-05-09T08:53:58.783Z",
+          "fileType": "image/webp",
+          "fileSize": 73021,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: The image was specified using the image/webp media type, but the image appears to be a image/jpeg image\"},\"request_id\":\"req_011CariK6A3NsHbaKhxcRUxh\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69f34db21d6a6a6208693f8f",
+          "userId": null,
+          "createdAt": "2026-04-30T12:40:18.334Z",
+          "fileType": "image/webp",
+          "fileSize": 97034,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.image.source.base64: The image was specified using the image/webp media type, but the image appears to be a image/jpeg image\"},\"request_id\":\"req_011CaZyHrb88bPaGZxkJGuqZ\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        },
+        {
+          "_id": "69f34da77afa475fe7673d57",
+          "userId": null,
+          "createdAt": "2026-04-30T12:40:07.811Z",
+          "fileType": "image/webp",
+          "fileSize": 97034,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.image.source.base64: The image was specified using the image/webp media type, but the image appears to be a image/jpeg image\"},\"request_id\":\"req_011CaZyH5VjUqrbaJUDRpuSB\"}",
+          "status": "failed",
+          "retryCount": null,
+          "modelUsed": null
+        }
+      ]
+    }
+  },
+  "fileTypeDistribution": {
+    "jpeg": 477,
+    "pdf": 155,
+    "png": 13,
+    "webp": 10
+  },
+  "peakFailureHours": [
+    {
+      "hour": 17,
+      "label": "17:00 UTC",
+      "count": 235
+    },
+    {
+      "hour": 18,
+      "label": "18:00 UTC",
+      "count": 142
+    },
+    {
+      "hour": 14,
+      "label": "14:00 UTC",
+      "count": 31
+    },
+    {
+      "hour": 16,
+      "label": "16:00 UTC",
+      "count": 31
+    },
+    {
+      "hour": 12,
+      "label": "12:00 UTC",
+      "count": 28
+    },
+    {
+      "hour": 9,
+      "label": "09:00 UTC",
+      "count": 27
+    },
+    {
+      "hour": 13,
+      "label": "13:00 UTC",
+      "count": 22
+    },
+    {
+      "hour": 19,
+      "label": "19:00 UTC",
+      "count": 16
+    },
+    {
+      "hour": 6,
+      "label": "06:00 UTC",
+      "count": 15
+    },
+    {
+      "hour": 7,
+      "label": "07:00 UTC",
+      "count": 14
+    },
+    {
+      "hour": 4,
+      "label": "04:00 UTC",
+      "count": 12
+    },
+    {
+      "hour": 10,
+      "label": "10:00 UTC",
+      "count": 12
+    },
+    {
+      "hour": 15,
+      "label": "15:00 UTC",
+      "count": 12
+    },
+    {
+      "hour": 11,
+      "label": "11:00 UTC",
+      "count": 11
+    },
+    {
+      "hour": 3,
+      "label": "03:00 UTC",
+      "count": 10
+    },
+    {
+      "hour": 8,
+      "label": "08:00 UTC",
+      "count": 10
+    },
+    {
+      "hour": 20,
+      "label": "20:00 UTC",
+      "count": 10
+    },
+    {
+      "hour": 2,
+      "label": "02:00 UTC",
+      "count": 6
+    },
+    {
+      "hour": 5,
+      "label": "05:00 UTC",
+      "count": 5
+    },
+    {
+      "hour": 23,
+      "label": "23:00 UTC",
+      "count": 3
+    },
+    {
+      "hour": 1,
+      "label": "01:00 UTC",
+      "count": 2
+    },
+    {
+      "hour": 22,
+      "label": "22:00 UTC",
+      "count": 1
+    },
+    {
+      "hour": 0,
+      "label": "00:00 UTC",
+      "count": 0
+    },
+    {
+      "hour": 21,
+      "label": "21:00 UTC",
+      "count": 0
+    }
+  ]
+}
