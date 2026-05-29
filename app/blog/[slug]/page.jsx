@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+import remarkGfm from 'remark-gfm'
 import { getAllPosts, getPostBySlug } from '@/lib/blog'
 
 export async function generateStaticParams() {
@@ -39,46 +40,25 @@ function formatDate(dateStr) {
   })
 }
 
+// Inline styles removed — all sizing handled via .post-card CSS classes so media queries apply
 const mdxComponents = {
-  h2: (props) => (
-    <h2 {...props} style={{ fontSize: 20, fontWeight: 700, color: '#0d9488', marginTop: 32, marginBottom: 12, lineHeight: 1.4 }} />
-  ),
-  h3: (props) => (
-    <h3 {...props} style={{ fontSize: 17, fontWeight: 700, color: '#134e4a', marginTop: 24, marginBottom: 10 }} />
-  ),
-  p: (props) => (
-    <p {...props} style={{ fontSize: 15, color: '#334155', lineHeight: 1.8, marginBottom: 16 }} />
-  ),
-  ul: (props) => (
-    <ul {...props} style={{ paddingLeft: 20, marginBottom: 16 }} />
-  ),
-  ol: (props) => (
-    <ol {...props} style={{ paddingLeft: 20, marginBottom: 16 }} />
-  ),
-  li: (props) => (
-    <li {...props} style={{ fontSize: 15, color: '#334155', lineHeight: 1.8, marginBottom: 6 }} />
-  ),
-  strong: (props) => (
-    <strong {...props} style={{ color: '#0f172a', fontWeight: 700 }} />
-  ),
+  h2:         (props) => <h2 {...props} />,
+  h3:         (props) => <h3 {...props} />,
+  p:          (props) => <p {...props} />,
+  ul:         (props) => <ul {...props} />,
+  ol:         (props) => <ol {...props} />,
+  li:         (props) => <li {...props} />,
+  strong:     (props) => <strong {...props} />,
+  hr:         ()      => <hr />,
+  blockquote: (props) => <blockquote {...props} />,
   table: (props) => (
-    <div style={{ overflowX: 'auto', marginBottom: 20 }}>
-      <table {...props} style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }} />
+    <div style={{ overflowX: 'auto', marginBottom: 20, WebkitOverflowScrolling: 'touch' }}>
+      <table {...props} />
     </div>
   ),
-  thead: (props) => <thead {...props} style={{ background: '#f0fdfa' }} />,
-  th: (props) => (
-    <th {...props} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 700, color: '#0d9488', borderBottom: '2px solid #99f6e4', whiteSpace: 'nowrap' }} />
-  ),
-  td: (props) => (
-    <td {...props} style={{ padding: '10px 14px', color: '#334155', borderBottom: '1px solid #f1f5f9' }} />
-  ),
-  hr: () => (
-    <hr style={{ border: 'none', borderTop: '1px solid #f1f5f9', margin: '32px 0' }} />
-  ),
-  blockquote: (props) => (
-    <blockquote {...props} style={{ borderLeft: '3px solid #0d9488', paddingLeft: 16, margin: '20px 0', color: '#64748b', fontStyle: 'italic' }} />
-  ),
+  thead: (props) => <thead {...props} />,
+  th:    (props) => <th {...props} />,
+  td:    (props) => <td {...props} />,
 }
 
 export default async function BlogPost({ params }) {
@@ -99,19 +79,56 @@ export default async function BlogPost({ params }) {
         .blog-post { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; min-height: 100vh; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .fade-up { animation: fadeUp 0.4s ease forwards; }
+
+        .post-header   { padding: 40px 24px 32px; }
+        .post-title    { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; color: #0f172a; line-height: 1.3; margin-bottom: 16px; }
+        .post-body     { max-width: 720px; margin: 0 auto; padding: 32px 20px 20px; }
+        .post-card     { background: white; border-radius: 20px; border: 1px solid #f1f5f9; padding: 32px 28px; }
+        .post-cta-wrap { max-width: 720px; margin: 0 auto; padding: 0 20px 80px; }
+        .post-cta      { background: linear-gradient(135deg, #0d9488, #0891b2); border-radius: 20px; padding: 32px; text-align: center; }
+        .post-cta-h    { font-size: 22px; font-weight: 700; color: white; margin-bottom: 10px; }
+        .post-cta-p    { font-size: 14px; color: rgba(255,255,255,0.85); margin-bottom: 24px; line-height: 1.6; }
+
+        /* Markdown element sizing */
+        .post-card h2  { font-size: 20px; font-weight: 700; color: #0d9488; margin-top: 32px; margin-bottom: 12px; line-height: 1.4; }
+        .post-card h3  { font-size: 17px; font-weight: 700; color: #134e4a; margin-top: 24px; margin-bottom: 10px; }
+        .post-card p   { font-size: 15px; color: #334155; line-height: 1.8; margin-bottom: 16px; }
+        .post-card ul, .post-card ol { padding-left: 20px; margin-bottom: 16px; }
+        .post-card li  { font-size: 15px; color: #334155; line-height: 1.8; margin-bottom: 6px; }
+        .post-card strong { color: #0f172a; font-weight: 700; }
+        .post-card blockquote { border-left: 3px solid #0d9488; padding-left: 16px; margin: 20px 0; color: #64748b; font-style: italic; }
+        .post-card hr  { border: none; border-top: 1px solid #f1f5f9; margin: 32px 0; }
+        .post-card table-wrap { overflow-x: auto; margin-bottom: 20px; -webkit-overflow-scrolling: touch; }
+        .post-card table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .post-card thead { background: #f0fdfa; }
+        .post-card th  { padding: 10px 14px; text-align: left; font-weight: 700; color: #0d9488; border-bottom: 2px solid #99f6e4; white-space: nowrap; }
+        .post-card td  { padding: 10px 14px; color: #334155; border-bottom: 1px solid #f1f5f9; }
+
+        @media (max-width: 640px) {
+          .post-header  { padding: 24px 16px 20px; }
+          .post-title   { font-size: 22px; }
+          .post-body    { padding: 16px 12px 12px; }
+          .post-card    { padding: 20px 16px; border-radius: 16px; }
+          .post-cta-wrap{ padding: 0 12px 80px; }
+          .post-cta     { padding: 24px 16px; border-radius: 16px; }
+          .post-cta-h   { font-size: 18px; }
+          .post-cta-p   { font-size: 13px; margin-bottom: 18px; }
+          .post-card h2 { font-size: 17px; margin-top: 24px; }
+          .post-card h3 { font-size: 15px; }
+          .post-card p, .post-card li { font-size: 14px; }
+          .post-card th, .post-card td { padding: 8px 10px; font-size: 13px; }
+        }
       `}</style>
 
       <div className="blog-post">
         {/* Header */}
-        <div style={{ background: 'linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 100%)', borderBottom: '1px solid #e2e8f0', padding: '40px 24px 36px' }}>
+        <div className="post-header" style={{ background: 'linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 100%)', borderBottom: '1px solid #e2e8f0' }}>
           <div style={{ maxWidth: 720, margin: '0 auto' }}>
-            <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#0d9488', textDecoration: 'none', fontSize: 13, fontWeight: 600, marginBottom: 20 }}>
+            <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#0d9488', textDecoration: 'none', fontSize: 13, fontWeight: 600, marginBottom: 16 }}>
               ← Blog
             </Link>
-            <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 30, fontWeight: 400, color: '#0f172a', lineHeight: 1.3, marginBottom: 16 }}>
-              {post.title}
-            </h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+            <h1 className="post-title">{post.title}</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 14 }}>
               <span style={{ fontSize: 13, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
                 🗓 {formatDate(post.date)}
               </span>
@@ -132,25 +149,27 @@ export default async function BlogPost({ params }) {
         </div>
 
         {/* Content */}
-        <div className="fade-up" style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px 24px' }}>
-          <div style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', padding: '32px 28px' }}>
-            <MDXRemote source={post.content} components={mdxComponents} />
+        <div className="fade-up post-body">
+          <div className="post-card">
+            <MDXRemote
+              source={post.content}
+              components={mdxComponents}
+              options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+            />
           </div>
         </div>
 
         {/* CTA */}
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 24px 64px' }}>
-          <div style={{ background: 'linear-gradient(135deg, #0d9488, #0891b2)', borderRadius: 20, padding: 32, textAlign: 'center' }}>
-            <p style={{ fontSize: 22, fontWeight: 700, color: 'white', marginBottom: 10 }}>
-              Apni Report Free Mein Analyze Karo
-            </p>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', marginBottom: 24, lineHeight: 1.6 }}>
+        <div className="post-cta-wrap">
+          <div className="post-cta">
+            <p className="post-cta-h">Apni Report Free Mein Analyze Karo</p>
+            <p className="post-cta-p">
               Blood test report upload karo — AI turant Hindi mein poori report explain karega.
               Bilkul free, koi registration nahi.
             </p>
             <Link href="/upload" style={{
               display: 'inline-block', background: 'white', color: '#0d9488',
-              padding: '14px 32px', borderRadius: 12, textDecoration: 'none',
+              padding: '13px 28px', borderRadius: 12, textDecoration: 'none',
               fontSize: 15, fontWeight: 700,
             }}>
               Free Mein Upload Karo →
