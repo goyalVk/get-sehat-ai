@@ -1,0 +1,1459 @@
+════════════════════════════════════════════════════════════════════
+  SEHAT24 — AI ACCURACY CHECKER v5
+  Period: 27-May-2026, 01:00 pm  →  31-May-2026, 01:00 pm
+════════════════════════════════════════════════════════════════════
+
+┌─ DATA SUMMARY ─────────────────────────────────────────┐
+  Total Reports:              674
+  Total Parameters:           10331
+  Evaluated:                  7167
+  Unit Normalizations:        21
+  Skipped (no value):         67
+  Skipped (non-numeric):      1979
+  Skipped (no range):         674
+  Skipped (bad range):        443
+  Skipped (no AI status):     1
+└────────────────────────────────────────────────────────┘
+
+┌─ AI ACCURACY ──────────────────────────────────────────┐
+  ✅ Correct:                 7050
+  ❌ Total Wrong:             117
+  🔴 SEVERE (Normal→Abnormal):38
+  ⚠️  MEDIUM (Abnormal→Normal):79
+
+  📊 OVERALL ACCURACY:        98.37%
+  📊 SEVERE ERROR RATE:       0.53%
+  📊 MEDIUM ERROR RATE:       1.10%
+
+  STATUS: ✅ EXCELLENT
+└────────────────────────────────────────────────────────┘
+
+┌─ PARAMS WITH MOST SEVERE ERRORS ───────────────────────┐
+   1. LDL/HDL Ratio                            2 errors
+   2. Platelet Count                           2 errors
+   3. Platelet larger cell ratio               1 errors
+   4. Basophils                                1 errors
+   5. Absolute Basophils                       1 errors
+   6. TC / HDL Cholesterol Ratio               1 errors
+   7. LDL / HDL Ratio                          1 errors
+   8. Atherogenicity Index (Cholesterol / HDL) 1 errors
+   9. Random Blood Sugar                       1 errors
+  10. Total / HDL Cholesterol Ratio            1 errors
+  11. LDL / HDL Cholestrol Ratio               1 errors
+  12. Total Cholesterol/HDL Ratio              1 errors
+  13. Glycated Hemoglobin (HbA1c)              1 errors
+  14. S. Bilirubin (ID)                        1 errors
+  15. Alkaline Phosphatase Serum               1 errors
+└────────────────────────────────────────────────────────┘
+
+┌─ SEVERE ERRORS — AI said NORMAL, was ABNORMAL ─────────┐
+  🔴 DANGEROUS — user gets wrong health info
+
+  ─── Error #1 ────────────────────────────────────────────────
+  Report:    6a17d840bc9c7df67103045b | 28-May-2026, 11:23 am
+  File:      MANISH_24297_0.pdf
+  Type:      Complete Blood Count (CBC)
+  Param:     Platelet larger cell ratio [%]
+  Value:     43.2  →  Range: 13-43
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Bade platelets ka ratio normal range ke edge par hai."
+
+  ─── Error #2 ────────────────────────────────────────────────
+  Report:    6a17ee872caf1afa1aedb2f3 | 28-May-2026, 12:58 pm
+  File:      IMG_20250829_133740.jpg
+  Type:      Complete Blood Count Test
+  Param:     Basophils [%]
+  Value:     0.1  →  Range: 01 - 05
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Basophils bilkul normal hain."
+
+  ─── Error #3 ────────────────────────────────────────────────
+  Report:    6a196cc17b37c939fa74f0f4 | 29-May-2026, 04:08 pm
+  File:      0948e5c2-7406-4e0b-a5e4-95816c36e76c.pdf
+  Type:      Fever Panel - Advance
+  Param:     Absolute Basophils [thou/mm3]
+  Value:     0.00  →  Range: 0.02 - 0.10
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Basophils bilkul zero hain jo normal hai."
+
+  ─── Error #4 ────────────────────────────────────────────────
+  Report:    6a199aa929d3ba2069846d53 | 29-May-2026, 07:24 pm
+  File:      P5884O1779981450337_RLS.pdf
+  Type:      Aarogyam Camp Profile 2
+  Param:     TC / HDL Cholesterol Ratio [Ratio]
+  Value:     2.6  →  Range: 3-5
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Total aur good cholesterol ka ratio perfect hai."
+
+  ─── Error #5 ────────────────────────────────────────────────
+  Report:    6a199aa929d3ba2069846d53 | 29-May-2026, 07:24 pm
+  File:      P5884O1779981450337_RLS.pdf
+  Type:      Aarogyam Camp Profile 2
+  Param:     LDL / HDL Ratio [Ratio]
+  Value:     1.3  →  Range: 1.5-3.5
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Bad aur good cholesterol ka ratio perfect hai."
+
+  ─── Error #6 ────────────────────────────────────────────────
+  Report:    6a19a215b0e758647c9f431e | 29-May-2026, 07:56 pm
+  File:      Screenshot_2026-05-29-19-47-36-340_com.google.android.apps.docs.jpg
+  Type:      Lipid Profile and Kidney Profile (KFT + Electrolytes + EGFR)
+  Param:     Atherogenicity Index (Cholesterol / HDL) [Ratio]
+  Value:     2.71  →  Range: 3 - 5
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Arteries ke liye risk bilkul kam hai."
+
+  ─── Error #7 ────────────────────────────────────────────────
+  Report:    6a19a6d5f4fedc716446fb2d | 29-May-2026, 08:16 pm
+  File:      IMG_3781.png
+  Type:      Technical Analysis Report Blood
+  Param:     Random Blood Sugar [mg/dL]
+  Value:     98  →  Range: 100-160 mg/dL
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Khoon mein sugar bilkul theek-thaak hai."
+
+  ─── Error #8 ────────────────────────────────────────────────
+  Report:    6a19af57f4fedc716446fbc6 | 29-May-2026, 08:53 pm
+  File:      labreportnew (8).pdf
+  Type:      Whole Body Profile 1.4
+  Param:     Total / HDL Cholesterol Ratio [Ratio]
+  Value:     2.9  →  Range: 3.0 - 6.0
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Cholesterol ratio excellent hai, heart ke liye badhiya."
+
+  ─── Error #9 ────────────────────────────────────────────────
+  Report:    6a19af57f4fedc716446fbc6 | 29-May-2026, 08:53 pm
+  File:      labreportnew (8).pdf
+  Type:      Whole Body Profile 1.4
+  Param:     LDL / HDL Cholestrol Ratio [Ratio]
+  Value:     1.36  →  Range: 2.0 - 5.0
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Bad aur good cholesterol ka ratio kaafi healthy."
+
+  ─── Error #10 ────────────────────────────────────────────────
+  Report:    6a19b3a7f4fedc716446fc6c | 29-May-2026, 09:11 pm
+  File:      HA893854PXWC9KY.pdf
+  Type:      Complete Health Checkup - Blood, Urine and ECG
+  Param:     LDL/HDL Ratio []
+  Value:     0.76  →  Range: 2.5 - 3.5
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Cholesterol ka ratio bilkul excellent hai, heart ke liye bahut achha."
+
+  ─── Error #11 ────────────────────────────────────────────────
+  Report:    6a19b3a7f4fedc716446fc6c | 29-May-2026, 09:11 pm
+  File:      HA893854PXWC9KY.pdf
+  Type:      Complete Health Checkup - Blood, Urine and ECG
+  Param:     Total Cholesterol/HDL Ratio []
+  Value:     2.29  →  Range: 3.5 - 5
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Total aur good cholesterol ka ratio bilkul ideal hai."
+
+  ─── Error #12 ────────────────────────────────────────────────
+  Report:    6a19bcc5f4fedc716446fd75 | 29-May-2026, 09:50 pm
+  File:      Medical reports 2270151_MR_SHAMSHADALI_Report (1).pdf
+  Type:      Complete Health Checkup with Hematology, Clinical Biochemistry, and Urine Analysis
+  Param:     Glycated Hemoglobin (HbA1c) [%]
+  Value:     5.9  →  Range: less than 5.7 Non-Diabetic, 5.7 - 6.5 Pre-Diabetic, greater than 6.5 Diabetic
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Blood sugar ka 3 mahine ka average normal hai."
+
+  ─── Error #13 ────────────────────────────────────────────────
+  Report:    6a19c47bbfdd941289db06c2 | 29-May-2026, 10:23 pm
+  File:      20260529_131828.jpg
+  Type:      Biochemistry
+  Param:     S. Bilirubin (ID) [mg/dL]
+  Value:     8.13  →  Range: 0.3 to 7 days upto 12 mg/dL
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Indirect bilirubin neonate stage ke liye borderline hai."
+
+  ─── Error #14 ────────────────────────────────────────────────
+  Report:    6a19c5b5df59fe61a88ef7cd | 29-May-2026, 10:28 pm
+  File:      IMG-20260521-WA0010.jpg
+  Type:      Liver Function Test (LFT) - Extended
+  Param:     Alkaline Phosphatase Serum [U/L]
+  Value:     128.1  →  Range: 53-128
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Bone aur liver dono theek kaam kar rahe hain."
+
+  ─── Error #15 ────────────────────────────────────────────────
+  Report:    6a19c76abfdd941289db0727 | 29-May-2026, 10:35 pm
+  File:      IMG-20260524-WA0065.jpg
+  Type:      Complete Blood Count (CBC)
+  Param:     Absolute Basophils Count [/cumm]
+  Value:     00  →  Range: 0.02-0.10
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Absolute basophils zero hai jo normal ho sakta hai."
+
+  ─── Error #16 ────────────────────────────────────────────────
+  Report:    6a19c8c0bfdd941289db0747 | 29-May-2026, 10:41 pm
+  File:      RAVINDRA-YADAV_2605457.pdf
+  Type:      Complete Blood Count with Haematology, Biochemistry and Serology
+  Param:     RBC Count [mil/cu.mm]
+  Value:     4.49  →  Range: 4.5 - 6.5
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Red blood cell count bilkul theek hai."
+
+  ─── Error #17 ────────────────────────────────────────────────
+  Report:    6a19cb377bd53706f1b4a22b | 29-May-2026, 10:51 pm
+  File:      2026_05_19_Baby_Of._CHITRA_JHUMNAKE.pdf
+  Type:      Complete Blood Count with Clinical Biochemistry
+  Param:     PDW [fl]
+  Value:     17.4  →  Range: 9-17
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Platelet distribution width bilkul normal hai."
+
+  ─── Error #18 ────────────────────────────────────────────────
+  Report:    6a19cb717bd53706f1b4a253 | 29-May-2026, 10:52 pm
+  File:      0007GE001859_1_YF2.pdf
+  Type:      Platinum Profile - Complete Blood Count, Glucose, Iron Profile, Rheumatoid Factor, CRP, HbA1c, Kidney Panel, Liver Panel, Lipid Profile, Thyroid Profile, Vitamin B12, Vitamin D
+  Param:     Cholesterol HDL Ratio [Ratio]
+  Value:     2.7  →  Range: 3.3 - 4.4 average risk
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Total aur HDL ka ratio bilkul achcha hai, low risk mein ho aap."
+
+  ─── Error #19 ────────────────────────────────────────────────
+  Report:    6a19cc96bfdd941289db0893 | 29-May-2026, 10:57 pm
+  File:      IMG_20260524_184108_084.jpg
+  Type:      Semen Analysis
+  Param:     Active / HPF [percent]
+  Value:     20  →  Range: 0 - 0
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Active sperm count bilkul theek hai."
+
+  ─── Error #20 ────────────────────────────────────────────────
+  Report:    6a19cc96bfdd941289db0893 | 29-May-2026, 10:57 pm
+  File:      IMG_20260524_184108_084.jpg
+  Type:      Semen Analysis
+  Param:     Sluggish / HPF [percent]
+  Value:     10  →  Range: 0 - 0
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Sluggish sperm bilkul normal level par hain."
+
+  ─── Error #21 ────────────────────────────────────────────────
+  Report:    6a19cc96bfdd941289db0893 | 29-May-2026, 10:57 pm
+  File:      IMG_20260524_184108_084.jpg
+  Type:      Semen Analysis
+  Param:     Normal Forms / HPF [HPF]
+  Value:     70  →  Range: 0 - 0 HPF
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Sperm ke normal forms bilkul theek hain."
+
+  ─── Error #22 ────────────────────────────────────────────────
+  Report:    6a19cc96bfdd941289db0893 | 29-May-2026, 10:57 pm
+  File:      IMG_20260524_184108_084.jpg
+  Type:      Semen Analysis
+  Param:     Pus Cells / HPF [HPF]
+  Value:     2.3  →  Range: 0 - 0 HPF
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Pus cells bilkul normal level par hain."
+
+  ─── Error #23 ────────────────────────────────────────────────
+  Report:    6a19cfa5bfdd941289db09e9 | 29-May-2026, 11:10 pm
+  File:      Report_1779097935249.pdf
+  Type:      Urine Complete, Uric Acid, Calcium, Phosphorous, Ferritin, and Iron Studies
+  Param:     UIBC [µg/dL]
+  Value:     154.4  →  Range: 155 - 355
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Unsaturated iron binding capacity bilkul boundary par normal hai."
+
+  ─── Error #24 ────────────────────────────────────────────────
+  Report:    6a19d0dfbfdd941289db0aaf | 29-May-2026, 11:16 pm
+  File:      IMG_20250324_100902 (1).jpg
+  Type:      Haematology
+  Param:     Platelet Count [cells/cumm]
+  Value:     1,96,000  →  Range: 1.5-4.0 Lacs/cumm
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Khoon banne mein madad karne wale cells sahi quantity mein hain"
+
+  ─── Error #25 ────────────────────────────────────────────────
+  Report:    6a19d1ce8d2652568f022750 | 29-May-2026, 11:20 pm
+  File:      SHABNAM_Report.pdf
+  Type:      Comprehensive Full Body Health Checkup
+  Param:     Total CHOL / HDL Cholesterol Ratio [Ratio]
+  Value:     3.19  →  Range: 3.30 - 4.40
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Cholesterol ka ratio excellent hai, heart risk bilkul low hai."
+
+  ─── Error #26 ────────────────────────────────────────────────
+  Report:    6a19d2067bd53706f1b4a4d8 | 29-May-2026, 11:21 pm
+  File:      SHABNAM_Report.pdf
+  Type:      Comprehensive Health Checkup - Full Body Panel
+  Param:     Total Cholesterol / HDL Ratio [Ratio]
+  Value:     3.19  →  Range: 3.30 - 4.40
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Heart disease ka risk bilkul low hai."
+
+  ─── Error #27 ────────────────────────────────────────────────
+  Report:    6a19dc6239f833c3c8854ec8 | 30-May-2026, 12:05 am
+  File:      report (67).pdf
+  Type:      Complete Health Check Profile - 30P
+  Param:     Absolute Lymphocytes [1000/µL]
+  Value:     3.03  →  Range: 1.00-3.00
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Absolute lymphocyte count bilkul sahi hai."
+
+  ─── Error #28 ────────────────────────────────────────────────
+  Report:    6a19dd3f39f833c3c8854f33 | 30-May-2026, 12:08 am
+  File:      IMG_2194.jpeg
+  Type:      Complete Blood Count
+  Param:     Red Blood Cell Count [million/mcL]
+  Value:     3.8  →  Range: 4.0-5.5 male or 3.8-5.0 female
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Aapke red blood cells bilkul theek range mein hain."
+
+  ─── Error #29 ────────────────────────────────────────────────
+  Report:    6a19dfd639f833c3c8854f6e | 30-May-2026, 12:19 am
+  File:      Screenshot_20260530_001920_WhatsApp.jpg
+  Type:      Complete Blood Count with Blood Group
+  Param:     Total W.B.C. [/cumm]
+  Value:     10.400  →  Range: 4000-11000
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Aapke safed khoon ke cell normal hain jo infection se ladne mein madad karte hain."
+
+  ─── Error #30 ────────────────────────────────────────────────
+  Report:    6a19e2d639f833c3c8854fc5 | 30-May-2026, 12:32 am
+  File:      Mrs. MERAZ BANO.pdf
+  Type:      RD1.2 Advance Health Package - Complete Blood Count, Biochemistry, Thyroid Profile
+  Param:     LDL/HDL Ratio [Ratio]
+  Value:     1.63  →  Range: 2.5-3.5
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "LDL HDL ratio bilkul theek hai."
+
+  ─── Error #31 ────────────────────────────────────────────────
+  Report:    6a19e38c9838d6fadf2a3234 | 30-May-2026, 12:35 am
+  File:      IMG_0357.jpeg
+  Type:      Complete Blood Count
+  Param:     Hematocrit [%]
+  Value:     40.8  →  Range: 41-53
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Khoon mein laal cells ka proportion normal hai."
+
+  ─── Error #32 ────────────────────────────────────────────────
+  Report:    6a19e4119838d6fadf2a325b | 30-May-2026, 12:38 am
+  File:      17800816430675749331044010808658.jpg
+  Type:      Ultrasound of Whole Abdomen
+  Param:     Liver Size [cm]
+  Value:     15.38  →  Range: Normal range up to 15-16 cm
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Aapke liver ka size bilkul normal hai, koi endoscopy ya mass nahi mila."
+
+  ─── Error #33 ────────────────────────────────────────────────
+  Report:    6a19e4119838d6fadf2a325b | 30-May-2026, 12:38 am
+  File:      17800816430675749331044010808658.jpg
+  Type:      Ultrasound of Whole Abdomen
+  Param:     Spleen Size [cm]
+  Value:     12.60  →  Range: Normal range up to 12-13 cm
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Spleen ka size normal hai, koi enlargement nahi dikhi."
+
+  ─── Error #34 ────────────────────────────────────────────────
+  Report:    6a19e9129838d6fadf2a32bc | 30-May-2026, 12:59 am
+  File:      labreportnew1 (48).pdf
+  Type:      Complete Health Checkup - Swasth Kaya Basic
+  Param:     Glycosylated Hemoglobin HbA1c [Percentage]
+  Value:     5.9  →  Range: less than 5.7 normal, 5.7-6.4 prediabetes
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Yeh value prediabetes ke beech mein hai, abhi badi bimari nahi hai."
+
+  ─── Error #35 ────────────────────────────────────────────────
+  Report:    6a19eb4c9838d6fadf2a3324 | 30-May-2026, 01:08 am
+  File:      IMG_20260527_200810.jpg
+  Type:      Complete Blood Count and Liver Function Test
+  Param:     R.B.C Count [Cells/Cumm]
+  Value:     8.00  →  Range: 4000-11000
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Laal khoon ki cells normal quantity mein hain."
+
+  ─── Error #36 ────────────────────────────────────────────────
+  Report:    6a19f17f9838d6fadf2a337d | 30-May-2026, 01:35 am
+  File:      d74f8659-6aab-43a2-b73e-f4a65e4fc548.jpeg
+  Type:      Complete Blood Count (CBC)
+  Param:     Platelet Count [Lac/cumm]
+  Value:     4.56  →  Range: 1.5 - 4.5
+  AI Said:   normal  ← WRONG
+  Should Be: high
+  AI Note:   "Aapke blood clotting cells bilkul sahi hain."
+
+  ─── Error #37 ────────────────────────────────────────────────
+  Report:    6a1a077662bccd9f4c9da86c | 30-May-2026, 03:09 am
+  File:      IMG_3081.jpeg
+  Type:      Government Hospital Verbal Examination Report
+  Param:     Haemoglobin [g/dL]
+  Value:     12.1  →  Range: 13.5-17.5 Male or 12.0-16.0 Female
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Aapka blood mein oxygen le jaane wali protein theek hai."
+
+  ─── Error #38 ────────────────────────────────────────────────
+  Report:    6a1a077662bccd9f4c9da86c | 30-May-2026, 03:09 am
+  File:      IMG_3081.jpeg
+  Type:      Government Hospital Verbal Examination Report
+  Param:     PCV [%]
+  Value:     36.0  →  Range: 40-54 Male or 36-46 Female
+  AI Said:   normal  ← WRONG
+  Should Be: low
+  AI Note:   "Blood volume bilkul theek range mein hai."
+
+└────────────────────────────────────────────────────────┘
+
+┌─ MEDIUM ERRORS — AI said ABNORMAL, was NORMAL ─────────┐
+  ⚠️  Causes unnecessary patient anxiety
+
+  ─── Error #1 ────────────────────────────────────────────────
+  Report:    6a18593b39eeea3208116549 | 28-May-2026, 08:33 pm
+  Param:     Cholesterol HDL Ratio []
+  Value:     0.00  →  Range: less than 5 is normal, more than 5 is high
+  AI Said:   low  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #2 ────────────────────────────────────────────────
+  Report:    6a18593b39eeea3208116549 | 28-May-2026, 08:33 pm
+  Param:     LDL HDL Ratio []
+  Value:     0.00  →  Range: less than 3.0
+  AI Said:   low  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #3 ────────────────────────────────────────────────
+  Report:    6a18d8e0195fd7d2d3c93fac | 29-May-2026, 05:38 am
+  Param:     MPV [fL]
+  Value:     10.3  →  Range: 7.4-10.4
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #4 ────────────────────────────────────────────────
+  Report:    6a192c6feebc1f0729211029 | 29-May-2026, 11:34 am
+  Param:     Platelets [Lac/cumm]
+  Value:     25.5  →  Range: 1.5-4.0
+  Normalized:0.255  (platelet: /100 (Lac stored as XXX, range as X.X))
+  AI Said:   high  ← Possibly wrong
+  Should Be: low
+
+  ─── Error #5 ────────────────────────────────────────────────
+  Report:    6a192c6feebc1f0729211029 | 29-May-2026, 11:34 am
+  Param:     TIBC [mcg/dL]
+  Value:     415  →  Range: 250-425
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #6 ────────────────────────────────────────────────
+  Report:    6a199d41923e5ae1249eda58 | 29-May-2026, 07:35 pm
+  Param:     RDW1 [10^3/uL]
+  Value:     253.71  →  Range: 125-350
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #7 ────────────────────────────────────────────────
+  Report:    6a19a0a9b0e758647c9f42dd | 29-May-2026, 07:50 pm
+  Param:     Monocytes [%]
+  Value:     9.7  →  Range: 2 - 10
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #8 ────────────────────────────────────────────────
+  Report:    6a19a25ab0e758647c9f4334 | 29-May-2026, 07:57 pm
+  Param:     Vitamin D [ng/mL]
+  Value:     5.20  →  Range: less than 10 ng/mL = Deficiency, 10-30 ng/mL = Insufficiency, above 30 ng/mL = Sufficient
+  AI Said:   low  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #9 ────────────────────────────────────────────────
+  Report:    6a19a4c3f4fedc716446fb12 | 29-May-2026, 08:07 pm
+  Param:     WBC [[10^3/uL]]
+  Value:     10.15  →  Range: 4.00-10.5
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #10 ────────────────────────────────────────────────
+  Report:    6a19a8da3de2c719bc004289 | 29-May-2026, 08:25 pm
+  Param:     Salmonella Typhi O [Titer]
+  Value:     1:320  →  Range: less than 1:80
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #11 ────────────────────────────────────────────────
+  Report:    6a19a8da3de2c719bc004289 | 29-May-2026, 08:25 pm
+  Param:     Salmonella Typhi H [Titer]
+  Value:     1:80  →  Range: less than 1:80
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #12 ────────────────────────────────────────────────
+  Report:    6a19a8da3de2c719bc004289 | 29-May-2026, 08:25 pm
+  Param:     Salmonella Typhi BH [Titer]
+  Value:     1:80  →  Range: less than 1:80
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #13 ────────────────────────────────────────────────
+  Report:    6a19acd73de2c719bc00431a | 29-May-2026, 08:42 pm
+  Param:     Creatinine [mg/dL]
+  Value:     1.20  →  Range: 0.7-1.2
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #14 ────────────────────────────────────────────────
+  Report:    6a19acd73de2c719bc00431a | 29-May-2026, 08:42 pm
+  Param:     Chloride [mmol/L]
+  Value:     105.20  →  Range: 98-107
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #15 ────────────────────────────────────────────────
+  Report:    6a19ae5d3de2c719bc00436d | 29-May-2026, 08:48 pm
+  Param:     MPV [%]
+  Value:     11.90  →  Range: 9.1-11.9
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #16 ────────────────────────────────────────────────
+  Report:    6a19af57f4fedc716446fbc6 | 29-May-2026, 08:53 pm
+  Param:     RDW-CV [%]
+  Value:     14.4  →  Range: 11.5-14.5
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #17 ────────────────────────────────────────────────
+  Report:    6a19b0a9f4fedc716446fbea | 29-May-2026, 08:58 pm
+  Param:     Lym% [%]
+  Value:     39.0  →  Range: 20.0-40.0
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #18 ────────────────────────────────────────────────
+  Report:    6a19b1f6f4fedc716446fc1c | 29-May-2026, 09:04 pm
+  Param:     Red Blood Cells RBC Count [millions/mm3]
+  Value:     5.40  →  Range: 4.5-5.5
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #19 ────────────────────────────────────────────────
+  Report:    6a19b3a7f4fedc716446fc6c | 29-May-2026, 09:11 pm
+  Param:     Mean Platelet Volume [fL]
+  Value:     11.4  →  Range: 7.5 - 11.5
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #20 ────────────────────────────────────────────────
+  Report:    6a19b722df59fe61a88ef67d | 29-May-2026, 09:26 pm
+  Param:     Total T3 (Triiodothyronine) [ng/mL]
+  Value:     0.81  →  Range: 0.80 - 2.00
+  AI Said:   low  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #21 ────────────────────────────────────────────────
+  Report:    6a19ba153de2c719bc004455 | 29-May-2026, 09:38 pm
+  Param:     Basophils [%]
+  Value:     0.7  →  Range: 0-1
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #22 ────────────────────────────────────────────────
+  Report:    6a19bf7cf4fedc716446fdfb | 29-May-2026, 10:01 pm
+  Param:     Colony Count [CFU/ML]
+  Value:     10^3  →  Range: Less than 10^3 CFU/ML for mid-stream
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #23 ────────────────────────────────────────────────
+  Report:    6a19bfa6f4fedc716446fe06 | 29-May-2026, 10:02 pm
+  Param:     GRAN% [%]
+  Value:     66.5  →  Range: 50-70
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #24 ────────────────────────────────────────────────
+  Report:    6a19c5ebbfdd941289db06e1 | 29-May-2026, 10:29 pm
+  Param:     Platelet Count [Lacs/cmm]
+  Value:     93000  →  Range: 1.5 - 4.0
+  Normalized:930  (platelet: /100 (Lac stored as XXX, range as X.X))
+  AI Said:   low  ← Possibly wrong
+  Should Be: high
+
+  ─── Error #25 ────────────────────────────────────────────────
+  Report:    6a19c8c0bfdd941289db0747 | 29-May-2026, 10:41 pm
+  Param:     S.Typhi O Antigen [Ratio]
+  Value:     1:160  →  Range: Less than 1:80
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #26 ────────────────────────────────────────────────
+  Report:    6a19cb06df59fe61a88ef8c7 | 29-May-2026, 10:51 pm
+  Param:     TC/HDL Cholesterol Ratio [Ratio]
+  Value:     5  →  Range: 3-5
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #27 ────────────────────────────────────────────────
+  Report:    6a19cb4c7bd53706f1b4a238 | 29-May-2026, 10:52 pm
+  Param:     TC / HDL Cholesterol Ratio [Ratio]
+  Value:     5  →  Range: 3 - 5
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #28 ────────────────────────────────────────────────
+  Report:    6a19cbca7bd53706f1b4a2c4 | 29-May-2026, 10:54 pm
+  Param:     Corp Hb MCH Claculated Mean [Pg]
+  Value:     31.8  →  Range: 27-32
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #29 ────────────────────────────────────────────────
+  Report:    6a19cbca7bd53706f1b4a2c4 | 29-May-2026, 10:54 pm
+  Param:     Mean Corpuscular Hb Cone MCHC Calculated [gm]
+  Value:     35.6  →  Range: 32-36
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ─── Error #30 ────────────────────────────────────────────────
+  Report:    6a19cd267bd53706f1b4a33a | 29-May-2026, 11:00 pm
+  Param:     MPV [fL]
+  Value:     10.3  →  Range: 7.4-10.4
+  AI Said:   high  ← Possibly wrong
+  Should Be: normal
+
+  ... and 49 more in JSON
+└────────────────────────────────────────────────────────┘
+
+┌─ ACCURACY BY REPORT TYPE ──────────────────────────────┐
+  🔴 Semen Analysis
+     Reports:4  Evaluated:14  Acc:71.4%  Severe:4  Medium:0
+
+  ⚠️  Complete Blood Count (CBC)
+     Reports:33  Evaluated:564  Acc:98.8%  Severe:3  Medium:4
+
+  ⚠️  Complete Blood Count
+     Reports:89  Evaluated:1260  Acc:98.9%  Severe:2  Medium:12
+
+  ⚠️  Ultrasound of Whole Abdomen
+     Reports:3  Evaluated:3  Acc:33.3%  Severe:2  Medium:0
+
+  ⚠️  Aarogyam Camp Profile 2
+     Reports:1  Evaluated:58  Acc:96.6%  Severe:2  Medium:0
+
+  ⚠️  Whole Body Profile 1.4
+     Reports:1  Evaluated:56  Acc:94.6%  Severe:2  Medium:1
+
+  ⚠️  Complete Health Checkup - Blood, Urine and ECG
+     Reports:1  Evaluated:44  Acc:93.2%  Severe:2  Medium:1
+
+  ⚠️  Government Hospital Verbal Examination Report
+     Reports:1  Evaluated:13  Acc:84.6%  Severe:2  Medium:0
+
+  ⚠️  Biochemistry
+     Reports:7  Evaluated:23  Acc:95.7%  Severe:1  Medium:0
+
+  ⚠️  Haematology
+     Reports:3  Evaluated:20  Acc:95.0%  Severe:1  Medium:0
+
+  ⚠️  Complete Blood Count Test
+     Reports:1  Evaluated:21  Acc:95.2%  Severe:1  Medium:0
+
+  ⚠️  Fever Panel - Advance
+     Reports:1  Evaluated:27  Acc:96.3%  Severe:1  Medium:0
+
+  ⚠️  Lipid Profile and Kidney Profile (KFT + Electrolytes + EGFR)
+     Reports:1  Evaluated:12  Acc:91.7%  Severe:1  Medium:0
+
+  ⚠️  Technical Analysis Report Blood
+     Reports:1  Evaluated:7  Acc:85.7%  Severe:1  Medium:0
+
+  ⚠️  Comprehensive Health Checkup - Full Body Panel
+     Reports:3  Evaluated:169  Acc:98.8%  Severe:1  Medium:1
+
+  ⚠️  Complete Health Checkup with Hematology, Clinical Biochemistry, and Urine Analysis
+     Reports:1  Evaluated:58  Acc:98.3%  Severe:1  Medium:0
+
+  ⚠️  Liver Function Test (LFT) - Extended
+     Reports:2  Evaluated:22  Acc:90.9%  Severe:1  Medium:1
+
+  ⚠️  Complete Blood Count with Haematology, Biochemistry and Serology
+     Reports:1  Evaluated:25  Acc:92.0%  Severe:1  Medium:1
+
+  ⚠️  Complete Blood Count with Clinical Biochemistry
+     Reports:1  Evaluated:23  Acc:95.7%  Severe:1  Medium:0
+
+  ⚠️  Platinum Profile - Complete Blood Count, Glucose, Iron Profile, Rheumatoid Factor, CRP, HbA1c, Kidney Panel, Liver Panel, Lipid Profile, Thyroid Profile, Vitamin B12, Vitamin D
+     Reports:1  Evaluated:60  Acc:98.3%  Severe:1  Medium:0
+
+  ⚠️  Comprehensive Full Body Health Checkup
+     Reports:2  Evaluated:107  Acc:99.1%  Severe:1  Medium:0
+
+  ⚠️  Complete Blood Count and Liver Function Test
+     Reports:3  Evaluated:65  Acc:95.4%  Severe:1  Medium:2
+
+  ⚠️  Urine Complete, Uric Acid, Calcium, Phosphorous, Ferritin, and Iron Studies
+     Reports:1  Evaluated:13  Acc:92.3%  Severe:1  Medium:0
+
+  ⚠️  Complete Health Check Profile - 30P
+     Reports:1  Evaluated:59  Acc:98.3%  Severe:1  Medium:0
+
+  ⚠️  Complete Blood Count with Blood Group
+     Reports:1  Evaluated:15  Acc:93.3%  Severe:1  Medium:0
+
+  ⚠️  RD1.2 Advance Health Package - Complete Blood Count, Biochemistry, Thyroid Profile
+     Reports:1  Evaluated:56  Acc:94.6%  Severe:1  Medium:2
+
+  ⚠️  Complete Health Checkup - Swasth Kaya Basic
+     Reports:1  Evaluated:54  Acc:98.1%  Severe:1  Medium:0
+
+  ✅ Complete Blood Count with Differential
+     Reports:4  Evaluated:46  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Function Test with Vitamin B12
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Blood Gas Analysis
+     Reports:1  Evaluated:7  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Liver Function Test
+     Reports:13  Evaluated:93  Acc:98.9%  Severe:0  Medium:1
+
+  ✅ Lipid Profile
+     Reports:5  Evaluated:18  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Ultrasonography of Early Pregnancy
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Heamogram
+     Reports:1  Evaluated:12  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Hematology Report
+     Reports:3  Evaluated:19  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ General Health Check
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Clinical Biochemistry Full Body Health Check
+     Reports:1  Evaluated:8  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Comprehensive Metabolic Panel - Complete Blood Count
+     Reports:1  Evaluated:34  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Total-Thyroid Profile (T3, T4 and TSH), Serum
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Lipid Profile Serum Full Body Health Check
+     Reports:1  Evaluated:7  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (Haemogram)
+     Reports:2  Evaluated:36  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Comprehensive Metabolic Panel
+     Reports:1  Evaluated:20  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry - Serum Electrolytes and C-Reactive Protein
+     Reports:1  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Biochemistry Test and Complete Haemogram Report
+     Reports:1  Evaluated:15  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Serology
+     Reports:3  Evaluated:40  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Biochemistry and Serology
+     Reports:1  Evaluated:20  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ USG Whole Abdomen
+     Reports:16  Evaluated:6  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Picture with ESR and Iron Profile
+     Reports:1  Evaluated:6  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC) with C-Reactive Protein (CRP)
+     Reports:1  Evaluated:19  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Kidney Function Test and Lipid Profile
+     Reports:1  Evaluated:14  Acc:85.7%  Severe:0  Medium:2
+
+  ✅ Kidney Function Test
+     Reports:5  Evaluated:40  Acc:97.5%  Severe:0  Medium:1
+
+  ✅ Complete Blood Count with Malaria Antigen, ESR and Widal Test
+     Reports:1  Evaluated:17  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Biochemistry Profile
+     Reports:2  Evaluated:65  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Kidney Profile with GFR
+     Reports:1  Evaluated:9  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Hemoglobin Electrophoresis
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Hematology Analyzer Report
+     Reports:2  Evaluated:48  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Hematology, Serology and Immunological Test
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Profile (T3, T4, TSH)
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Liver and Kidney Function Test, Serum
+     Reports:1  Evaluated:16  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Pathology Report
+     Reports:2  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Biochemistry Panel
+     Reports:1  Evaluated:7  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Differential and Comprehensive Metabolic Panel
+     Reports:1  Evaluated:35  Acc:94.3%  Severe:0  Medium:2
+
+  ✅ Urine Examination, Routine: Uriner/E
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC Report)
+     Reports:1  Evaluated:17  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Blood Chemistry
+     Reports:1  Evaluated:16  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Kidney Function Test, Serum
+     Reports:1  Evaluated:9  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Biochemistry
+     Reports:4  Evaluated:76  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Immunology and Serology - Thyroid Profile
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Serology Test
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Haematology and Biochemistry
+     Reports:1  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Kidney Function Test KFT Basic
+     Reports:1  Evaluated:9  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, Blood Sugar, Urine Analysis, HbA1c
+     Reports:1  Evaluated:17  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC) and CRP Qualitative
+     Reports:1  Evaluated:17  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Bio Chemistry with Immunology and Urinology
+     Reports:1  Evaluated:11  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Lipid Profile
+     Reports:1  Evaluated:20  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Profile
+     Reports:3  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Follicular Lymphoma with Clinical Correlations
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with ESR, Liver Function Test, Kidney Function Test with Electrolytes, Lipid Profile, Iron Deficiency Profile, Glycosylated Hemoglobin, Vitamin D3, Vitamin B12, Thyroid Profile and Complete Urine Examination
+     Reports:1  Evaluated:59  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Transthoracic Echo-Doppler Report
+     Reports:1  Evaluated:9  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Immunoassay
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Glycosylated Haemoglobin (HbA1c)
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC) and ESR (Capillary Photometry)
+     Reports:1  Evaluated:9  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry Liver Function Test (LFT)
+     Reports:1  Evaluated:10  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ ESR and Liver Profile
+     Reports:1  Evaluated:6  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Vitamin D (25-Hydroxy Cholecalciferol) and Vitamin B12
+     Reports:1  Evaluated:2  Acc:50.0%  Severe:0  Medium:1
+
+  ✅ Urine Test
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Liver Function Tests
+     Reports:1  Evaluated:7  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Report on Haematology
+     Reports:1  Evaluated:14  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Widal Test Report
+     Reports:1  Evaluated:4  Acc:25.0%  Severe:0  Medium:3
+
+  ✅ Liver Function Test and Kidney Function Test
+     Reports:3  Evaluated:40  Acc:97.5%  Severe:0  Medium:1
+
+  ✅ Complete Blood Count (PATHOLOGY REPORT)
+     Reports:1  Evaluated:14  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Urine Examination Routine
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Liver Function Test (LFT)-Extended
+     Reports:1  Evaluated:11  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Picture (CBP) - 5 Part
+     Reports:1  Evaluated:15  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Urine Examination with Culture and Sensitivity
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Renal Panel and Serology Examination
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (Haematology)
+     Reports:1  Evaluated:10  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Liver Function Test, SERUM
+     Reports:1  Evaluated:11  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry and Thyroid Profile
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Clinical Pathology
+     Reports:1  Evaluated:12  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, Lipid Profile, Liver Function Test, Kidney Function Test, Thyroid Profile
+     Reports:1  Evaluated:50  Acc:96.0%  Severe:0  Medium:2
+
+  ✅ HbA1c by HPLC
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, Rheumatoid Factor, Anti Nuclear Antibody
+     Reports:1  Evaluated:23  Acc:95.7%  Severe:0  Medium:1
+
+  ✅ Liver Function Tests and Lipid Profile
+     Reports:1  Evaluated:11  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Department of Biochemistry
+     Reports:3  Evaluated:6  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry Examination
+     Reports:2  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, Liver Function Test, Kidney Function Test, Lipid Profile, Iron Profile, eGFR, Thyroid Profile
+     Reports:1  Evaluated:46  Acc:97.8%  Severe:0  Medium:1
+
+  ✅ Liver Function Test (LFT) Extended with Bilirubin Profile
+     Reports:1  Evaluated:11  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Examination of Urine
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry and Haematology
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Haematology Report with Hormone Analysis
+     Reports:1  Evaluated:18  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Profile - T3, T4 and TSH (TFT)
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Jaanch - Mens Hairfall Screening Advanced with HIV 1 and 2 Antibody Rapid Screening Test and 6 Others
+     Reports:1  Evaluated:46  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Comprehensive Health Check - Full Body Panel
+     Reports:1  Evaluated:26  Acc:96.2%  Severe:0  Medium:1
+
+  ✅ tTg DGP Combined Screen Panel and Gliadin Deamidated Antibodies Panel
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count - Haematological Examination
+     Reports:1  Evaluated:14  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Profile - Free T3, Free T4, TSH
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Abdominal Ultrasound
+     Reports:2  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Hematology and Biochemistry Panel
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Department of Bio-Chemistry
+     Reports:1  Evaluated:9  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry Panel - Blood Sugar and Lipid Profile
+     Reports:1  Evaluated:12  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with ESR, Biochemistry, Immunology and Urine Examination
+     Reports:1  Evaluated:67  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Differential and Agglutinin Titre
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Clinical Bio-Chemistry
+     Reports:1  Evaluated:15  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Profile I
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Liver Function Test (LFT)
+     Reports:5  Evaluated:50  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Profile - Total T3, Total T4, TSH (TFT)
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ MRI Lumbar Spine with Whole Spine Screening
+     Reports:1  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ CBC (Complete Blood Count)
+     Reports:1  Evaluated:21  Acc:95.2%  Severe:0  Medium:1
+
+  ✅ BTL - URIC ACID
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Haemogram
+     Reports:2  Evaluated:26  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Cell Count and Bio-Chemistry
+     Reports:1  Evaluated:21  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC) - Haematology Examination
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Serology
+     Reports:2  Evaluated:16  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC) with Absolute Counts
+     Reports:1  Evaluated:21  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Hematology (Complete Blood Count)
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Biochemistry with Widal Test
+     Reports:1  Evaluated:21  Acc:95.2%  Severe:0  Medium:1
+
+  ✅ Thyroid Profile Free
+     Reports:2  Evaluated:6  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, Liver Function Test, Widal Test
+     Reports:1  Evaluated:21  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Hemogram
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Havayat Diagnostic Test Report
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ CBC WITH 5 PART ANALYZER (Whole Blood EDTA)
+     Reports:1  Evaluated:19  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Urine Complete Examination
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Immunology Profile
+     Reports:1  Evaluated:19  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Blood Count in Blood Disorder
+     Reports:1  Evaluated:15  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Iron Profile Test
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Full Body Health Profile
+     Reports:2  Evaluated:110  Acc:99.1%  Severe:0  Medium:1
+
+  ✅ Complete Blood Count, Liver Function Test, Kidney Function Test
+     Reports:1  Evaluated:32  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Full Body Health Checkup - Complete Lab Report
+     Reports:1  Evaluated:62  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Executive Full Body Health Checkup with Troponin I Up Sell
+     Reports:2  Evaluated:80  Acc:97.5%  Severe:0  Medium:2
+
+  ✅ Liver Function Test and Lipid Profile
+     Reports:1  Evaluated:19  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Antibodies, Serum
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Hematology Analysis Report
+     Reports:1  Evaluated:33  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Body Profile (Full) - Lipid Panel
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Haematology Report
+     Reports:1  Evaluated:10  Acc:80.0%  Severe:0  Medium:2
+
+  ✅ Biochemistry - Kidney and Liver Function Test
+     Reports:1  Evaluated:17  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ General Blood Picture (GBP)
+     Reports:1  Evaluated:8  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Glucose Fasting
+     Reports:1  Evaluated:22  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ All Pathology Test Facility Avoidable
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Obstetrics Ultrasound - 3rd Trimester
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Fasting and Post Lunch Blood Sugar
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Ultrasound - Abdomen and Pelvis
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry and Serology Panel
+     Reports:1  Evaluated:12  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Glucose Fasting, Kidney Function Test, Liver Function Test
+     Reports:1  Evaluated:15  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Rapid Malaria Test and Widal Test
+     Reports:1  Evaluated:14  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC), Creatinine Serum, Liver Function Test (LFT), Electrolytes (Na/K/Cl)
+     Reports:1  Evaluated:40  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ DMSA III Renal Cortical Scan
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Urine R/M
+     Reports:2  Evaluated:9  Acc:88.9%  Severe:0  Medium:1
+
+  ✅ Pediatric Clinical Consultation and Prescription
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ SQA-40 Automated Semen Analysis Results
+     Reports:1  Evaluated:11  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Ultrasound of Abdomen and Pelvis
+     Reports:1  Evaluated:11  Acc:81.8%  Severe:0  Medium:2
+
+  ✅ Complete Blood Count (CBC) Whole Blood
+     Reports:1  Evaluated:19  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Renal and Urinary Tract Imaging Report
+     Reports:1  Evaluated:3  Acc:66.7%  Severe:0  Medium:1
+
+  ✅ Blood Serum Report - RBS, SGOT, SGPT
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, Lipid Profile, Liver Panel, Thyroid Profile, Iron Panel, Kidney Panel
+     Reports:1  Evaluated:61  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Health Checkup Panel
+     Reports:1  Evaluated:58  Acc:98.3%  Severe:0  Medium:1
+
+  ✅ Blood Sugar Random
+     Reports:1  Evaluated:6  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Kidney Panel-2
+     Reports:1  Evaluated:11  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Vitamin B12 and Vitamin D3 Profile
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Liver Function Test and Kidney Function Test, Serum
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Coagulation Report
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, ESR, Urine Complete, Liver Function Test, Kidney Profile, Lipid Profile, Thyroid Profile, Vitamin B12, Vitamin D3, Iron Studies, HbA1c, Glucose Fasting
+     Reports:1  Evaluated:57  Acc:98.2%  Severe:0  Medium:1
+
+  ✅ Complete Blood Count and Biochemistry Panel with Serology
+     Reports:1  Evaluated:40  Acc:90.0%  Severe:0  Medium:4
+
+  ✅ CRP (C Reactive Protein) Quantitative
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Health Checkup - Full Body Panel
+     Reports:1  Evaluated:67  Acc:98.5%  Severe:0  Medium:1
+
+  ✅ Biochemistry - Liver Function Test and Kidney Function Test
+     Reports:1  Evaluated:11  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry and Serology Report
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Comprehensive Health Check Panel
+     Reports:1  Evaluated:56  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Liver Function Test (LFT) and Kidney Function Test (KFT)
+     Reports:1  Evaluated:17  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Lipid Profile Screen and Thyroid Profile Total
+     Reports:1  Evaluated:9  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ ECG - Electrocardiogram
+     Reports:1  Evaluated:6  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Full Body Health Check - Multiple Tests
+     Reports:1  Evaluated:54  Acc:98.1%  Severe:0  Medium:1
+
+  ✅ USG Whole Abdomen Male
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ GD Wellness 1.3 Complete Health Checkup
+     Reports:1  Evaluated:60  Acc:96.7%  Severe:0  Medium:2
+
+  ✅ Biochemistry Report and Hematology Report
+     Reports:1  Evaluated:15  Acc:93.3%  Severe:0  Medium:1
+
+  ✅ Complete Blood Cell Count (CBC)
+     Reports:1  Evaluated:21  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Immunology and Immuno Chemistry Report
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC) with Differential
+     Reports:1  Evaluated:27  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Profile and Complete Blood Count
+     Reports:1  Evaluated:14  Acc:92.9%  Severe:0  Medium:1
+
+  ✅ Hematology Test Report
+     Reports:1  Evaluated:13  Acc:92.3%  Severe:0  Medium:1
+
+  ✅ Serum Electrolyte Profile
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Arterial Blood Gas Analysis
+     Reports:1  Evaluated:10  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, Biochemistry, Immunoassay, Serology and Special Tests
+     Reports:1  Evaluated:39  Acc:97.4%  Severe:0  Medium:1
+
+  ✅ Clinical Biochemistry
+     Reports:1  Evaluated:10  Acc:90.0%  Severe:0  Medium:1
+
+  ✅ Complete Blood Count and Widal Test
+     Reports:1  Evaluated:26  Acc:84.6%  Severe:0  Medium:4
+
+  ✅ Semen Examination
+     Reports:2  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, CRP, Liver Function Test, and Widal Test
+     Reports:1  Evaluated:19  Acc:89.5%  Severe:0  Medium:2
+
+  ✅ Report on Bio-Chemistry
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ CBC with Absolute Counts
+     Reports:1  Evaluated:22  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, Biochemistry, Lipid Profile, and Thyroid Panel
+     Reports:1  Evaluated:36  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Random Blood Sugar
+     Reports:1  Evaluated:22  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Haematology and Bio-Chemical Examination
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Comprehensive Metabolic Panel with Complete Blood Count and Lipid Profile
+     Reports:1  Evaluated:28  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry Laboratory Report
+     Reports:1  Evaluated:23  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Hematology Report and Special Chemistry Protein Electrophoresis
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count - CBC
+     Reports:1  Evaluated:23  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry Investigation Form
+     Reports:1  Evaluated:11  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Picture
+     Reports:1  Evaluated:17  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Pathological Examination Report
+     Reports:1  Evaluated:7  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Liver Panel (LFT)
+     Reports:1  Evaluated:12  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Haemogram
+     Reports:1  Evaluated:9  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Liver Function Test, C-Reactive Protein and Typhidot Combo Pack
+     Reports:2  Evaluated:64  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Accidental Pathology Panel
+     Reports:1  Evaluated:27  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Biochemistry Panel
+     Reports:1  Evaluated:52  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count, Liver Function Test, Biochemistry, Viral Markers, Coagulation Profile, Blood Glucose, Kidney Function Test
+     Reports:1  Evaluated:41  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Comprehensive Health Checkup - Tests Outside Reference Range
+     Reports:1  Evaluated:16  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Viral Markers and Aarogyam B Pro with UTSH and FBS
+     Reports:1  Evaluated:35  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Biochemistry
+     Reports:1  Evaluated:25  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count + ESR, Liver Function Tests, Lipid Profile, Iron Profile, Thyroid Profile, Kidney Profile with GFR, Glucose Fasting
+     Reports:1  Evaluated:60  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Blood Gas Analysis, Arterial
+     Reports:1  Evaluated:8  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Aarogyam C Pro With Utsh
+     Reports:1  Evaluated:67  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry Report
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Comprehensive Metabolic Panel with Hemogram, Lipid Profile, Thyroid Profile and Vitamin Studies
+     Reports:1  Evaluated:61  Acc:98.4%  Severe:0  Medium:1
+
+  ✅ Lipase and Amylase Serum
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Thyroid Profile Total (T3, T4, TSH)
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Bilirubin Newborn
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Urine Culture and Antimicrobial Susceptibility Test
+     Reports:1  Evaluated:2  Acc:50.0%  Severe:0  Medium:1
+
+  ✅ Complete Urine Examination (CUE)
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Kidney Function Test (KFT)
+     Reports:1  Evaluated:6  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Fasting Blood Sugar and Lipid Profile with HbA1c
+     Reports:1  Evaluated:9  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count and Dengue Duo NS1
+     Reports:1  Evaluated:14  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Medical Laboratory Report - Biochemistry
+     Reports:1  Evaluated:13  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Full Body Health Checkup
+     Reports:1  Evaluated:67  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry and Hematology Report - Liver Function Test and Complete Blood Count
+     Reports:1  Evaluated:15  Acc:93.3%  Severe:0  Medium:1
+
+  ✅ Complete Blood Cell Count
+     Reports:1  Evaluated:19  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Health Check-up - Biochemistry, Urine Routine, and Haematology
+     Reports:1  Evaluated:20  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ 2D Echo Cardiography Colour Doppler Report
+     Reports:1  Evaluated:10  Acc:90.0%  Severe:0  Medium:1
+
+  ✅ Serology and Immunology Report, Biochemistry Report, SGPT ALT Serum
+     Reports:1  Evaluated:7  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Health Checkup - Full Body Screening
+     Reports:1  Evaluated:44  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Counts with Random Blood Sugar and Infectious Disease Screening
+     Reports:1  Evaluated:24  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Bio Chemistry - Liver Function Test
+     Reports:1  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Fasting and Post Prandial Glucose with Uric Acid
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Bio Chemistry
+     Reports:1  Evaluated:3  Acc:66.7%  Severe:0  Medium:1
+
+  ✅ Urine Routine Examination
+     Reports:1  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count (CBC), Whole Blood
+     Reports:1  Evaluated:17  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Seminal Fluid Examination
+     Reports:1  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Biochemistry Requisition Form
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Healthy India 2026 Full Body Checkup With Free Iron Test
+     Reports:1  Evaluated:10  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Vitamin D 25-Hydroxy, Serum and Methylmalonic Acid, Quantitative, Serum
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with ESR
+     Reports:1  Evaluated:6  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ 12 Lead ECG
+     Reports:1  Evaluated:3  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Complete Blood Count with Differential and Lipid Profile
+     Reports:1  Evaluated:20  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Marvellous Special Package
+     Reports:1  Evaluated:33  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Blood Report
+     Reports:1  Evaluated:5  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Blood Sugar Fasting and Post-Prandial
+     Reports:1  Evaluated:2  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Clinical Path - Urinalysis
+     Reports:1  Evaluated:4  Acc:100.0%  Severe:0  Medium:0
+
+  ✅ Renal Profile (Kidney Profile)
+     Reports:1  Evaluated:6  Acc:100.0%  Severe:0  Medium:0
+
+└────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════
+  ACCURACY: 98.37% | Evaluated: 7167 params
+  Severe: 38 | Medium: 79 | Unit fixes: 21
+════════════════════════════════════════════════════════════════════

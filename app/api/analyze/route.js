@@ -12,6 +12,8 @@ import { rateLimit } from '@/lib/rateLimit'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
+export const maxDuration = 60   // Vercel: allow up to 60s before killing the function
+
 // ── Model config ──────────────────────────────────────
 const HAIKU_MODEL   = 'claude-haiku-4-5-20251001'
 const SONNET_MODEL  = 'claude-sonnet-4-5'
@@ -529,7 +531,7 @@ export async function POST(req) {
         const err = new Error('Analysis timeout — server busy hai, thodi der baad try karo ⏳')
         err.isTimeout = true
         reject(err)
-      }, 60_000)
+      }, 30_000)
     })
 
     const { interpretation, tokenUsage } = await Promise.race([doAnalysis(), timeoutPromise])
