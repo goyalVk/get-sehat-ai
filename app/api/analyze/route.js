@@ -372,7 +372,7 @@ export async function POST(req) {
     }
 
     // ── Image too small (<100KB) ──────────────────────
-    if (file.type !== 'application/pdf' && file.size < 100 * 1024) {
+    if (file.type !== 'application/pdf' && file.size < 30 * 1024) {
       await Report.create({
         fileName: file.name, fileType: file.type, fileSize: file.size,
         userId: user?._id?.toString() || null, anonId, sessionId: crypto.randomUUID(),
