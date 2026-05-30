@@ -477,7 +477,24 @@ export async function POST(req) {
     // ── Haiku pre-check — is this a medical document? ─
     try {
       const preCheckContent = [
-        { type: 'text', text: 'Is this a medical lab report or health test result? Reply with only YES or NO.' },
+        { type: 'text', text: `You are reviewing an uploaded image from an Indian user.
+Answer YES if the image contains ANY of these:
+- Blood test, lab report, pathology report, diagnostic report
+- CBC, hemoglobin, sugar, cholesterol, thyroid, urine, kidney, liver tests
+- Any medical values with numbers and units like mg/dL, g/dL, IU/L, U/L
+- Lab name, doctor name, patient name with test results
+- Hindi or English text from any Indian pathology lab
+- Handwritten or printed medical values with reference ranges
+- X-ray, ECG, MRI, ultrasound reports with measurements
+
+Answer NO only if the image is clearly:
+- A selfie, personal photo, or group photo
+- A food, nature, or object photo
+- A non-health document like bill, ID card, certificate, invoice
+- Completely blank, solid color, or totally unreadable
+
+If you are even slightly unsure — answer YES.
+Reply with only YES or NO.` },
         resolvedFileType === 'application/pdf'
           ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } }
           : { type: 'image',    source: { type: 'base64', media_type: effectiveMediaType,  data: base64 } }
@@ -487,7 +504,7 @@ export async function POST(req) {
         messages: [{ role: 'user', content: preCheckContent }]
       })
       const preCheckAnswer = preCheckResp.content[0].text.trim().toUpperCase()
-      if (!preCheckAnswer.startsWith('YES')) {
+      if (preCheckAnswer.startsWith('NO')) {
         await Report.findByIdAndUpdate(reportId, {
           status: 'failed', isNonMedical: true, isSpam: false,
           spamReason: 'non_medical', userAgent,
