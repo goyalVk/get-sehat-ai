@@ -53,9 +53,17 @@ export async function POST(req) {
       })
     }
 
-    const results = await admin.messaging()
-      .sendEachForMulticast({
-        tokens,
+    const BATCH_SIZE   = 500
+    const messaging    = admin.messaging()
+    let totalSuccess   = 0
+    let totalFailed    = 0
+    const failedTokens = []
+
+    for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
+      const batch    = tokens.slice(i, i + BATCH_SIZE)
+      const response = await messaging.sendEachForMulticast({
+        tokens: batch,
+        notification: { title, body },
         webpush: {
           fcmOptions: { link: url },
           data: {
@@ -67,19 +75,20 @@ export async function POST(req) {
         }
       })
 
-    results.responses.forEach((r, i) => {
-      if (!r.success) {
-        console.error('Token failed:', {
-          token: tokens[i].substring(0, 20),
-          errorCode: r.error?.code,
-          errorMessage: r.error?.message
-        })
-      }
-    })
+      totalSuccess += response.successCount
+      totalFailed  += response.failureCount
 
-    const failedTokens = results.responses
-      .map((r, i) => !r.success ? tokens[i] : null)
-      .filter(Boolean)
+      response.responses.forEach((r, idx) => {
+        if (!r.success) {
+          console.error('Token failed:', {
+            token:        batch[idx].substring(0, 20),
+            errorCode:    r.error?.code,
+            errorMessage: r.error?.message
+          })
+          failedTokens.push(batch[idx])
+        }
+      })
+    }
 
     if (failedTokens.length > 0) {
       await PushToken.updateMany(
@@ -90,12 +99,14 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      sent:    results.successCount,
-      failed:  results.failureCount
+      sent:    totalSuccess,
+      failed:  totalFailed
     })
 
   } catch (err) {
-    console.error('Push send error:', err.message)
+    console.error('Push send error — message:', err.message)
+    console.error('Push send error — code:', err.code ?? 'none')
+    console.error('Push send error — stack:', err.stack)
     return NextResponse.json(
       { error: 'Failed' },
       { status: 500 }
