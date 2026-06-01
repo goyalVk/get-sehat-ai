@@ -520,7 +520,7 @@ export async function POST(req) {
       }
     }
 
-    const timeoutMs = file.size > 1024 * 1024 ? 50_000 : 30_000
+    const timeoutMs = 55_000
     let timeoutId
     const timeoutPromise = new Promise((_, reject) => {
       timeoutId = setTimeout(() => {
