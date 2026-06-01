@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { events } from '@/components/Analytics'
 import AnalyzingLoader from '@/components/AnalyzingLoader'
-import { isReturningUser, incrementUploadCount, getUploadCount, getVisitCount } from '@/utils/anonId'
+import { isReturningUser, incrementUploadCount, getUploadCount, getVisitCount, getAnonId } from '@/utils/anonId'
 import { requestPushPermission } from '@/lib/pushNotification'
 
 
@@ -45,9 +45,12 @@ export default function UploadPage() {
 
   useEffect(() => {
     try {
-      const count     = parseInt(localStorage.getItem('s24_upload_count')) || 0
-      const dismissed = localStorage.getItem('s24_login_nudge_dismissed')
-      const hasUserId = document.cookie.includes('userId')
+      const count      = parseInt(localStorage.getItem('s24_upload_count')) || 0
+      const dismissed  = localStorage.getItem('s24_login_nudge_dismissed')
+      const storedUser = (() => {
+        try { return JSON.parse(localStorage.getItem('s24_user') || 'null') } catch { return null }
+      })()
+      const hasUserId  = !!storedUser?.id
       setIsGuest(!hasUserId)
       if (count >= 1 && !dismissed && !hasUserId) setShowLoginNudge(true)
 
@@ -116,6 +119,11 @@ export default function UploadPage() {
     try {
       const formData = new FormData()
       formData.append('file', file)
+      formData.append('anonId', getAnonId() || '')
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('s24_user') || 'null')
+        if (storedUser?.id) formData.append('userId', storedUser.id)
+      } catch {}  // localStorage blocked in some WebViews
       formData.append('visitCount', getVisitCount())
       const urlParams = new URLSearchParams(window.location.search)
       const ref = urlParams.get('ref') || document.referrer || 'direct'

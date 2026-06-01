@@ -139,6 +139,7 @@ function LoginForm() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
+      try { localStorage.setItem('s24_user', JSON.stringify({ id: data.user?.id })) } catch {}
       if (isNewUser) {
         events.signupCompleted()
       } else {

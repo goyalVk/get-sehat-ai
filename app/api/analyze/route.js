@@ -13,6 +13,7 @@ import { rateLimit } from '@/lib/rateLimit'
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export const maxDuration = 60   // Vercel: allow up to 60s before killing the function
+export const dynamic     = 'force-dynamic'  // never cache — reads cookies() on every request
 
 // ── Model config ──────────────────────────────────────
 const HAIKU_MODEL   = 'claude-haiku-4-5-20251001'
@@ -183,11 +184,12 @@ export async function POST(req) {
   await connectDB()
   let reportId = null
 
+  const userAgent = req.headers.get('user-agent') || null
+
   try {
     const formData = await req.formData()
     const file    = formData.get('file')
     const anonId      = formData.get('anonId')?.toString() || null
-    const userAgent   = req.headers.get('user-agent') || null
     const visitCount  = parseInt(formData.get('visitCount')) || 1
     const honeypot    = formData.get('_hp') || ''
     const ip                           = getIPAddress(req)
@@ -313,17 +315,27 @@ export async function POST(req) {
       )
     }
 
-    // ── User + plan check ─────────────────────────────
-    const cookieStore = await cookies()
-    const userId      = cookieStore.get('userId')?.value
+    // ── User + plan check — multiple fallbacks ────────
+    // Method 1: httpOnly cookie (primary — logged-in users)
+    const cookieStore  = await cookies()
+    const cookieUserId = cookieStore.get('userId')?.value
+
+    // Method 2: Authorization header (API / non-browser clients)
+    const authHeader   = req.headers.get('authorization')
+    const headerUserId = authHeader?.replace('Bearer ', '').trim() || null
+
+    // Method 3: FormData body field (fallback when cookie not forwarded)
+    const bodyUserId   = formData.get('userId')?.toString() || null
+
+    const resolvedUserId = cookieUserId || headerUserId || bodyUserId || null
+    const userId         = resolvedUserId   // alias — used throughout the rest of the handler
 
     let user  = null
     let isPro = false
 
     if (userId) {
-      user  = await User.findById(userId)
-      isPro = user?.plan === 'pro' ||
-              user?.plan === 'paid'
+      user  = await User.findById(userId).catch(() => null)
+      isPro = user?.plan === 'pro' || user?.plan === 'paid'
     }
 
     // ── Large file + free user → upgrade prompt ───────
@@ -454,6 +466,7 @@ export async function POST(req) {
     }
 
     // ── Create report record ──────────────────────────
+    console.log('userId being saved:', user?._id?.toString())
     const now    = new Date()
     const report = await Report.create({
       fileName:  file.name,
@@ -497,13 +510,14 @@ export async function POST(req) {
       }
     }
 
+    const timeoutMs = file.size > 1024 * 1024 ? 50_000 : 30_000
     let timeoutId
     const timeoutPromise = new Promise((_, reject) => {
       timeoutId = setTimeout(() => {
         const err = new Error('Analysis timeout — server busy hai, thodi der baad try karo ⏳')
         err.isTimeout = true
         reject(err)
-      }, 30_000)
+      }, timeoutMs)
     })
 
     const { interpretation, tokenUsage } = await Promise.race([doAnalysis(), timeoutPromise])
@@ -636,7 +650,7 @@ export async function POST(req) {
             userId,
             status:     'completed',
             reportType: interpretation.report_type,
-            'patient.name': { $regex: new RegExp(patientName, 'i') }
+            'patient.name': { $regex: new RegExp(patientName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }
           })
 
           if (samePatientCount === 2) {
@@ -775,24 +789,25 @@ export async function POST(req) {
     })
 
   } catch (err) {
-    console.error('Analysis error:', err.message)
+    const msg = err?.message || ''
+    console.error('Analysis error:', msg)
 
     if (reportId) {
       const isCorrupted =
-        err.message.includes('Could not process') ||
-        err.message.includes('JSON repair failed') ||
-        err.message.includes('corrupt') ||
-        err.message.includes('Unable to read') ||
-        err.message.includes('Invalid PDF')
-      const errorType = err.isTruncated                                                      ? 'report_too_large'
-        : err.isParseError                                                                   ? 'parse_error'
-        : /timeout|ETIMEDOUT/i.test(err.message)                                            ? 'timeout'
-        : /overload|529|rate.?limit/i.test(err.message)                                     ? 'rate_limit'
-        : /Could not process|corrupt|Unable to read|Invalid PDF/i.test(err.message)         ? 'corrupted'
+        msg.includes('Could not process') ||
+        msg.includes('JSON repair failed') ||
+        msg.includes('corrupt') ||
+        msg.includes('Unable to read') ||
+        msg.includes('Invalid PDF')
+      const errorType = err.isTruncated                                          ? 'report_too_large'
+        : err.isParseError                                                       ? 'parse_error'
+        : /timeout|ETIMEDOUT/i.test(msg)                                        ? 'timeout'
+        : /overload|529|rate.?limit/i.test(msg)                                 ? 'rate_limit'
+        : /Could not process|corrupt|Unable to read|Invalid PDF/i.test(msg)     ? 'corrupted'
         : 'unknown'
       await Report.findByIdAndUpdate(reportId, {
         status:       'failed',
-        errorMessage: err.message,
+        errorMessage: msg,
         errorType,
         userAgent,
         ...(isCorrupted ? { isSpam: false, preCheckFailed: true, spamReason: 'corrupted' } : {}),
@@ -801,16 +816,16 @@ export async function POST(req) {
 
     // Truncated — return 400 with flag so frontend can show upgrade upsell
     if (err.isTruncated) {
-      return NextResponse.json({ error: err.message, isTruncated: true }, { status: 400 })
+      return NextResponse.json({ error: msg, isTruncated: true }, { status: 400 })
     }
 
-    const userMessage = err.isParseError || err.message.includes('bahut badi') || err.message.includes('bahut bada')
-  ? err.message
-  : err.message.includes('Could not process')
+    const userMessage = err.isParseError || msg.includes('bahut badi') || msg.includes('bahut bada')
+  ? msg
+  : msg.includes('Could not process')
   ? 'Photo padh nahi paaye 😕 — dobara clear photo lo ya PDF try karo'
-  : err.message.includes('timeout') || err.message.includes('ETIMEDOUT')
+  : msg.includes('timeout') || msg.includes('ETIMEDOUT')
   ? 'Server busy hai — thodi der baad try karo 🙏'
-  : err.message.includes('ECONNRESET') || err.message.includes('fetch failed')
+  : msg.includes('ECONNRESET') || msg.includes('fetch failed')
   ? 'Internet connection check karo aur dobara try karo 🙏'
   : 'Kuch problem aayi — report dobara upload karo 🙏'
 

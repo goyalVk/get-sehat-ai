@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import User from '@/models/user'
 import { cookies } from 'next/headers'
+import admin from '@/lib/firebaseAdmin'
 
 export async function POST(req) {
   await connectDB()
@@ -9,11 +10,16 @@ export async function POST(req) {
   try {
     const { phone, firebaseUid, token, name } = await req.json()
 
-    if (!phone || !firebaseUid) {
+    if (!phone || !firebaseUid || !token) {
       return NextResponse.json(
         { error: 'Invalid data' },
         { status: 400 }
       )
+    }
+
+    const decodedToken = await admin.auth().verifyIdToken(token)
+    if (decodedToken.uid !== firebaseUid) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
     let user = await User.findOne({ firebaseUid })
