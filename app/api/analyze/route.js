@@ -58,6 +58,16 @@ function parseClaudeResponse(rawText) {
     text = text.substring(firstBrace, lastBrace + 1)
   }
 
+  // Step 2b — Fix common AI JSON malformations before jsonrepair
+  // doctor_questions array sometimes split: ["Q1"], \n "Q2"]
+  text = text.replace(
+    /"doctor_questions"\s*:\s*\[\s*("(?:[^"\\]|\\.)*")\s*\]\s*,\s*\n\s*("(?:[^"\\]|\\.)*")\s*\]/g,
+    '"doctor_questions": [$1, $2]'
+  )
+  // Trailing commas before closing brackets/braces
+  text = text.replace(/,\s*\]/g, ']')
+  text = text.replace(/,\s*\}/g, '}')
+
   // Step 3 — jsonrepair se fix karo
   let parsed
   try {
