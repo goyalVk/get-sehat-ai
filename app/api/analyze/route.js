@@ -18,7 +18,7 @@ export const dynamic     = 'force-dynamic'  // never cache — reads cookies() o
 // ── Model config ──────────────────────────────────────
 const HAIKU_MODEL   = 'claude-haiku-4-5-20251001'
 const SONNET_MODEL  = 'claude-sonnet-4-5'
-const FREE_MAX_SIZE = 10 * 1024 * 1024   // 10MB — free users
+const FREE_MAX_SIZE = 3 * 1024 * 1024    //  3MB — free users
 const PRO_MAX_SIZE  = 20 * 1024 * 1024  // 20MB — pro users
 
 // ── Non-medical filenames (module level) ─────────────
@@ -515,28 +515,25 @@ export async function POST(req) {
     }
 
     const calculateTimeout = (fileSize, isPro) => {
+      if (!isPro) return null  // Free users: no timeout
+
       const MB = fileSize / 1024 / 1024
-      if (isPro) {
-        if (MB > 5) return 120_000
-        if (MB > 1.5) return 90_000
-        if (MB > 0.5) return 60_000
-        return 45_000
-      }
-      if (MB > 2) return 60_000
-      return 45_000
+      if (MB > 5) return 120_000
+      if (MB > 1.5) return 90_000
+      return 50_000
     }
 
     const timeoutMs = calculateTimeout(file.size, isPro)
     let timeoutId
-    const timeoutPromise = new Promise((_, reject) => {
-      timeoutId = setTimeout(() => {
-        const err = new Error(isPro
-          ? 'Report bahut lambi hai — 2-3 min mein ready ho jayegi. Please wait aur refresh karo 🙏'
-          : 'File bahut badi hai — 10MB se chhoti file bhejo')
-        err.isTimeout = true
-        reject(err)
-      }, timeoutMs)
-    })
+    const timeoutPromise = timeoutMs
+      ? new Promise((_, reject) => {
+          timeoutId = setTimeout(() => {
+            const err = new Error('Report bahut lambi hai — 2-3 min mein ready ho jayegi. Please wait aur refresh karo 🙏')
+            err.isTimeout = true
+            reject(err)
+          }, timeoutMs)
+        })
+      : new Promise(() => {})  // Free users: never resolves, Vercel handles the hard limit
 
     let interpretation, tokenUsage
     ;({ interpretation, tokenUsage } = await Promise.race([doAnalysis(), timeoutPromise])
