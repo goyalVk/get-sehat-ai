@@ -257,11 +257,6 @@ export async function POST(req) {
 
       if (cachedReport) {
         console.log('Sample cache hit ✅ — 0 tokens used!')
-        const sampleCookies = await cookies()
-        const sampleUserId  = sampleCookies.get('userId')?.value
-        if (sampleUserId) {
-          await User.findByIdAndUpdate(sampleUserId, { $inc: { reportsUsed: 1 } })
-        }
         return NextResponse.json({
           success:   true,
           reportId:  cachedReport._id.toString(),
@@ -335,14 +330,7 @@ export async function POST(req) {
     const authHeader   = req.headers.get('authorization')
     const headerUserId = authHeader?.replace('Bearer ', '').trim() || null
 
-    // Method 3: FormData body field (fallback when cookie not forwarded)
-    const bodyUserId   = formData.get('userId')?.toString() || null
-
-    console.log('Method 1 cookie:', cookieUserId)
-    console.log('Method 2 header:', headerUserId)
-    console.log('Method 3 body:', bodyUserId)
-    const resolvedUserId = cookieUserId || headerUserId || bodyUserId || null
-    console.log('Resolved userId:', resolvedUserId)
+    const resolvedUserId = cookieUserId || headerUserId || null
     const userId         = resolvedUserId   // alias — used throughout the rest of the handler
 
     let user  = null
@@ -376,7 +364,7 @@ export async function POST(req) {
 
     // ── Free user report limit check ──────────────────
     if (user) {
-      if (user.plan === 'free' && user.reportsUsed >= user.reportsLimit) {
+      if (!isPro && user.reportsUsed >= user.reportsLimit) {
         return NextResponse.json({
           error:        'Aapki free report use ho gayi 🙏 Pro upgrade karo — unlimited reports lo!',
           limitReached: true,
@@ -459,7 +447,7 @@ export async function POST(req) {
 
     // ── Report hash cache ─────────────────────────────
     const reportHash   = createHash('md5').update(base64).digest('hex')
-    const cachedByHash = await Report.findOne({ reportHash })
+    const cachedByHash = await Report.findOne({ reportHash, status: 'completed' })
 
     if (cachedByHash?.analysisResult?.report_type) {
       console.log('Hash cache hit ✅ — 0 tokens used!')
@@ -474,9 +462,6 @@ export async function POST(req) {
         $inc:          { uploadCount: 1 },
         lastUploadedAt: new Date()
       })
-      if (userId) {
-        await User.findByIdAndUpdate(userId, { $inc: { reportsUsed: 1 } })
-      }
       return NextResponse.json({
         success:   true,
         reportId:  cachedByHash._id.toString(),
@@ -486,7 +471,6 @@ export async function POST(req) {
     }
 
     // ── Create report record ──────────────────────────
-    console.log('userId being saved:', user?._id?.toString())
     const now    = new Date()
     const report = await Report.create({
       fileName:  file.name,
@@ -583,12 +567,13 @@ export async function POST(req) {
 
       if (existing) {
         await Report.findByIdAndDelete(existing._id)
+          .catch(err => console.error('Failed to delete duplicate (non-fatal):', err.message))
         console.log('Duplicate report removed:', existing._id)
       }
     }
 
     // ── Save result ───────────────────────────────────
-    await Report.findOneAndUpdate({ _id: reportId, status: 'processing' }, {
+    const savedReport = await Report.findOneAndUpdate({ _id: reportId, status: 'processing' }, {
       status:          'completed',
       result:          interpretation,
       analysisResult:  interpretation,
@@ -627,7 +612,7 @@ export async function POST(req) {
     }
 
     // ── Increment usage ───────────────────────────────
-    if (userId) {
+    if (userId && savedReport) {
       await User.findByIdAndUpdate(userId, {
         $inc: { reportsUsed: 1 }
       })

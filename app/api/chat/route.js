@@ -208,7 +208,13 @@ export async function POST(req) {
     const formData  = await req.formData()
     const message   = formData.get('message')?.toString().trim()
     const image     = formData.get('image')
-    const history   = JSON.parse(formData.get('history') || '[]')
+    let history = []
+    try {
+      history = JSON.parse(formData.get('history') || '[]')
+      if (!Array.isArray(history)) history = []
+    } catch {
+      return NextResponse.json({ error: 'Invalid chat history format' }, { status: 400 })
+    }
     const anonId    = formData.get('anonId')?.toString()  || null
     const sessionId = formData.get('sessionId')?.toString() || crypto.randomUUID()
 

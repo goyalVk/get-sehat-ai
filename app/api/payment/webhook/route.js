@@ -3,6 +3,11 @@ import crypto from 'crypto'
 import { connectDB } from '@/lib/mongodb'
 import User from '@/models/user'
 
+const RAZORPAY_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET
+if (!RAZORPAY_SECRET) {
+  throw new Error('Missing RAZORPAY_WEBHOOK_SECRET env var — set in Vercel Environment Variables')
+}
+
 export async function POST(req) {
   try {
     const body = await req.text()
@@ -10,7 +15,7 @@ export async function POST(req) {
 
     // Verify webhook signature
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET)
+      .createHmac('sha256', RAZORPAY_SECRET)
       .update(body)
       .digest('hex')
 

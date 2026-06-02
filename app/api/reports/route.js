@@ -72,7 +72,7 @@ export async function DELETE(req) {
     // reportsUsed decrement karo
     await User.findByIdAndUpdate(userId, [
       { $set: { reportsUsed: { $max: [0, { $subtract: ['$reportsUsed', 1] }] } } }
-    ])
+    ]).catch(err => console.error('Failed to decrement reportsUsed:', err.message))
 
     return NextResponse.json({ success: true })
 

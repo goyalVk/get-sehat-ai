@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import Report from '@/models/report'
 import { cookies } from 'next/headers'
+import { isValidObjectId } from 'mongoose'
 
 export async function POST(req) {
   try {
@@ -10,6 +11,10 @@ export async function POST(req) {
 
     if (!reportId) {
       return NextResponse.json({ error: 'reportId required' }, { status: 400 })
+    }
+
+    if (!isValidObjectId(reportId)) {
+      return NextResponse.json({ error: 'Invalid report ID' }, { status: 400 })
     }
 
     const cookieStore = await cookies()

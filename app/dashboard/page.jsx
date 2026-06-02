@@ -100,7 +100,7 @@ function DashboardContent() {
 
   const urgentReports = reports.filter(r => r.urgentFlags?.length > 0).length
   const firstName     = user?.firstName || user?.phone?.slice(-4) || 'there'
-  const reportsLeft   = user?.plan === 'paid' ? '∞' : `${(user?.reportsLimit || 2) - (user?.reportsUsed || 0)}`
+  const reportsLeft   = user?.plan === 'paid' ? '∞' : String(Math.max(0, (user?.reportsLimit || 2) - (user?.reportsUsed || 0)))
 
   return (
     <>

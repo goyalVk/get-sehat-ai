@@ -313,7 +313,7 @@ export default function UploadPage() {
           background: '#f0fdfa', border: '1px solid #99f6e4',
           borderRadius: 100, marginBottom: 14,
         }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#0d9488' }}>✅ 2,700+ Reports Analyzed</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#0d9488' }}>✅ 6000+ Reports Analyzed</span>
         </div>
 
         <h1 style={{
@@ -462,7 +462,7 @@ export default function UploadPage() {
               borderRadius: 100, padding: '6px 16px',
               fontSize: 11, color: '#94a3b8',
             }}>
-              PDF • JPG • PNG • WebP — max 10MB
+              PDF max 5MB • JPG / PNG / WebP max 10MB
             </span>
           </div>
         )}

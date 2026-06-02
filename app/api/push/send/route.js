@@ -5,6 +5,15 @@ import PushToken from '@/models/PushToken'
 import mongoose from 'mongoose'
 
 export async function POST(req) {
+  const token = req.headers.get('authorization')?.split(' ')[1]
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  try {
+    await admin.auth().verifyIdToken(token)
+  } catch {
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+  }
   try {
     await connectDB()
     const {
