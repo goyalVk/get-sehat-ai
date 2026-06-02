@@ -338,7 +338,11 @@ export async function POST(req) {
     // Method 3: FormData body field (fallback when cookie not forwarded)
     const bodyUserId   = formData.get('userId')?.toString() || null
 
+    console.log('Method 1 cookie:', cookieUserId)
+    console.log('Method 2 header:', headerUserId)
+    console.log('Method 3 body:', bodyUserId)
     const resolvedUserId = cookieUserId || headerUserId || bodyUserId || null
+    console.log('Resolved userId:', resolvedUserId)
     const userId         = resolvedUserId   // alias — used throughout the rest of the handler
 
     let user  = null
@@ -530,18 +534,26 @@ export async function POST(req) {
       }
     }
 
-    const timeoutMs = 55_000
+    const timeoutMs = isPro ? null : 55_000
     let timeoutId
-    const timeoutPromise = new Promise((_, reject) => {
-      timeoutId = setTimeout(() => {
-        const err = new Error('Analysis timeout — server busy hai, thodi der baad try karo ⏳')
-        err.isTimeout = true
-        reject(err)
-      }, timeoutMs)
-    })
+    const timeoutPromise = timeoutMs
+      ? new Promise((_, reject) => {
+          timeoutId = setTimeout(() => {
+            const err = new Error('Analysis timeout — server busy hai, thodi der baad try karo ⏳')
+            err.isTimeout = true
+            reject(err)
+          }, timeoutMs)
+        })
+      : null
 
-    const { interpretation, tokenUsage } = await Promise.race([doAnalysis(), timeoutPromise])
-      .finally(() => clearTimeout(timeoutId))
+    let interpretation, tokenUsage
+    if (!timeoutMs) {
+      // No timeout for pro users — let Vercel handle it
+      ;({ interpretation, tokenUsage } = await doAnalysis())
+    } else {
+      ;({ interpretation, tokenUsage } = await Promise.race([doAnalysis(), timeoutPromise])
+        .finally(() => clearTimeout(timeoutId)))
+    }
 
     const analysisTimeMs = Date.now() - startTime
 

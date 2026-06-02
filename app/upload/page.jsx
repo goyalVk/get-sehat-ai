@@ -120,10 +120,14 @@ export default function UploadPage() {
       const formData = new FormData()
       formData.append('file', file)
       formData.append('anonId', getAnonId() || '')
-      try {
-        const storedUser = JSON.parse(localStorage.getItem('s24_user') || 'null')
-        if (storedUser?.id) formData.append('userId', storedUser.id)
-      } catch {}  // localStorage blocked in some WebViews
+      const storedUser = (() => {
+        try {
+          return JSON.parse(localStorage.getItem('s24_user') || 'null')
+        } catch { return null }
+      })()
+      console.log('storedUser from localStorage:', storedUser)
+      console.log('userId being appended:', storedUser?.id)
+      if (storedUser?.id) formData.append('userId', storedUser.id)
       trackVisit()
       formData.append('visitCount', getVisitCount())
       const urlParams = new URLSearchParams(window.location.search)
