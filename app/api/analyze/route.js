@@ -293,8 +293,8 @@ export async function POST(req) {
       )
     }
 
-    // ── Min file size: 10KB ───────────────────────────
-    if (file.size < 10 * 1024) {
+    // ── Min file size: 4KB ────────────────────────────
+    if (file.size < 4000) {
       await Report.create({
         fileName: file.name, fileType: file.type, fileSize: file.size,
         userId: earlyUserId, anonId, sessionId: crypto.randomUUID(),
@@ -400,14 +400,10 @@ export async function POST(req) {
       }
     }
 
-    // ── Image too small (<100KB) ──────────────────────
-    if (file.type !== 'application/pdf' && file.size < 30 * 1024) {
-      await Report.create({
-        fileName: file.name, fileType: file.type, fileSize: file.size,
-        userId: user?._id?.toString() || null, anonId, sessionId: crypto.randomUUID(),
-        status: 'failed', preCheckFailed: true, spamReason: 'low_quality', userAgent,
-      })
-      return NextResponse.json({ error: 'Photo thodi unclear hai 📸 — achhi roshni mein seedha camera se report ki photo lo' }, { status: 400 })
+    // ── Image too small — warn but proceed to analysis ─
+    const lowQualityWarning = file.type !== 'application/pdf' && file.size < 30 * 1024
+    if (lowQualityWarning) {
+      console.warn(`[precheck] Small image (${file.size}B < 30KB) — skipping hard-fail, proceeding to analysis`)
     }
 
     // ── File buffer ───────────────────────────────────
@@ -556,6 +552,15 @@ export async function POST(req) {
     }
 
     const analysisTimeMs = Date.now() - startTime
+
+    // ── Post-analysis quality gate for small images ────
+    if (lowQualityWarning && (!interpretation.parameters || interpretation.parameters.length === 0)) {
+      await Report.findByIdAndUpdate(reportId, { status: 'failed', preCheckFailed: true, spamReason: 'low_quality' })
+      return NextResponse.json(
+        { error: 'Report clearly nahi dikhi 😕 — PDF format mein try karo ya achhi roshni mein photo lo' },
+        { status: 400 }
+      )
+    }
 
     // ── Date validate ─────────────────────────────────
     const labData = interpretation.lab || {}
