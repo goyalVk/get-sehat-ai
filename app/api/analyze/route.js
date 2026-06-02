@@ -500,8 +500,8 @@ export async function POST(req) {
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         try {
           return resolvedFileType === 'application/pdf'
-            ? await analyzeWithPDF(base64, modelToUse)
-            : await analyzeWithVision(base64, effectiveMediaType, modelToUse)
+            ? await analyzeWithPDF(base64, modelToUse, file.size, isPro)
+            : await analyzeWithVision(base64, effectiveMediaType, modelToUse, file.size, isPro)
         } catch (e) {
           if (attempt < MAX_RETRIES && isRetriableError(e)) {
             console.warn(`Analysis attempt ${attempt + 1} failed (${e.message}) — retrying in 2s`)
@@ -514,26 +514,33 @@ export async function POST(req) {
       }
     }
 
-    const timeoutMs = isPro ? null : 55_000
+    const calculateTimeout = (fileSize, isPro) => {
+      const MB = fileSize / 1024 / 1024
+      if (isPro) {
+        if (MB > 5) return 120_000
+        if (MB > 1.5) return 90_000
+        if (MB > 0.5) return 60_000
+        return 45_000
+      }
+      if (MB > 2) return 60_000
+      return 45_000
+    }
+
+    const timeoutMs = calculateTimeout(file.size, isPro)
     let timeoutId
-    const timeoutPromise = timeoutMs
-      ? new Promise((_, reject) => {
-          timeoutId = setTimeout(() => {
-            const err = new Error('Analysis timeout — server busy hai, thodi der baad try karo ⏳')
-            err.isTimeout = true
-            reject(err)
-          }, timeoutMs)
-        })
-      : null
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutId = setTimeout(() => {
+        const err = new Error(isPro
+          ? 'Report bahut lambi hai — 2-3 min mein ready ho jayegi. Please wait aur refresh karo 🙏'
+          : 'File bahut badi hai — 10MB se chhoti file bhejo')
+        err.isTimeout = true
+        reject(err)
+      }, timeoutMs)
+    })
 
     let interpretation, tokenUsage
-    if (!timeoutMs) {
-      // No timeout for pro users — let Vercel handle it
-      ;({ interpretation, tokenUsage } = await doAnalysis())
-    } else {
-      ;({ interpretation, tokenUsage } = await Promise.race([doAnalysis(), timeoutPromise])
-        .finally(() => clearTimeout(timeoutId)))
-    }
+    ;({ interpretation, tokenUsage } = await Promise.race([doAnalysis(), timeoutPromise])
+      .finally(() => clearTimeout(timeoutId)))
 
     const analysisTimeMs = Date.now() - startTime
 
@@ -843,6 +850,8 @@ export async function POST(req) {
 
     const userMessage = err.isParseError || msg.includes('bahut badi') || msg.includes('bahut bada')
   ? msg
+  : err.isTimeout
+  ? msg
   : msg.includes('Could not process')
   ? 'Photo padh nahi paaye 😕 — dobara clear photo lo ya PDF try karo'
   : msg.includes('timeout') || msg.includes('ETIMEDOUT')
@@ -859,16 +868,17 @@ export async function POST(req) {
 }
 
 // ── analyzeWithPDF — model aware ──────────────────────
-async function analyzeWithPDF(base64, model = HAIKU_MODEL) {
+async function analyzeWithPDF(base64, model = HAIKU_MODEL, fileSize = 0, isPro = false) {
   const params = {
     model,
-    max_tokens: model === SONNET_MODEL ? 12000 : 8000,
+    max_tokens: model === SONNET_MODEL ? 8000 : 8000,
     messages: [{
       role: 'user',
       content: [
         {
           type:          'text',
-          text:          buildHealthPrompt('Extract ALL medical values from this PDF report. Analyze every page.'),
+          text:          buildHealthPrompt('Extract ALL medical values from this PDF report. Analyze every page.' +
+            (fileSize / 1024 / 1024 > 1.5 && isPro ? '\n\nPRO USER: Provide comprehensive analysis. Include all parameters, doctor questions, herbs, detailed interpretation.' : '')),
           cache_control: { type: 'ephemeral' }
         },
         {
@@ -893,7 +903,7 @@ async function analyzeWithPDF(base64, model = HAIKU_MODEL) {
 }
 
 // ── analyzeWithVision — model aware ───────────────────
-async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL) {
+async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL, fileSize = 0, isPro = false) {
   const params = {
     model,
     max_tokens: model === SONNET_MODEL ? 12000 : 8000,
@@ -902,7 +912,8 @@ async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL) {
       content: [
         {
           type:          'text',
-          text:          buildHealthPrompt('Extract ALL medical values from this lab report image. Read every number carefully.'),
+          text:          buildHealthPrompt('Extract ALL medical values from this lab report image. Read every number carefully.' +
+            (fileSize / 1024 / 1024 > 1.5 && isPro ? '\n\nPRO USER: Provide comprehensive analysis. Include all parameters, doctor questions, herbs, detailed interpretation.' : '')),
           cache_control: { type: 'ephemeral' }
         },
         {
