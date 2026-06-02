@@ -52,6 +52,7 @@ export default function ProfilePage() {
 
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
+    try { localStorage.removeItem('s24_user') } catch {}
     router.push('/auth/login')
   }
 

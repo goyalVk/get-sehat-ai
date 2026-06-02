@@ -191,12 +191,12 @@ async function compressImage(buffer) {
 }
 
 export async function POST(req) {
-  await connectDB()
   let reportId = null
 
   const userAgent = req.headers.get('user-agent') || null
 
   try {
+    await connectDB()
     const formData = await req.formData()
     const file    = formData.get('file')
     const anonId      = formData.get('anonId')?.toString() || null
@@ -206,6 +206,7 @@ export async function POST(req) {
     const { deviceType, os, browser }  = parseDeviceInfo(userAgent || '')
     const { uploadHour, uploadDay }    = getUploadTime()
     const referralSource               = formData.get('ref') || 'direct'
+    const earlyUserId                  = formData.get('userId')?.toString() || null
     console.log('Device info:', { ip, deviceType, os, browser })
 
     if (!file) {
@@ -219,7 +220,7 @@ export async function POST(req) {
     if (honeypot) {
       await Report.create({
         fileName: file.name, fileType: file.type, fileSize: file.size,
-        userId: null, anonId, sessionId: crypto.randomUUID(),
+        userId: earlyUserId, anonId, sessionId: crypto.randomUUID(),
         status: 'failed', isSpam: true, spamReason: 'honeypot', userAgent,
       })
       return NextResponse.json(
@@ -283,7 +284,7 @@ export async function POST(req) {
     if (!allowedTypes.includes(file.type)) {
       await Report.create({
         fileName: file.name, fileType: file.type, fileSize: file.size,
-        userId: null, anonId, sessionId: crypto.randomUUID(),
+        userId: earlyUserId, anonId, sessionId: crypto.randomUUID(),
         status: 'failed', isSpam: true, spamReason: 'invalid_file_type', userAgent,
       })
       return NextResponse.json(
@@ -296,7 +297,7 @@ export async function POST(req) {
     if (file.size < 10 * 1024) {
       await Report.create({
         fileName: file.name, fileType: file.type, fileSize: file.size,
-        userId: null, anonId, sessionId: crypto.randomUUID(),
+        userId: earlyUserId, anonId, sessionId: crypto.randomUUID(),
         status: 'failed', isSpam: true, spamReason: 'file_too_small', userAgent,
       })
       return NextResponse.json(
@@ -320,7 +321,7 @@ export async function POST(req) {
     // ── Absolute max size ─────────────────────────────
     if (file.size > PRO_MAX_SIZE) {
       return NextResponse.json(
-        { error: 'File bahut badi hai 😕 — 20MB se chhoti file bhejo' },
+        { error: 'File bahut badi hai 😕 — 20MB se badi file support nahi hoti' },
         { status: 400 }
       )
     }
@@ -345,7 +346,9 @@ export async function POST(req) {
 
     if (userId) {
       user  = await User.findById(userId).catch(() => null)
-      isPro = user?.plan === 'pro' || user?.plan === 'paid'
+      const now = new Date()
+      isPro = (user?.plan === 'pro' || user?.plan === 'paid')
+        && (!user?.subscriptionEndsAt || user.subscriptionEndsAt > now)
     }
 
     // ── Large file + free user → upgrade prompt ───────
@@ -386,7 +389,7 @@ export async function POST(req) {
       if (todayCount >= 10) {
         await Report.create({
           fileName: file.name, fileType: file.type, fileSize: file.size,
-          userId: null, anonId, sessionId: crypto.randomUUID(),
+          userId: earlyUserId, anonId, sessionId: crypto.randomUUID(),
           status: 'failed', isSpam: true, spamReason: 'bot_suspected', userAgent, visitCount,
         })
         return NextResponse.json({ error: 'Bahut zyada requests ⏳ — 1 minute baad dobara try karo' }, { status: 429 })
@@ -438,7 +441,7 @@ export async function POST(req) {
     let effectiveMediaType = resolvedFileType
 
     if (resolvedFileType !== 'application/pdf') {
-      if (buffer.length > 4 * 1024 * 1024) {
+      if (buffer.length > 3 * 1024 * 1024) {
         console.log('Compressing:', buffer.length, 'bytes')
         finalBuffer        = await compressImage(buffer)
         effectiveMediaType = 'image/jpeg'
@@ -460,6 +463,13 @@ export async function POST(req) {
 
     if (cachedByHash?.analysisResult?.report_type) {
       console.log('Hash cache hit ✅ — 0 tokens used!')
+      if (user && !isPro && user.reportsUsed >= user.reportsLimit) {
+        return NextResponse.json({
+          error:        'Aapki free report use ho gayi 🙏 Pro upgrade karo — unlimited reports lo!',
+          limitReached: true,
+          upgradeUrl:   'https://rzp.io/rzp/f5GzI7Qj'
+        }, { status: 403 })
+      }
       await Report.findByIdAndUpdate(cachedByHash._id, {
         $inc:          { uploadCount: 1 },
         lastUploadedAt: new Date()
@@ -561,7 +571,7 @@ export async function POST(req) {
     }
 
     // ── Save result ───────────────────────────────────
-    await Report.findByIdAndUpdate(reportId, {
+    await Report.findOneAndUpdate({ _id: reportId, status: 'processing' }, {
       status:          'completed',
       result:          interpretation,
       analysisResult:  interpretation,

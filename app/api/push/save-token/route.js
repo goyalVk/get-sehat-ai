@@ -9,8 +9,8 @@ export async function POST(req) {
     await connectDB()
     const { token, anonId } = await req.json()
 
-    if (!token) {
-      return NextResponse.json({ error: 'Token required' }, { status: 400 })
+    if (!token || token.length < 100 || token.length > 500) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 400 })
     }
 
     const cookieStore = await cookies()

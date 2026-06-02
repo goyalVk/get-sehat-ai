@@ -34,18 +34,42 @@ export async function GET() {
       return NextResponse.json({ success: true, message: 'No inactive users' })
     }
 
-    await admin.messaging().sendEachForMulticast({
-      tokens: tokenList,
-      webpush: {
-        fcmOptions: { link: 'https://sehat24.com/upload' },
-        data: {
+    const BATCH_SIZE   = 500
+    const messaging    = admin.messaging()
+    const failedTokens = []
+
+    for (let i = 0; i < tokenList.length; i += BATCH_SIZE) {
+      const batch    = tokenList.slice(i, i + BATCH_SIZE)
+      const response = await messaging.sendEachForMulticast({
+        tokens: batch,
+        notification: {
           title: '📋 Sehat24 yaad hai?',
           body:  'Nayi report upload karo — Free 🇮🇳',
-          url:   'https://sehat24.com/upload',
-          icon:  'https://sehat24.com/icon-192x192.png'
+        },
+        webpush: {
+          fcmOptions: { link: 'https://sehat24.com/upload' },
+          data: {
+            title: '📋 Sehat24 yaad hai?',
+            body:  'Nayi report upload karo — Free 🇮🇳',
+            url:   'https://sehat24.com/upload',
+            icon:  'https://sehat24.com/icon-192x192.png'
+          }
         }
+      }).catch(e => { console.error('Batch send error:', e.message); return null })
+
+      if (response) {
+        response.responses.forEach((r, idx) => {
+          if (!r.success) failedTokens.push(batch[idx])
+        })
       }
-    }).catch(console.error)
+    }
+
+    if (failedTokens.length > 0) {
+      await PushToken.updateMany(
+        { token: { $in: failedTokens } },
+        { active: false }
+      )
+    }
 
     return NextResponse.json({ success: true, sent: tokenList.length })
 

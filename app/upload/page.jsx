@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { events } from '@/components/Analytics'
 import AnalyzingLoader from '@/components/AnalyzingLoader'
-import { isReturningUser, incrementUploadCount, getUploadCount, getVisitCount, getAnonId } from '@/utils/anonId'
+import { isReturningUser, incrementUploadCount, getUploadCount, getVisitCount, getAnonId, trackVisit } from '@/utils/anonId'
 import { requestPushPermission } from '@/lib/pushNotification'
 
 
@@ -124,6 +124,7 @@ export default function UploadPage() {
         const storedUser = JSON.parse(localStorage.getItem('s24_user') || 'null')
         if (storedUser?.id) formData.append('userId', storedUser.id)
       } catch {}  // localStorage blocked in some WebViews
+      trackVisit()
       formData.append('visitCount', getVisitCount())
       const urlParams = new URLSearchParams(window.location.search)
       const ref = urlParams.get('ref') || document.referrer || 'direct'
@@ -132,9 +133,16 @@ export default function UploadPage() {
       const res  = await fetch('/api/analyze', { method: 'POST', body: formData })
       const data = await res.json()
       if (!res.ok) {
-        if (data.limitReached || data.requiresUpgrade) {
+        if (data.limitReached) {
           setError('✨ Aapki free report use ho gayi! Pro plan pe redirect ho rahe hain...')
           setErrorType('limit')
+          setTimeout(() => router.push('/upgrade'), 2000)
+          setLoading(false)
+          return
+        }
+        if (data.requiresUpgrade) {
+          setError('Yeh file bahut badi hai 📁 — 10MB se chhoti file upload karo ya Pro plan lo')
+          setErrorType('too_large')
           setTimeout(() => router.push('/upgrade'), 2000)
           setLoading(false)
           return
@@ -185,7 +193,7 @@ export default function UploadPage() {
     const e = apiError.toLowerCase()
     // timeout / network first — prevents "dobara try karo" matching parse_error
     if (e.includes('timeout') || e.includes('server busy') || e.includes('thodi der baad'))
-      return { msg: 'Server thoda busy hai ⏳ — 30 second baad dobara try karo', type: 'timeout' }
+      return { msg: 'Server busy hai — dobara try karo 🙏', type: 'timeout' }
     if (e.includes('internet') || e.includes('connection') || e.includes('econnreset') || e.includes('fetch'))
       return { msg: 'Internet check karo 📶 — connection theek karo aur dobara try karo', type: 'network' }
     if (e.includes('bahut zyada') || e.includes('ek minute') || e.includes('1 minute'))
@@ -207,7 +215,7 @@ export default function UploadPage() {
     return { msg: 'Kuch problem aayi 😕 — dobara try karo', type: 'generic' }
   }
 
-  const resetUpload = () => { setError(''); setErrorType(''); setFile(null) }
+  const resetUpload = () => { setError(''); setErrorType('') }
 
   const handleLoginForRetry = () => {
     try {

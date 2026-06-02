@@ -52,6 +52,11 @@ export async function POST(req) {
         ]
       })
 
+      if (user?.plan === 'paid' && user?.paymentId === payment.id) {
+        console.log('Payment already processed, skipping:', payment.id)
+        return NextResponse.json({ ok: true })
+      }
+
       if (user) {
         await User.findByIdAndUpdate(user._id, {
           plan:               'paid',
@@ -99,7 +104,11 @@ export async function POST(req) {
         }
 
       } else {
-        console.log('❌ User not found for:', cleanPhone)
+        console.error('PAYMENT USER NOT FOUND:', {
+          phone:     cleanPhone,
+          paymentId: payment.id,
+          amount:    payment.amount / 100,
+        })
       }
     }
 

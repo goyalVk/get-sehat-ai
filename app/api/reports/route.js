@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb'
 import Report from '@/models/report'
 import { cookies } from 'next/headers'
 import User from '@/models/user'
+import { isValidObjectId } from 'mongoose'
 
 export async function GET() {
   try {
@@ -54,6 +55,10 @@ export async function DELETE(req) {
       return NextResponse.json({ error: 'Report ID missing' }, { status: 400 })
     }
 
+    if (!isValidObjectId(reportId)) {
+      return NextResponse.json({ error: 'Invalid report ID' }, { status: 400 })
+    }
+
     // Sirf apni report delete kar sake
     const report = await Report.findOneAndDelete({
       _id: reportId,
@@ -65,9 +70,9 @@ export async function DELETE(req) {
     }
 
     // reportsUsed decrement karo
-    await User.findByIdAndUpdate(userId, {
-      $inc: { reportsUsed: -1 }
-    })
+    await User.findByIdAndUpdate(userId, [
+      { $set: { reportsUsed: { $max: [0, { $subtract: ['$reportsUsed', 1] }] } } }
+    ])
 
     return NextResponse.json({ success: true })
 

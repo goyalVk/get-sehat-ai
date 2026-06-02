@@ -38,6 +38,7 @@ export async function GET() {
     })
 
   } catch (err) {
+    console.error('auth/me error:', err.message)
     return NextResponse.json(
       { error: 'Server error' },
       { status: 500 }

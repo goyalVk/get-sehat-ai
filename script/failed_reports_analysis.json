@@ -1,24 +1,24 @@
 {
   "meta": {
-    "generatedAt": "2026-05-29T21:09:20.294Z",
+    "generatedAt": "2026-06-01T21:05:31.027Z",
     "scriptVersion": "1.0.0"
   },
   "summary": {
-    "totalFailed": 655,
+    "totalFailed": 2765,
     "dateRange": {
       "first": "2026-04-23T09:48:24.572Z",
-      "last": "2026-05-29T20:30:56.176Z"
+      "last": "2026-06-01T20:50:30.778Z"
     },
-    "guestCount": 614,
-    "loggedInCount": 41,
-    "avgFileSizeBytes": 1090877,
-    "avgFileSizeHuman": "1.04 MB"
+    "guestCount": 2277,
+    "loggedInCount": 488,
+    "avgFileSizeBytes": 1384686,
+    "avgFileSizeHuman": "1.32 MB"
   },
   "categoryBreakdown": {
     "ai_overloaded": {
       "label": "AI API Overloaded / Rate Limited",
       "count": 4,
-      "percentage": "0.6%",
+      "percentage": "0.1%",
       "samples": [
         {
           "_id": "69f240eec83b130d96906ee0",
@@ -68,76 +68,182 @@
     },
     "ai_timeout": {
       "label": "AI API Timeout / Slow Response",
-      "count": 0,
-      "percentage": "0.0%",
-      "samples": []
+      "count": 1179,
+      "percentage": "42.6%",
+      "samples": [
+        {
+          "_id": "6a1d400644c269929e5432e1",
+          "userId": null,
+          "createdAt": "2026-06-01T08:17:10.997Z",
+          "fileType": "application/pdf",
+          "fileSize": 925580,
+          "errorMessage": "Analysis timeout — server busy hai, thodi der baad try karo ⏳",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1d2f211b8ee9a01f3d6714",
+          "userId": "69d7c5f66bae23d212171437",
+          "createdAt": "2026-06-01T07:05:05.993Z",
+          "fileType": "application/pdf",
+          "fileSize": 310217,
+          "errorMessage": "Analysis timeout — server busy hai, thodi der baad try karo ⏳",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1d217bdac8e063b713c6ce",
+          "userId": "69d7c5f66bae23d212171437",
+          "createdAt": "2026-06-01T06:06:51.736Z",
+          "fileType": "application/pdf",
+          "fileSize": 310217,
+          "errorMessage": "Analysis timeout — server busy hai, thodi der baad try karo ⏳",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1d20f9dac8e063b713c6ba",
+          "userId": "69d7c5f66bae23d212171437",
+          "createdAt": "2026-06-01T06:04:41.839Z",
+          "fileType": "application/pdf",
+          "fileSize": 310217,
+          "errorMessage": "Analysis timeout — server busy hai, thodi der baad try karo ⏳",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1d20e2dac8e063b713c6af",
+          "userId": null,
+          "createdAt": "2026-06-01T06:04:18.977Z",
+          "fileType": "application/pdf",
+          "fileSize": 299203,
+          "errorMessage": "Analysis timeout — server busy hai, thodi der baad try karo ⏳",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        }
+      ]
     },
     "api_credits": {
       "label": "API Credits Exhausted",
-      "count": 280,
-      "percentage": "42.7%",
+      "count": 1047,
+      "percentage": "37.9%",
       "samples": [
         {
-          "_id": "69f24ebd848769cbe7400841",
-          "userId": null,
-          "createdAt": "2026-04-29T18:32:29.354Z",
+          "_id": "6a1de5878a0ba42bef301a52",
+          "userId": "6a1acff7c84e48d1926ce515",
+          "createdAt": "2026-06-01T20:03:19.753Z",
           "fileType": "image/jpeg",
-          "fileSize": 407002,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011CaYYLbf7PpNVZEyPvq55T\"}",
+          "fileSize": 290262,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011Cbd8xavAGWytWu1FJx4pS\"}",
           "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         },
         {
-          "_id": "69f24e98db661d60c57fdaa5",
-          "userId": null,
-          "createdAt": "2026-04-29T18:31:52.426Z",
+          "_id": "6a1de57b8a0ba42bef301a4d",
+          "userId": "6a1acff7c84e48d1926ce515",
+          "createdAt": "2026-06-01T20:03:07.159Z",
           "fileType": "image/jpeg",
-          "fileSize": 407002,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011CaYYHskei1gx4AkcJtSh4\"}",
+          "fileSize": 385885,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011Cbd8wf6uMf8Zjvc8ZZ1iF\"}",
           "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         },
         {
-          "_id": "69f24e8bdb661d60c57fdaa1",
-          "userId": null,
-          "createdAt": "2026-04-29T18:31:39.631Z",
+          "_id": "6a1de4ce8a0ba42bef301a48",
+          "userId": "6a1acff7c84e48d1926ce515",
+          "createdAt": "2026-06-01T20:00:14.520Z",
           "fileType": "image/jpeg",
-          "fileSize": 407002,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011CaYYGwEiwLdHMob8gB4Wf\"}",
+          "fileSize": 385885,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011Cbd8iw5U417NzEAVtAZMj\"}",
           "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         },
         {
-          "_id": "69f24dacdb661d60c57fda9a",
-          "userId": null,
-          "createdAt": "2026-04-29T18:27:56.714Z",
+          "_id": "6a1de4578a0ba42bef301a43",
+          "userId": "6a1acff7c84e48d1926ce515",
+          "createdAt": "2026-06-01T19:58:15.154Z",
           "fileType": "image/jpeg",
-          "fileSize": 2788292,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011CaYXzWMZrdX6LAycZ5aMJ\"}",
+          "fileSize": 385885,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011Cbd8a8ixC7yPtRhWJx9KF\"}",
           "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         },
         {
-          "_id": "69f24d79db661d60c57fda97",
-          "userId": null,
-          "createdAt": "2026-04-29T18:27:05.473Z",
+          "_id": "6a1de44f8a0ba42bef301a3e",
+          "userId": "69f8de335962827bf2c26346",
+          "createdAt": "2026-06-01T19:58:07.382Z",
           "fileType": "image/jpeg",
-          "fileSize": 2788292,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011CaYXvjXibX9WKbkvMKb1D\"}",
+          "fileSize": 283660,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_id\":\"req_011Cbd8ZZQEuFxd11SKabxEw\"}",
           "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         }
       ]
     },
     "parse_error": {
       "label": "AI Response Parse Error (JSON)",
       "count": 65,
-      "percentage": "9.9%",
+      "percentage": "2.4%",
       "samples": [
         {
           "_id": "6a02cb301a3191a3fd5c9bad",
@@ -198,21 +304,54 @@
     },
     "invalid_file_type": {
       "label": "File Format Not Supported",
-      "count": 0,
-      "percentage": "0.0%",
-      "samples": []
+      "count": 2,
+      "percentage": "0.1%",
+      "samples": [
+        {
+          "_id": "6a1d33f01b8ee9a01f3d6765",
+          "userId": null,
+          "createdAt": "2026-06-01T07:25:36.758Z",
+          "fileType": "image/jpeg",
+          "fileSize": 90984,
+          "errorMessage": "Report clearly nahi dikhi 😕 — PDF format mein try karo ya achhi roshni mein photo lo",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": 2,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1d2d7b1b8ee9a01f3d66e3",
+          "userId": null,
+          "createdAt": "2026-06-01T06:58:03.921Z",
+          "fileType": "image/jpeg",
+          "fileSize": 1593818,
+          "errorMessage": "Report clearly nahi dikhi 😕 — PDF format mein try karo ya achhi roshni mein photo lo",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": 2,
+          "modelUsed": null,
+          "uploadSource": "web"
+        }
+      ]
     },
     "file_too_small": {
       "label": "File Too Small",
-      "count": 3,
+      "count": 15,
       "percentage": "0.5%",
       "samples": [
         {
-          "_id": "6a19cc00bfdd941289db0810",
+          "_id": "6a1df0968a0ba42bef301a88",
           "userId": null,
-          "createdAt": "2026-05-29T17:25:20.979Z",
+          "createdAt": "2026-06-01T20:50:30.778Z",
           "fileType": "application/pdf",
-          "fileSize": 2107,
+          "fileSize": 3181,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "file_too_small",
@@ -224,11 +363,11 @@
           "uploadSource": "web"
         },
         {
-          "_id": "6a198de078eb450f62192f62",
+          "_id": "6a1dec218a0ba42bef301a6f",
           "userId": null,
-          "createdAt": "2026-05-29T13:00:16.667Z",
+          "createdAt": "2026-06-01T20:31:29.716Z",
           "fileType": "application/pdf",
-          "fileSize": 4319,
+          "fileSize": 3181,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "file_too_small",
@@ -240,11 +379,43 @@
           "uploadSource": "web"
         },
         {
-          "_id": "6a198dd478eb450f62192f58",
+          "_id": "6a1da20e3d6516629a239b6c",
           "userId": null,
-          "createdAt": "2026-05-29T13:00:04.016Z",
+          "createdAt": "2026-06-01T15:15:26.622Z",
           "fileType": "application/pdf",
-          "fileSize": 4319,
+          "fileSize": 1913,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "file_too_small",
+          "preCheckFailed": false,
+          "isSpam": true,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1d50055314084160eccfd2",
+          "userId": null,
+          "createdAt": "2026-06-01T09:25:25.516Z",
+          "fileType": "application/pdf",
+          "fileSize": 8871,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "file_too_small",
+          "preCheckFailed": false,
+          "isSpam": true,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1d4fd85314084160eccfd0",
+          "userId": null,
+          "createdAt": "2026-06-01T09:24:40.175Z",
+          "fileType": "application/pdf",
+          "fileSize": 8871,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "file_too_small",
@@ -259,9 +430,74 @@
     },
     "file_too_large": {
       "label": "File Too Large",
-      "count": 0,
-      "percentage": "0.0%",
-      "samples": []
+      "count": 4,
+      "percentage": "0.1%",
+      "samples": [
+        {
+          "_id": "6a1dec848a0ba42bef301a73",
+          "userId": null,
+          "createdAt": "2026-06-01T20:33:08.446Z",
+          "fileType": "application/pdf",
+          "fileSize": 586166,
+          "errorMessage": "Report bahut badi hai — Pro plan mein badi reports analyze hoti hain 🚀",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1d2fb21b8ee9a01f3d672a",
+          "userId": null,
+          "createdAt": "2026-06-01T07:07:30.514Z",
+          "fileType": "application/pdf",
+          "fileSize": 310217,
+          "errorMessage": "Report bahut badi hai — Pro plan mein badi reports analyze hoti hain 🚀",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1d28b0dac8e063b713c771",
+          "userId": null,
+          "createdAt": "2026-06-01T06:37:36.259Z",
+          "fileType": "application/pdf",
+          "fileSize": 1591962,
+          "errorMessage": "Report bahut badi hai — Pro plan mein badi reports analyze hoti hain 🚀",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1d282edac8e063b713c761",
+          "userId": null,
+          "createdAt": "2026-06-01T06:35:26.922Z",
+          "fileType": "application/pdf",
+          "fileSize": 1591962,
+          "errorMessage": "Report bahut badi hai — Pro plan mein badi reports analyze hoti hain 🚀",
+          "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        }
+      ]
     },
     "corrupt_file": {
       "label": "Empty / Corrupt File",
@@ -271,15 +507,15 @@
     },
     "password_protected": {
       "label": "Password Protected PDF",
-      "count": 3,
-      "percentage": "0.5%",
+      "count": 11,
+      "percentage": "0.4%",
       "samples": [
         {
-          "_id": "6a19c7fcdf59fe61a88ef7fa",
+          "_id": "6a1cd3e315beca8a3089d8bc",
           "userId": null,
-          "createdAt": "2026-05-29T17:08:12.666Z",
+          "createdAt": "2026-06-01T00:35:47.564Z",
           "fileType": "application/pdf",
-          "fileSize": 955488,
+          "fileSize": 1379390,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "password_protected",
@@ -291,40 +527,82 @@
           "uploadSource": "web"
         },
         {
-          "_id": "69f4a3cdaed1db5f4a5b19c3",
+          "_id": "6a1cd3db15beca8a3089d8ba",
           "userId": null,
-          "createdAt": "2026-05-01T12:59:57.712Z",
+          "createdAt": "2026-06-01T00:35:39.341Z",
           "fileType": "application/pdf",
-          "fileSize": 626700,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.pdf.source.base64.data: The PDF specified is password protected.\"},\"request_id\":\"req_011Cabtbi2biytRFfZZm5Jcw\"}",
+          "fileSize": 1379390,
+          "errorMessage": null,
           "status": "failed",
+          "spamReason": "password_protected",
+          "preCheckFailed": true,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         },
         {
-          "_id": "69f4a3c6aed1db5f4a5b19c0",
+          "_id": "6a1cd3cc15beca8a3089d8b8",
           "userId": null,
-          "createdAt": "2026-05-01T12:59:50.597Z",
+          "createdAt": "2026-06-01T00:35:24.976Z",
           "fileType": "application/pdf",
-          "fileSize": 626700,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.pdf.source.base64.data: The PDF specified is password protected.\"},\"request_id\":\"req_011CabtbBxLxXUZ3wT9YyK5Z\"}",
+          "fileSize": 1379390,
+          "errorMessage": null,
           "status": "failed",
+          "spamReason": "password_protected",
+          "preCheckFailed": true,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1b2596eacd6a3233f079ee",
+          "userId": null,
+          "createdAt": "2026-05-30T17:59:50.088Z",
+          "fileType": "application/pdf",
+          "fileSize": 40229,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "password_protected",
+          "preCheckFailed": true,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1a3923d80f413130262f4f",
+          "userId": null,
+          "createdAt": "2026-05-30T01:10:59.554Z",
+          "fileType": "application/pdf",
+          "fileSize": 66434,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "password_protected",
+          "preCheckFailed": true,
+          "isSpam": false,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
         }
       ]
     },
     "low_quality": {
       "label": "Low Quality / Blurry Image",
-      "count": 165,
-      "percentage": "25.2%",
+      "count": 226,
+      "percentage": "8.2%",
       "samples": [
         {
-          "_id": "6a19f1d89838d6fadf2a33a4",
+          "_id": "6a1c0938fcf036ccdf7fcaad",
           "userId": null,
-          "createdAt": "2026-05-29T20:06:48.468Z",
-          "fileType": "image/jpeg",
-          "fileSize": 61526,
+          "createdAt": "2026-05-31T10:11:04.356Z",
+          "fileType": "image/png",
+          "fileSize": 20142,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "low_quality",
@@ -336,11 +614,11 @@
           "uploadSource": "web"
         },
         {
-          "_id": "6a19f1cf9838d6fadf2a33a2",
+          "_id": "6a1ab3a6943500ef96ea36e2",
           "userId": null,
-          "createdAt": "2026-05-29T20:06:39.413Z",
+          "createdAt": "2026-05-30T09:53:42.030Z",
           "fileType": "image/jpeg",
-          "fileSize": 61526,
+          "fileSize": 16681,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "low_quality",
@@ -352,11 +630,11 @@
           "uploadSource": "web"
         },
         {
-          "_id": "6a19f1cd9838d6fadf2a33a0",
+          "_id": "6a1a6b9a46e71a061a50657d",
           "userId": null,
-          "createdAt": "2026-05-29T20:06:37.312Z",
+          "createdAt": "2026-05-30T04:46:18.156Z",
           "fileType": "image/jpeg",
-          "fileSize": 61526,
+          "fileSize": 81597,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "low_quality",
@@ -368,11 +646,11 @@
           "uploadSource": "web"
         },
         {
-          "_id": "6a19f1b69838d6fadf2a339b",
+          "_id": "6a1a6aee15fd7f1cfc3d48df",
           "userId": null,
-          "createdAt": "2026-05-29T20:06:14.321Z",
+          "createdAt": "2026-05-30T04:43:26.948Z",
           "fileType": "image/jpeg",
-          "fileSize": 61526,
+          "fileSize": 85821,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "low_quality",
@@ -384,11 +662,11 @@
           "uploadSource": "web"
         },
         {
-          "_id": "6a19f1af9838d6fadf2a3394",
-          "userId": null,
-          "createdAt": "2026-05-29T20:06:07.841Z",
+          "_id": "6a1a68c514b3a3fa85e51c8d",
+          "userId": "6a1a684a14b3a3fa85e51c7c",
+          "createdAt": "2026-05-30T04:34:13.730Z",
           "fileType": "image/jpeg",
-          "fileSize": 61526,
+          "fileSize": 97675,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "low_quality",
@@ -403,47 +681,15 @@
     },
     "non_medical_doc": {
       "label": "Non-Medical Document Uploaded",
-      "count": 52,
-      "percentage": "7.9%",
+      "count": 102,
+      "percentage": "3.7%",
       "samples": [
         {
-          "_id": "6a19f7809838d6fadf2a33e3",
+          "_id": "6a1a8ec60d2ae57bca70f90b",
           "userId": null,
-          "createdAt": "2026-05-29T20:30:56.176Z",
-          "fileType": "image/jpeg",
-          "fileSize": 545941,
-          "errorMessage": null,
-          "status": "failed",
-          "spamReason": "non_medical",
-          "preCheckFailed": false,
-          "isSpam": false,
-          "isNonMedical": true,
-          "retryCount": null,
-          "modelUsed": null,
-          "uploadSource": "web"
-        },
-        {
-          "_id": "6a19e9da9838d6fadf2a32ed",
-          "userId": null,
-          "createdAt": "2026-05-29T19:32:42.121Z",
-          "fileType": "image/jpeg",
-          "fileSize": 158986,
-          "errorMessage": null,
-          "status": "failed",
-          "spamReason": "non_medical",
-          "preCheckFailed": false,
-          "isSpam": false,
-          "isNonMedical": true,
-          "retryCount": null,
-          "modelUsed": null,
-          "uploadSource": "web"
-        },
-        {
-          "_id": "6a19e93a9838d6fadf2a32d1",
-          "userId": null,
-          "createdAt": "2026-05-29T19:30:02.402Z",
+          "createdAt": "2026-05-30T07:16:22.958Z",
           "fileType": "image/png",
-          "fileSize": 1132789,
+          "fileSize": 286817,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "non_medical",
@@ -455,27 +701,59 @@
           "uploadSource": "web"
         },
         {
-          "_id": "6a19e92a9838d6fadf2a32c5",
+          "_id": "6a1a8e470d2ae57bca70f8f9",
           "userId": null,
-          "createdAt": "2026-05-29T19:29:46.205Z",
-          "fileType": "image/png",
-          "fileSize": 1132789,
-          "errorMessage": null,
-          "status": "failed",
-          "spamReason": "non_medical",
-          "preCheckFailed": false,
-          "isSpam": false,
-          "isNonMedical": true,
-          "retryCount": null,
-          "modelUsed": null,
-          "uploadSource": "web"
-        },
-        {
-          "_id": "6a19e2ee39f833c3c8854fd1",
-          "userId": null,
-          "createdAt": "2026-05-29T19:03:10.586Z",
+          "createdAt": "2026-05-30T07:14:15.870Z",
           "fileType": "image/jpeg",
-          "fileSize": 2961706,
+          "fileSize": 80280,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "non_medical",
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": true,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1a8e390d2ae57bca70f8f5",
+          "userId": null,
+          "createdAt": "2026-05-30T07:14:01.841Z",
+          "fileType": "image/jpeg",
+          "fileSize": 80280,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "non_medical",
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": true,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1a8a590d2ae57bca70f85a",
+          "userId": null,
+          "createdAt": "2026-05-30T06:57:29.444Z",
+          "fileType": "image/png",
+          "fileSize": 2542534,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "non_medical",
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": true,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1a89da0d2ae57bca70f83d",
+          "userId": null,
+          "createdAt": "2026-05-30T06:55:22.437Z",
+          "fileType": "image/jpeg",
+          "fileSize": 3573655,
           "errorMessage": null,
           "status": "failed",
           "spamReason": "non_medical",
@@ -496,199 +774,305 @@
     },
     "bot_spam": {
       "label": "Bot / Spam Detection",
-      "count": 0,
-      "percentage": "0.0%",
-      "samples": []
+      "count": 20,
+      "percentage": "0.7%",
+      "samples": [
+        {
+          "_id": "6a1dd1cbb95d4e5e796344cc",
+          "userId": null,
+          "createdAt": "2026-06-01T18:39:07.332Z",
+          "fileType": "image/jpeg",
+          "fileSize": 147086,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "bot_suspected",
+          "preCheckFailed": false,
+          "isSpam": true,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1dd1a2b95d4e5e796344c9",
+          "userId": null,
+          "createdAt": "2026-06-01T18:38:26.821Z",
+          "fileType": "image/jpeg",
+          "fileSize": 84580,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "bot_suspected",
+          "preCheckFailed": false,
+          "isSpam": true,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1dd19fb95d4e5e796344c6",
+          "userId": null,
+          "createdAt": "2026-06-01T18:38:23.253Z",
+          "fileType": "image/jpeg",
+          "fileSize": 84580,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "bot_suspected",
+          "preCheckFailed": false,
+          "isSpam": true,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1dd195b95d4e5e796344c3",
+          "userId": null,
+          "createdAt": "2026-06-01T18:38:13.977Z",
+          "fileType": "image/jpeg",
+          "fileSize": 84580,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "bot_suspected",
+          "preCheckFailed": false,
+          "isSpam": true,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        },
+        {
+          "_id": "6a1dd175b95d4e5e796344c0",
+          "userId": null,
+          "createdAt": "2026-06-01T18:37:41.824Z",
+          "fileType": "image/jpeg",
+          "fileSize": 84580,
+          "errorMessage": null,
+          "status": "failed",
+          "spamReason": "bot_suspected",
+          "preCheckFailed": false,
+          "isSpam": true,
+          "isNonMedical": false,
+          "retryCount": null,
+          "modelUsed": null,
+          "uploadSource": "web"
+        }
+      ]
     },
     "unknown": {
       "label": "Unknown Error",
-      "count": 83,
-      "percentage": "12.7%",
+      "count": 90,
+      "percentage": "3.3%",
       "samples": [
         {
-          "_id": "69fef6335280499d2e68d5c0",
-          "userId": null,
-          "createdAt": "2026-05-09T08:54:11.672Z",
-          "fileType": "image/webp",
-          "fileSize": 73021,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: The image was specified using the image/webp media type, but the image appears to be a image/jpeg image\"},\"request_id\":\"req_011CariL3Ajg6rCPsc6tdaPZ\"}",
+          "_id": "6a1d4ae044c269929e543384",
+          "userId": "6a1d49b9a673eafb974ce687",
+          "createdAt": "2026-06-01T09:03:28.251Z",
+          "fileType": "image/jpeg",
+          "fileSize": 4081901,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: image exceeds 5 MB maximum: 5442536 bytes > 5242880 bytes\"},\"request_id\":\"req_011CbcGe8UrsiAEXuGud8VxE\"}",
           "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         },
         {
-          "_id": "69fef6305280499d2e68d5bc",
-          "userId": null,
-          "createdAt": "2026-05-09T08:54:08.316Z",
-          "fileType": "image/webp",
-          "fileSize": 73021,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: The image was specified using the image/webp media type, but the image appears to be a image/jpeg image\"},\"request_id\":\"req_011CariKnrWjyCvUUdmfsHTi\"}",
+          "_id": "6a1d4ac844c269929e54337f",
+          "userId": "6a1d49b9a673eafb974ce687",
+          "createdAt": "2026-06-01T09:03:04.622Z",
+          "fileType": "image/jpeg",
+          "fileSize": 4081901,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: image exceeds 5 MB maximum: 5442536 bytes > 5242880 bytes\"},\"request_id\":\"req_011CbcGcPUCfegUoqe1bYuGn\"}",
           "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         },
         {
-          "_id": "69fef6265280499d2e68d5b8",
-          "userId": null,
-          "createdAt": "2026-05-09T08:53:58.783Z",
-          "fileType": "image/webp",
-          "fileSize": 73021,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: The image was specified using the image/webp media type, but the image appears to be a image/jpeg image\"},\"request_id\":\"req_011CariK6A3NsHbaKhxcRUxh\"}",
+          "_id": "6a1d31ff1b8ee9a01f3d6742",
+          "userId": "6a1b0503be1d10ec5c6d3cbb",
+          "createdAt": "2026-06-01T07:17:19.092Z",
+          "fileType": "image/jpeg",
+          "fileSize": 4166735,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: image exceeds 5 MB maximum: 5555648 bytes > 5242880 bytes\"},\"request_id\":\"req_011Cbc8YdeSZpbLnjZW1Bh5g\"}",
           "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         },
         {
-          "_id": "69f34db21d6a6a6208693f8f",
+          "_id": "6a1d2fda1b8ee9a01f3d672e",
           "userId": null,
-          "createdAt": "2026-04-30T12:40:18.334Z",
-          "fileType": "image/webp",
-          "fileSize": 97034,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.image.source.base64: The image was specified using the image/webp media type, but the image appears to be a image/jpeg image\"},\"request_id\":\"req_011CaZyHrb88bPaGZxkJGuqZ\"}",
+          "createdAt": "2026-06-01T07:08:10.011Z",
+          "fileType": "image/jpeg",
+          "fileSize": 4081268,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: image exceeds 5 MB maximum: 5441692 bytes > 5242880 bytes\"},\"request_id\":\"req_011Cbc7rA8NAZwrZw5iwttfd\"}",
           "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         },
         {
-          "_id": "69f34da77afa475fe7673d57",
+          "_id": "6a1d14019d9659b07354a55e",
           "userId": null,
-          "createdAt": "2026-04-30T12:40:07.811Z",
-          "fileType": "image/webp",
-          "fileSize": 97034,
-          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.0.image.source.base64: The image was specified using the image/webp media type, but the image appears to be a image/jpeg image\"},\"request_id\":\"req_011CaZyH5VjUqrbaJUDRpuSB\"}",
+          "createdAt": "2026-06-01T05:09:21.835Z",
+          "fileType": "image/jpeg",
+          "fileSize": 3934401,
+          "errorMessage": "400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"messages.0.content.1.image.source.base64: image exceeds 5 MB maximum: 5245868 bytes > 5242880 bytes\"},\"request_id\":\"req_011Cbbxni74KvMsWgu8ETS8M\"}",
           "status": "failed",
+          "spamReason": null,
+          "preCheckFailed": false,
+          "isSpam": false,
+          "isNonMedical": false,
           "retryCount": null,
-          "modelUsed": null
+          "modelUsed": null,
+          "uploadSource": "web"
         }
       ]
     }
   },
   "fileTypeDistribution": {
-    "jpeg": 477,
-    "pdf": 155,
-    "png": 13,
+    "jpeg": 1863,
+    "pdf": 802,
+    "png": 90,
     "webp": 10
   },
   "peakFailureHours": [
     {
       "hour": 17,
       "label": "17:00 UTC",
-      "count": 235
+      "count": 343
     },
     {
       "hour": 18,
       "label": "18:00 UTC",
-      "count": 142
-    },
-    {
-      "hour": 14,
-      "label": "14:00 UTC",
-      "count": 31
-    },
-    {
-      "hour": 16,
-      "label": "16:00 UTC",
-      "count": 31
-    },
-    {
-      "hour": 12,
-      "label": "12:00 UTC",
-      "count": 28
-    },
-    {
-      "hour": 9,
-      "label": "09:00 UTC",
-      "count": 27
-    },
-    {
-      "hour": 13,
-      "label": "13:00 UTC",
-      "count": 22
-    },
-    {
-      "hour": 19,
-      "label": "19:00 UTC",
-      "count": 16
-    },
-    {
-      "hour": 6,
-      "label": "06:00 UTC",
-      "count": 15
-    },
-    {
-      "hour": 7,
-      "label": "07:00 UTC",
-      "count": 14
-    },
-    {
-      "hour": 4,
-      "label": "04:00 UTC",
-      "count": 12
-    },
-    {
-      "hour": 10,
-      "label": "10:00 UTC",
-      "count": 12
-    },
-    {
-      "hour": 15,
-      "label": "15:00 UTC",
-      "count": 12
-    },
-    {
-      "hour": 11,
-      "label": "11:00 UTC",
-      "count": 11
-    },
-    {
-      "hour": 3,
-      "label": "03:00 UTC",
-      "count": 10
+      "count": 259
     },
     {
       "hour": 8,
       "label": "08:00 UTC",
-      "count": 10
+      "count": 212
     },
     {
-      "hour": 20,
-      "label": "20:00 UTC",
-      "count": 10
+      "hour": 7,
+      "label": "07:00 UTC",
+      "count": 202
     },
     {
-      "hour": 2,
-      "label": "02:00 UTC",
-      "count": 6
+      "hour": 16,
+      "label": "16:00 UTC",
+      "count": 179
+    },
+    {
+      "hour": 12,
+      "label": "12:00 UTC",
+      "count": 157
+    },
+    {
+      "hour": 9,
+      "label": "09:00 UTC",
+      "count": 149
+    },
+    {
+      "hour": 14,
+      "label": "14:00 UTC",
+      "count": 144
+    },
+    {
+      "hour": 15,
+      "label": "15:00 UTC",
+      "count": 141
+    },
+    {
+      "hour": 11,
+      "label": "11:00 UTC",
+      "count": 122
+    },
+    {
+      "hour": 13,
+      "label": "13:00 UTC",
+      "count": 121
+    },
+    {
+      "hour": 19,
+      "label": "19:00 UTC",
+      "count": 105
     },
     {
       "hour": 5,
       "label": "05:00 UTC",
-      "count": 5
+      "count": 103
     },
     {
-      "hour": 23,
-      "label": "23:00 UTC",
-      "count": 3
+      "hour": 10,
+      "label": "10:00 UTC",
+      "count": 98
+    },
+    {
+      "hour": 4,
+      "label": "04:00 UTC",
+      "count": 94
+    },
+    {
+      "hour": 6,
+      "label": "06:00 UTC",
+      "count": 93
+    },
+    {
+      "hour": 2,
+      "label": "02:00 UTC",
+      "count": 61
+    },
+    {
+      "hour": 3,
+      "label": "03:00 UTC",
+      "count": 55
     },
     {
       "hour": 1,
       "label": "01:00 UTC",
-      "count": 2
-    },
-    {
-      "hour": 22,
-      "label": "22:00 UTC",
-      "count": 1
+      "count": 54
     },
     {
       "hour": 0,
       "label": "00:00 UTC",
-      "count": 0
+      "count": 25
+    },
+    {
+      "hour": 20,
+      "label": "20:00 UTC",
+      "count": 21
+    },
+    {
+      "hour": 23,
+      "label": "23:00 UTC",
+      "count": 16
+    },
+    {
+      "hour": 22,
+      "label": "22:00 UTC",
+      "count": 6
     },
     {
       "hour": 21,
       "label": "21:00 UTC",
-      "count": 0
+      "count": 5
     }
   ]
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import Report from '@/models/report'
+import { cookies } from 'next/headers'
 
 export async function POST(req) {
   try {
@@ -9,6 +10,17 @@ export async function POST(req) {
 
     if (!reportId) {
       return NextResponse.json({ error: 'reportId required' }, { status: 400 })
+    }
+
+    const cookieStore = await cookies()
+    const userId      = cookieStore.get('userId')?.value || null
+
+    const report = await Report.findById(reportId).lean()
+    if (!report) {
+      return NextResponse.json({ error: 'Report not found' }, { status: 404 })
+    }
+    if (report.userId && userId !== report.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
     if (rating !== undefined) {

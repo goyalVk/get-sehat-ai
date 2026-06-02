@@ -8,6 +8,8 @@ import ChatLog from '@/models/chatlogs'
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 // ── Rate limit ────────────────────────────────────────
+// NOTE: Rate limit is per serverless instance — not globally enforced.
+// For global rate limiting use Redis/Upstash. Current implementation is best-effort only.
 const rateLimitMap = new Map()
 
 function checkRateLimit(identifier) {
@@ -232,6 +234,7 @@ export async function POST(req) {
     const userDoc = cookieUserId ? await User.findById(cookieUserId).lean() : null
 
     // ── Conversation history ──────────────────────────
+    if (history.length > 6) console.log('Chat history truncated to 6 messages')
     const recentHistory = history
       .filter(m => m.role && m.content && String(m.content).trim())
       .slice(-6)
@@ -242,6 +245,13 @@ export async function POST(req) {
 
     // ── Build user message ────────────────────────────
     let userContent
+
+    if (image && image.size > 5 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'Image bahut badi hai — 5MB se chhoti image bhejo' },
+        { status: 400 }
+      )
+    }
 
     if (image && image.size > 0) {
       try {

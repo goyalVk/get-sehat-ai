@@ -5,9 +5,8 @@ import { cookies } from 'next/headers'
 import admin from '@/lib/firebaseAdmin'
 
 export async function POST(req) {
-  await connectDB()
-
   try {
+    await connectDB()
     const { phone, firebaseUid, token, name } = await req.json()
 
     if (!phone || !firebaseUid || !token) {
