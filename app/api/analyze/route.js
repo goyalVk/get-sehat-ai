@@ -12,14 +12,18 @@ import { rateLimit } from '@/lib/rateLimit'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-export const maxDuration = 60   // Vercel: allow up to 60s before killing the function
+export const maxDuration = 300  // Vercel: allow up to 300s (5min) for large reports
 export const dynamic     = 'force-dynamic'  // never cache — reads cookies() on every request
 
 // ── Model config ──────────────────────────────────────
-const HAIKU_MODEL   = 'claude-haiku-4-5-20251001'
-const SONNET_MODEL  = 'claude-sonnet-4-5'
-const FREE_MAX_SIZE = 3 * 1024 * 1024    //  3MB — free users
-const PRO_MAX_SIZE  = 20 * 1024 * 1024  // 20MB — pro users
+const HAIKU_MODEL    = 'claude-haiku-4-5-20251001'
+const SONNET_MODEL   = 'claude-sonnet-4-5'
+const GUEST_MAX_SIZE  =  3 * 1024 * 1024  //  3MB — anonymous users
+const FREE_MAX_SIZE   =  5 * 1024 * 1024  //  5MB — free logged-in users
+const PRO_MAX_SIZE    = 15 * 1024 * 1024  // 15MB — pro users
+const GUEST_MAX_PAGES = 5                 //  5 pages — anonymous users
+const FREE_MAX_PAGES  = 10               // 10 pages — free logged-in users
+// Pro = unlimited — no page check needed
 
 // ── Non-medical filenames (module level) ─────────────
 const NON_MEDICAL_FILENAMES = [
@@ -112,10 +116,6 @@ function calculateTokenUsage(usage, model = HAIKU_MODEL) {
   const outputCost  = (outputTokens / 1_000_000) * (isSonnet ? 15.00 : 4.00)
   const estimatedCost = inputCost + outputCost
 
-  console.log(`Model: ${model}`)
-  console.log(`Tokens — Input: ${inputTokens}, Output: ${outputTokens}, Total: ${totalTokens}`)
-  console.log(`Estimated cost: $${estimatedCost.toFixed(6)}`)
-
   return { inputTokens, outputTokens, totalTokens, estimatedCost }
 }
 
@@ -126,7 +126,6 @@ function validateReportDate(dateStr) {
   const fiveYearsAgo = new Date()
   fiveYearsAgo.setFullYear(now.getFullYear() - 5)
   if (isNaN(date.getTime()) || date > now || date < fiveYearsAgo) {
-    console.log('Invalid date detected:', dateStr, '— setting to null')
     return null
   }
   return date
@@ -156,6 +155,23 @@ function detectMimeFromBuffer(buf) {
   return null
 }
 
+// One-time migration per server instance: free users with old limit (2) → new limit (5)
+let _migrationDone = false
+async function maybeRunMigrations() {
+  if (_migrationDone) return
+  _migrationDone = true
+  try {
+    const User = (await import('@/models/user')).default
+    await User.updateMany(
+      { plan: 'free', reportsLimit: 2 },
+      { $set: { reportsLimit: 5 } }
+    )
+  } catch (err) {
+    console.error('Migration error:', err.message)
+  }
+}
+
+// Compresses image in descending quality stages; caller checks final size against plan limit
 async function compressImage(buffer) {
   const sharp = (await import('sharp')).default
 
@@ -164,50 +180,53 @@ async function compressImage(buffer) {
     .jpeg({ quality: 80 })
     .toBuffer()
 
-  console.log(`After first compress: ${compressed.length} bytes`)
+  if (compressed.length > 4 * 1024 * 1024) {
+    compressed = await sharp(buffer)
+      .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 60 })
+      .toBuffer()
+  }
 
   if (compressed.length > 4 * 1024 * 1024) {
     compressed = await sharp(buffer)
       .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: 50 })
-      .toBuffer()
-    console.log(`After second compress: ${compressed.length} bytes`)
-  }
-
-  if (compressed.length > 4 * 1024 * 1024) {
-    compressed = await sharp(buffer)
-      .resize(600, 600, { fit: 'inside', withoutEnlargement: true })
       .jpeg({ quality: 40 })
       .toBuffer()
-    console.log(`After third compress: ${compressed.length} bytes`)
   }
 
-  if (compressed.length > 4.5 * 1024 * 1024) {
-    throw new Error('Photo bahut badi hai 😕 — 5MB se chhoti photo try karo')
+  if (compressed.length > 3 * 1024 * 1024) {
+    compressed = await sharp(buffer)
+      .resize(600, 600, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 30 })
+      .toBuffer()
   }
 
-  console.log(`✅ Compressed: ${buffer.length} → ${compressed.length} bytes`)
   return compressed
 }
 
 export async function POST(req) {
   let reportId = null
+  let userId   = null
+  let anonId   = null
 
   const userAgent = req.headers.get('user-agent') || null
 
   try {
     await connectDB()
+    maybeRunMigrations()  // fire-and-forget; idempotent
     const formData = await req.formData()
     const file    = formData.get('file')
-    const anonId      = formData.get('anonId')?.toString() || null
+    anonId            = formData.get('anonId')?.toString() || null
     const visitCount  = parseInt(formData.get('visitCount')) || 1
     const honeypot    = formData.get('_hp') || ''
     const ip                           = getIPAddress(req)
     const { deviceType, os, browser }  = parseDeviceInfo(userAgent || '')
     const { uploadHour, uploadDay }    = getUploadTime()
     const referralSource               = formData.get('ref') || 'direct'
-    const earlyUserId                  = formData.get('userId')?.toString() || null
-    console.log('Device info:', { ip, deviceType, os, browser })
+    const rawUserId   = formData.get('userId')
+    const earlyUserId = (rawUserId && rawUserId !== 'undefined' && rawUserId !== 'null')
+      ? rawUserId
+      : null
 
     if (!file) {
       return NextResponse.json(
@@ -248,7 +267,6 @@ export async function POST(req) {
     const isSampleFile = SAMPLE_NAMES.includes(file.name?.toLowerCase())
 
     if (isSampleFile) {
-      console.log('Sample file detected...')
       const cachedReport = await Report.findOne({
         fileName: { $in: SAMPLE_NAMES },
         status:   'completed',
@@ -256,7 +274,6 @@ export async function POST(req) {
       }).sort({ createdAt: -1 })
 
       if (cachedReport) {
-        console.log('Sample cache hit ✅ — 0 tokens used!')
         return NextResponse.json({
           success:   true,
           reportId:  cachedReport._id.toString(),
@@ -264,7 +281,6 @@ export async function POST(req) {
           fromCache: true
         })
       }
-      console.log('Sample not in cache — analyzing and saving...')
     }
 
     // ── File type check ───────────────────────────────
@@ -313,10 +329,10 @@ export async function POST(req) {
       }, { status: 400 })
     }
 
-    // ── Absolute max size ─────────────────────────────
-    if (file.size > PRO_MAX_SIZE) {
+    // ── Sanity cap (pre-auth) — anything over 16MB rejected immediately ──
+    if (file.size > 16 * 1024 * 1024) {
       return NextResponse.json(
-        { error: 'File bahut badi hai 😕 — 20MB se badi file support nahi hoti' },
+        { error: 'File bahut badi hai 😕 — 15MB se badi file support nahi hoti' },
         { status: 400 }
       )
     }
@@ -331,7 +347,7 @@ export async function POST(req) {
     const headerUserId = authHeader?.replace('Bearer ', '').trim() || null
 
     const resolvedUserId = cookieUserId || headerUserId || null
-    const userId         = resolvedUserId   // alias — used throughout the rest of the handler
+    userId               = resolvedUserId
 
     let user  = null
     let isPro = false
@@ -343,30 +359,43 @@ export async function POST(req) {
         && (!user?.subscriptionEndsAt || user.subscriptionEndsAt > now)
     }
 
-    // ── Large file + free user → upgrade prompt ───────
-    if (file.size > FREE_MAX_SIZE && !isPro) {
-      return NextResponse.json({
-        error: `Aapki file ${(file.size / 1024 / 1024).toFixed(1)}MB ki hai. Badi reports ke liye Pro plan chahiye.`,
-        requiresUpgrade: true,
-        reason:          'large_file',
-        fileSizeMB:      (file.size / 1024 / 1024).toFixed(1),
-        upgradeUrl:      'https://rzp.io/rzp/f5GzI7Qj'
-      }, { status: 403 })
+    // ── Per-plan limits ───────────────────────────────
+    const isGuestUser     = !userId
+    const maxFileSize     = isPro ? PRO_MAX_SIZE : isGuestUser ? GUEST_MAX_SIZE : FREE_MAX_SIZE
+    // Compress images that are large but still within plan limit
+    const compressThreshold = isPro ? 10 * 1024 * 1024 : isGuestUser ? 2 * 1024 * 1024 : 3 * 1024 * 1024
+
+    // ── Per-plan file size gate ───────────────────────
+    if (file.size > maxFileSize) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1)
+      if (isGuestUser) {
+        return NextResponse.json({
+          error:        `Aapki file ${fileSizeMB}MB ki hai — 3MB se badi hai. Login karo aur 5MB tak free mein analyze karo! 🔓`,
+          requiresLogin: true,
+        }, { status: 403 })
+      } else if (!isPro) {
+        return NextResponse.json({
+          error:        `Aapki file ${fileSizeMB}MB ki hai — free plan mein 5MB tak allowed hai. Pro plan mein 15MB tak analyze hoti hai ✨`,
+          requiresUpgrade: true,
+          upgradeUrl:   'https://rzp.io/rzp/f5GzI7Qj'
+        }, { status: 403 })
+      } else {
+        return NextResponse.json(
+          { error: `Aapki file ${fileSizeMB}MB ki hai — 15MB se compress karke try karo` },
+          { status: 400 }
+        )
+      }
     }
 
     // ── Model selection ───────────────────────────────
-    // Pro user          → Sonnet (better analysis)
-    // Free user         → Haiku  (fast + cost effective)
-    const useSonnet  = isPro
-    const modelToUse = useSonnet ? SONNET_MODEL : HAIKU_MODEL
-
-    console.log(`File: ${(file.size/1024/1024).toFixed(2)}MB | Plan: ${isPro ? 'pro' : 'free'} | Model: ${modelToUse}`)
+    // Pro → Sonnet (richer analysis), Guest + Free → Haiku (fast, cost effective)
+    const modelToUse = isPro ? SONNET_MODEL : HAIKU_MODEL
 
     // ── Free user report limit check ──────────────────
     if (user) {
       if (!isPro && user.reportsUsed >= user.reportsLimit) {
         return NextResponse.json({
-          error:        'Aapki free report use ho gayi 🙏 Pro upgrade karo — unlimited reports lo!',
+          error:        'Aapne 5 free reports use kar li hain — Pro mein upgrade karo, unlimited reports + PDF download sirf ₹199/month 🚀',
           limitReached: true,
           upgradeUrl:   'https://rzp.io/rzp/f5GzI7Qj'
         }, { status: 403 })
@@ -388,6 +417,25 @@ export async function POST(req) {
       }
     }
 
+    // ── Anon hard gate — max 1 non-failed non-sample report ──
+    // Counts 'processing' + 'completed' to close the race window where
+    // first report is still analyzing when second upload is attempted.
+    // Client enforces the same rule as a fast pre-check.
+    if (!userId && anonId) {
+      const anonReportCount = await Report.countDocuments({
+        anonId,
+        userId:   null,
+        status:   { $ne: 'failed' },
+        isSample: { $ne: true },
+      })
+      if (anonReportCount >= 1) {
+        return NextResponse.json(
+          { loginRequired: true, error: 'Doosri report ke liye login karein' },
+          { status: 403 }
+        )
+      }
+    }
+
     // ── Image too small — warn but proceed to analysis ─
     const lowQualityWarning = file.type !== 'application/pdf' && file.size < 30 * 1024
     if (lowQualityWarning) {
@@ -406,9 +454,13 @@ export async function POST(req) {
       console.warn(`MIME mismatch — declared: ${file.type}, actual: ${detectedMime} — using actual`)
     }
 
-    // ── PDF size check ────────────────────────────────
-    if (resolvedFileType === 'application/pdf' && buffer.length > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'PDF bahut bada hai 📄 — 5MB se chhota wala upload karo' }, { status: 400 })
+    // ── PDF size check (plan-aware) ───────────────────
+    if (resolvedFileType === 'application/pdf' && buffer.length > maxFileSize) {
+      const limitMB = Math.round(maxFileSize / 1024 / 1024)
+      return NextResponse.json(
+        { error: `PDF bahut bada hai 📄 — ${limitMB}MB se chhota wala upload karo` },
+        { status: 400 }
+      )
     }
 
     // ── Password protected PDF check ─────────────────
@@ -425,20 +477,46 @@ export async function POST(req) {
       }
     }
 
+    // ── PDF page count check (plan-aware) ─────────────
+    if (resolvedFileType === 'application/pdf') {
+      const pdfText   = buffer.toString('latin1')
+      const pageCount = (pdfText.match(/\/Type\s*\/Page[^s]/g) || []).length
+      const maxPages  = isPro ? Infinity : isGuestUser ? GUEST_MAX_PAGES : FREE_MAX_PAGES
+
+      if (pageCount > 0 && pageCount > maxPages) {
+        await Report.create({
+          fileName: file.name, fileType: resolvedFileType, fileSize: file.size,
+          userId: user?._id?.toString() || null, anonId, sessionId: crypto.randomUUID(),
+          status: 'failed', isSpam: false, preCheckFailed: true,
+          spamReason: isGuestUser ? 'pdf_pages_guest' : 'pdf_pages_free',
+          errorMessage: isGuestUser
+            ? `PDF mein ${pageCount} pages hain — login karo aur 10 pages tak free mein analyze karo! 🔓`
+            : `PDF mein ${pageCount} pages hain — Pro plan mein unlimited pages analyze hoti hain ✨`,
+          errorType: isGuestUser ? 'pdf_pages_guest' : 'pdf_pages_free',
+          userAgent,
+        })
+        return NextResponse.json(
+          isGuestUser
+            ? { requiresLogin:   true, error: `PDF mein zyada pages hain — login karo aur 10 pages tak free mein analyze karo! 🔓` }
+            : { requiresUpgrade: true, error: `PDF mein ${pageCount} pages hain — Pro plan mein unlimited pages analyze hoti hain ✨` },
+          { status: 403 }
+        )
+      }
+    }
+
     let finalBuffer        = buffer
     let effectiveMediaType = resolvedFileType
 
     if (resolvedFileType !== 'application/pdf') {
-      if (buffer.length > 3 * 1024 * 1024) {
-        console.log('Compressing:', buffer.length, 'bytes')
+      if (buffer.length > compressThreshold) {
         finalBuffer        = await compressImage(buffer)
         effectiveMediaType = 'image/jpeg'
-        console.log('Compressed to:', finalBuffer.length, 'bytes')
       }
 
-      if (finalBuffer.length > 4.5 * 1024 * 1024) {
+      if (finalBuffer.length > maxFileSize) {
+        const limitMB = Math.round(maxFileSize / 1024 / 1024)
         return NextResponse.json({
-          error: 'Photo bahut badi hai 😕 — 5MB se chhoti photo try karo'
+          error: `Photo bahut badi hai 😕 — ${limitMB}MB se chhoti photo try karo`
         }, { status: 400 })
       }
     }
@@ -450,7 +528,6 @@ export async function POST(req) {
     const cachedByHash = await Report.findOne({ reportHash, status: 'completed' })
 
     if (cachedByHash?.analysisResult?.report_type) {
-      console.log('Hash cache hit ✅ — 0 tokens used!')
       if (user && !isPro && user.reportsUsed >= user.reportsLimit) {
         return NextResponse.json({
           error:        'Aapki free report use ho gayi 🙏 Pro upgrade karo — unlimited reports lo!',
@@ -493,7 +570,7 @@ export async function POST(req) {
 
     const startTime = Date.now()
 
-    // ── AI Analysis with retry + 60s timeout ─────────
+    // ── AI Analysis with retry — Vercel handles the hard 300s limit ──
     const MAX_RETRIES = 2
 
     const doAnalysis = async () => {
@@ -512,32 +589,11 @@ export async function POST(req) {
           }
         }
       }
+      // Safety net — loop exhausted without returning or throwing
+      throw new Error('Analysis failed after all retries — Claude API overloaded')
     }
 
-    const calculateTimeout = (fileSize, isPro) => {
-      if (!isPro) return null  // Free users: no timeout
-
-      const MB = fileSize / 1024 / 1024
-      if (MB > 5) return 120_000
-      if (MB > 1.5) return 90_000
-      return 50_000
-    }
-
-    const timeoutMs = calculateTimeout(file.size, isPro)
-    let timeoutId
-    const timeoutPromise = timeoutMs
-      ? new Promise((_, reject) => {
-          timeoutId = setTimeout(() => {
-            const err = new Error('Report bahut lambi hai — 2-3 min mein ready ho jayegi. Please wait aur refresh karo 🙏')
-            err.isTimeout = true
-            reject(err)
-          }, timeoutMs)
-        })
-      : new Promise(() => {})  // Free users: never resolves, Vercel handles the hard limit
-
-    let interpretation, tokenUsage
-    ;({ interpretation, tokenUsage } = await Promise.race([doAnalysis(), timeoutPromise])
-      .finally(() => clearTimeout(timeoutId)))
+    const { interpretation, tokenUsage } = await doAnalysis()
 
     const analysisTimeMs = Date.now() - startTime
 
@@ -572,47 +628,58 @@ export async function POST(req) {
       if (existing) {
         await Report.findByIdAndDelete(existing._id)
           .catch(err => console.error('Failed to delete duplicate (non-fatal):', err.message))
-        console.log('Duplicate report removed:', existing._id)
       }
     }
 
     // ── Save result ───────────────────────────────────
-    const savedReport = await Report.findOneAndUpdate({ _id: reportId, status: 'processing' }, {
-      status:          'completed',
-      result:          interpretation,
-      analysisResult:  interpretation,
-      reportHash,
-      uploadCount:     1,
-      firstUploadedAt: now,
-      lastUploadedAt:  now,
-      reportType:      interpretation.report_type     || null,
-      reportCategory:  interpretation.report_category || 'other',
-      parameters:      normalizeParameters(interpretation.parameters),
-      urgentFlags:     interpretation.urgent_flags    || [],
-      patient:         interpretation.patient         || {},
-      lab:             labData,
-      fileSize:        file.size,
-      tokensUsed:      tokenUsage,
-      analysisTimeMs,
-      modelUsed:       modelToUse,
-      isSample:        isSampleFile,
-      userAgent:       userAgent ? userAgent.substring(0, 300) : null,
-      visitCount,
-      ipAddress:       ip,
-      deviceType,
-      os,
-      browser,
-      referralSource,
-      uploadHour,
-      uploadDay,
-      isSpam:          false,
-      isNonMedical:    false,
-      preCheckFailed:  false,
-    })
+    const savedReport = await Report.findOneAndUpdate(
+      { _id: reportId, status: 'processing' },
+      {
+        status:          'completed',
+        result:          interpretation,
+        analysisResult:  interpretation,
+        reportHash,
+        uploadCount:     1,
+        firstUploadedAt: now,
+        lastUploadedAt:  now,
+        reportType:      interpretation.report_type     || null,
+        reportCategory:  interpretation.report_category || 'other',
+        parameters:      normalizeParameters(interpretation.parameters),
+        urgentFlags:     interpretation.urgent_flags    || [],
+        patient:         interpretation.patient         || {},
+        lab:             labData,
+        fileSize:        file.size,
+        tokensUsed:      tokenUsage,
+        analysisTimeMs,
+        modelUsed:       modelToUse,
+        isSample:        isSampleFile,
+        userAgent:       userAgent ? userAgent.substring(0, 300) : null,
+        visitCount,
+        ipAddress:       ip,
+        deviceType,
+        os,
+        browser,
+        referralSource,
+        uploadHour,
+        uploadDay,
+        isSpam:          false,
+        isNonMedical:    false,
+        preCheckFailed:  false,
+      },
+      { new: true }
+    )
 
-    if (isSampleFile) {
-      console.log('✅ Sample analyzed & cached!')
-      console.log('Sample Report ID:', reportId)
+    if (!savedReport) {
+      console.error('findOneAndUpdate returned null — report may be stuck:', reportId)
+      await Report.findByIdAndUpdate(reportId, {
+        status:       'failed',
+        errorMessage: 'Processing conflict — please try again',
+        errorType:    'processing_conflict',
+      })
+      return NextResponse.json(
+        { error: 'Processing conflict — dobara try karo' },
+        { status: 409 }
+      )
     }
 
     // ── Increment usage ───────────────────────────────
@@ -622,12 +689,15 @@ export async function POST(req) {
       })
     }
 
-    // ── Upgrade nudge — free limit reached ───────────
+    // ── Upgrade nudge — free limit reached / pre-upgrade ─
+    let isAtLimit    = false
+    let isPreUpgrade = false
     try {
       if (userId && user?.plan === 'free') {
         const updatedUser = await User.findById(userId).lean()
 
         if (updatedUser?.reportsUsed >= updatedUser?.reportsLimit) {
+          isAtLimit = true
           const { default: PushToken } = await import('@/models/PushToken')
           const { default: mongoose }  = await import('mongoose')
 
@@ -651,6 +721,38 @@ export async function POST(req) {
                   data: {
                     title: '📄 Free limit khatam ho gayi!',
                     body:  'Pro lo — Unlimited reports + History + PDF. Sirf ₹199/month',
+                    url:   'https://sehat24.com/upgrade',
+                    icon:  'https://sehat24.com/icon-192x192.png'
+                  }
+                }
+              }).catch(console.error)
+          }
+
+        } else if (
+          updatedUser?.reportsUsed === updatedUser?.reportsLimit - 1
+        ) {
+          isPreUpgrade = true
+          const { default: PushToken } = await import('@/models/PushToken')
+          const { default: mongoose }  = await import('mongoose')
+
+          const preTokens = await PushToken.find({
+            active: true,
+            $or: [
+              { userId: new mongoose.Types.ObjectId(userId) },
+              ...(anonId ? [{ anonId }] : [])
+            ]
+          }).lean()
+
+          if (preTokens.length > 0) {
+            const adminSdk = await import('@/lib/firebaseAdmin')
+            await adminSdk.default.messaging()
+              .sendEachForMulticast({
+                tokens: preTokens.map(t => t.token),
+                webpush: {
+                  fcmOptions: { link: 'https://sehat24.com/upgrade' },
+                  data: {
+                    title: '📊 Sirf 1 free report bacha hai!',
+                    body:  'Pro lo pehle — unlimited reports + PDF sirf ₹199/month 🚀',
                     url:   'https://sehat24.com/upgrade',
                     icon:  'https://sehat24.com/icon-192x192.png'
                   }
@@ -750,61 +852,61 @@ export async function POST(req) {
     }
 
     // ── Push notification ─────────────────────────────
-    try {
-      const { default: adminApp } =
-        await import('@/lib/firebaseAdmin')
-      const { default: PushToken } =
-        await import('@/models/PushToken')
+    if (!isAtLimit && !isPreUpgrade) {
+      try {
+        const { default: adminApp } =
+          await import('@/lib/firebaseAdmin')
+        const { default: PushToken } =
+          await import('@/models/PushToken')
 
-      const tokenQuery = { active: true }
+        const tokenQuery = { active: true }
 
-      if (userId) {
-        const { default: mongoose } =
-          await import('mongoose')
-        tokenQuery.$or = [
-          { userId: new mongoose.Types.ObjectId(userId) },
-          { anonId: anonId || '' }
-        ].filter(q => Object.values(q)[0])
-      } else if (anonId) {
-        tokenQuery.anonId = anonId
-      }
-
-      if (tokenQuery.$or || tokenQuery.anonId) {
-        const pushTokens = await PushToken
-          .find(tokenQuery).lean()
-        const tokens = pushTokens
-          .map(t => t.token)
-          .filter(Boolean)
-
-        if (tokens.length > 0) {
-          const reportType =
-            interpretation.report_type || 'Report'
-
-          await adminApp.messaging()
-            .sendEachForMulticast({
-              tokens,
-              webpush: {
-                fcmOptions: {
-                  link: `https://sehat24.com/results/${reportId}`
-                },
-                data: {
-                  title: `✅ ${reportType} ready hai!`,
-                  body:  'Hindi mein result dekho →',
-                  url:   `https://sehat24.com/results/${reportId}`,
-                  icon:  'https://sehat24.com/icon-192x192.png'
-                }
-              }
-            }).catch(err =>
-              console.error('Push error:', err.message)
-            )
-
-          console.log('📲 Notification sent:',
-            tokens.length, 'devices')
+        if (userId) {
+          const { default: mongoose } =
+            await import('mongoose')
+          tokenQuery.$or = [
+            { userId: new mongoose.Types.ObjectId(userId) },
+            { anonId: anonId || '' }
+          ].filter(q => Object.values(q)[0])
+        } else if (anonId) {
+          tokenQuery.anonId = anonId
         }
+
+        if (tokenQuery.$or || tokenQuery.anonId) {
+          const pushTokens = await PushToken
+            .find(tokenQuery).lean()
+          const tokens = pushTokens
+            .map(t => t.token)
+            .filter(Boolean)
+
+          if (tokens.length > 0) {
+            const reportType =
+              interpretation.report_type || 'Report'
+
+            await adminApp.messaging()
+              .sendEachForMulticast({
+                tokens,
+                webpush: {
+                  fcmOptions: {
+                    link: `https://sehat24.com/results/${reportId}`
+                  },
+                  data: {
+                    title: `✅ ${reportType} ready hai!`,
+                    body:  'Hindi mein result dekho →',
+                    url:   `https://sehat24.com/results/${reportId}`,
+                    icon:  'https://sehat24.com/icon-192x192.png'
+                  }
+                }
+              }).catch(err =>
+                console.error('Push error:', err.message)
+              )
+
+          }
+        }
+      } catch (pushErr) {
+        console.error('Push notification error:',
+          pushErr.message)
       }
-    } catch (pushErr) {
-      console.error('Push notification error:',
-        pushErr.message)
     }
 
     return NextResponse.json({
@@ -838,6 +940,37 @@ export async function POST(req) {
         userAgent,
         ...(isCorrupted ? { isSpam: false, preCheckFailed: true, spamReason: 'corrupted' } : {}),
       })
+
+      if (userId || anonId) {
+        try {
+          const { default: PushToken } = await import('@/models/PushToken')
+          const { default: adminSdk }  = await import('@/lib/firebaseAdmin')
+          const failTokens = await PushToken.find({
+            $or: [
+              ...(userId ? [{ userId }] : []),
+              ...(anonId ? [{ anonId }] : [])
+            ],
+            active: true
+          }).lean()
+
+          if (failTokens.length > 0) {
+            await adminSdk.default.messaging().sendEachForMulticast({
+              tokens: failTokens.map(t => t.token),
+              webpush: {
+                fcmOptions: { link: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://sehat24.com'}/upload` },
+                data: {
+                  title: '⚠️ Report analyze nahi ho payi',
+                  body:  'Dobara try karo — clear photo ya PDF use karo 📸',
+                  url:   `${process.env.NEXT_PUBLIC_BASE_URL || 'https://sehat24.com'}/upload`,
+                  icon:  'https://sehat24.com/icon-192x192.png'
+                }
+              }
+            }).catch(console.error)
+          }
+        } catch (e) {
+          console.error('Failed notification error:', e.message)
+        }
+      }
     }
 
     // Truncated — return 400 with flag so frontend can show upgrade upsell
@@ -845,17 +978,23 @@ export async function POST(req) {
       return NextResponse.json({ error: msg, isTruncated: true }, { status: 400 })
     }
 
+    const isOverload =
+      err?.status === 529 ||
+      msg.includes('overloaded') ||
+      msg.includes('529') ||
+      err?.error?.type === 'overloaded_error'
+
     const userMessage = err.isParseError || msg.includes('bahut badi') || msg.includes('bahut bada')
-  ? msg
-  : err.isTimeout
-  ? msg
-  : msg.includes('Could not process')
-  ? 'Photo padh nahi paaye 😕 — dobara clear photo lo ya PDF try karo'
-  : msg.includes('timeout') || msg.includes('ETIMEDOUT')
-  ? 'Server busy hai — thodi der baad try karo 🙏'
-  : msg.includes('ECONNRESET') || msg.includes('fetch failed')
-  ? 'Internet connection check karo aur dobara try karo 🙏'
-  : 'Kuch problem aayi — report dobara upload karo 🙏'
+      ? msg
+      : msg.includes('Could not process')
+      ? 'Photo padh nahi paaye 😕 — dobara clear photo lo ya PDF try karo'
+      : msg.includes('timeout') || msg.includes('ETIMEDOUT')
+      ? 'Server busy hai — thodi der baad try karo 🙏'
+      : msg.includes('ECONNRESET') || msg.includes('fetch failed')
+      ? 'Internet connection check karo aur dobara try karo 🙏'
+      : isOverload
+      ? 'Server thoda busy hai — 2-3 minute baad dobara try karo 🙏'
+      : 'Kuch problem aayi — report dobara upload karo 🙏'
 
     return NextResponse.json(
       { error: userMessage },
@@ -868,7 +1007,7 @@ export async function POST(req) {
 async function analyzeWithPDF(base64, model = HAIKU_MODEL, fileSize = 0, isPro = false) {
   const params = {
     model,
-    max_tokens: model === SONNET_MODEL ? 8000 : 8000,
+    max_tokens: model === SONNET_MODEL ? 12000 : 8000,
     messages: [{
       role: 'user',
       content: [

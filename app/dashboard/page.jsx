@@ -100,7 +100,8 @@ function DashboardContent() {
 
   const urgentReports = reports.filter(r => r.urgentFlags?.length > 0).length
   const firstName     = user?.firstName || user?.phone?.slice(-4) || 'there'
-  const reportsLeft   = user?.plan === 'paid' ? '∞' : String(Math.max(0, (user?.reportsLimit || 2) - (user?.reportsUsed || 0)))
+  const isPro         = user?.plan === 'paid' || user?.plan === 'pro'
+  const reportsLeft   = isPro ? '∞' : String(Math.max(0, (user?.reportsLimit || 5) - (user?.reportsUsed || 0)))
 
   return (
     <>
@@ -223,14 +224,14 @@ function DashboardContent() {
               <div style={{ marginTop: 16, width: '100%', background: '#f8fafc', borderRadius: 12, padding: '10px 14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                   <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>
-                    {user?.plan === 'paid' ? 'Paid Plan' : 'Free Plan'}
+                    {isPro ? 'Pro Plan' : 'Free Plan'}
                   </span>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#0d9488' }}>{reportsLeft} left</span>
                 </div>
-                {user?.plan !== 'paid' && (
+                {!isPro && (
                   <div className="progress-bar">
                     <div className="progress-fill" style={{
-                      width: `${Math.min(((user?.reportsUsed || 0) / (user?.reportsLimit || 2)) * 100, 100)}%`,
+                      width: `${Math.min(((user?.reportsUsed || 0) / (user?.reportsLimit || 5)) * 100, 100)}%`,
                       background: 'linear-gradient(90deg, #0d9488, #0891b2)'
                     }} />
                   </div>
@@ -269,11 +270,48 @@ function DashboardContent() {
                 <p style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 8 }}>Reports Left</p>
                 <p className="serif" style={{ fontSize: 36, color: '#0d9488', lineHeight: 1 }}>{reportsLeft}</p>
                 <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 6 }}>
-                  {user?.plan === 'paid' ? 'Unlimited plan' : 'Free plan'}
+                  {isPro ? 'Unlimited plan' : 'Free plan'}
                 </p>
               </div>
             </div>
           </div>
+
+          {/* Upgrade CTA — free users only */}
+          {!isPro && (
+            <div style={{
+              background: 'linear-gradient(135deg, #f0fdfa, #e6fffa)',
+              border: '1px solid #99f6e4',
+              borderRadius: 16,
+              padding: '16px 20px',
+              marginBottom: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12
+            }}>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 700, color: '#0d9488', margin: '0 0 2px' }}>
+                  ⚡ Pro plan mein upgrade karo
+                </p>
+                <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
+                  Unlimited reports + PDF download — sirf ₹199/month
+                </p>
+              </div>
+              <a href="/upgrade" style={{
+                background: '#0d9488',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: 10,
+                fontSize: 12,
+                fontWeight: 600,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
+              }}>
+                Upgrade →
+              </a>
+            </div>
+          )}
 
           {/* Quick actions */}
           <div className="fade-up" style={{ marginBottom: 24, animationDelay: '0.2s' }}>

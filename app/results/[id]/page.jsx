@@ -7,6 +7,7 @@ import { cookies } from 'next/headers'
 import DownloadButton from '@/components/DownloadButton'
 import FeedbackSection from '@/components/FeedbackSection'
 import ConversionTracker from '@/components/ConversionTracker'
+import LoginWallModal from '@/components/LoginWallModal'
 
 /* ── Dynamic metadata ── */
 export async function generateMetadata({ params }) {
@@ -79,6 +80,9 @@ export default async function ResultsPage({ params }) {
   const isFreeLimitReached =
     currentUser?.plan === 'free' &&
     currentUser?.reportsUsed >= currentUser?.reportsLimit
+  const isPro =
+    (currentUser?.plan === 'paid' || currentUser?.plan === 'pro') &&
+    (!currentUser?.subscriptionEndsAt || currentUser.subscriptionEndsAt > new Date())
 
   if (report.status === 'processing') {
     return (
@@ -113,6 +117,34 @@ export default async function ResultsPage({ params }) {
   const criticalCount = result.parameters?.filter(p => p.status?.toLowerCase() === 'critical').length || 0
   const totalCount    = result.parameters?.length || 0
   const blogRecs      = getBlogRecs(result.report_type)
+
+  // ── Satvik combo triggers — only on real (non-sample) reports ──
+  const _params = (!report.isSample && result?.parameters) ? result.parameters : []
+
+  const _hemoglobinLow   = _params.some(p =>
+    p.name === 'Hemoglobin' &&
+    (p.status === 'low' || p.status === 'critical')
+  )
+  const _cholesterolHigh = _params.some(p =>
+    (p.name === 'Triglycerides' || p.name === 'Total Cholesterol') &&
+    (p.status === 'high' || p.status === 'critical')
+  )
+  const _liverHigh       = _params.some(p =>
+    (p.name === 'SGPT' || p.name === 'SGOT' || p.name === 'ALT' || p.name === 'AST') &&
+    (p.status === 'high' || p.status === 'critical')
+  )
+  const _immunityWeak    = _params.some(p =>
+    (p.name === 'WBC' || p.name === 'Neutrophils') &&
+    (p.status === 'low' || p.status === 'high')
+  )
+
+  // Priority: anemia > cholesterol > liver > immunity — max 2 shown
+  const _allCombos = []
+  if (_hemoglobinLow)   _allCombos.push('anemia')
+  if (_cholesterolHigh) _allCombos.push('cholesterol')
+  if (_liverHigh)       _allCombos.push('liver')
+  if (_immunityWeak)    _allCombos.push('immunity')
+  const satvikCombos = _allCombos.slice(0, 2)
 
   const medicalPageSchema = {
     '@context': 'https://schema.org',
@@ -467,27 +499,6 @@ export default async function ResultsPage({ params }) {
             </div>
           </div>
 
-          {/* ── Doctor Questions ── */}
-          {result.doctor_questions?.length > 0 && (
-            <div className="fade-up doctor-card" style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', padding: 24, marginBottom: 16, animationDelay: '0.2s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>💬</div>
-                <div>
-                  <h2 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Ask Your Doctor</h2>
-                  <p style={{ fontSize: 12, color: '#94a3b8' }}>Prepare these questions for your next visit</p>
-                </div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {result.doctor_questions.map((q, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 16px', background: '#f8fafc', borderRadius: 12, border: '1px solid #f1f5f9' }}>
-                    <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#dbeafe', color: '#1d4ed8', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
-                    <p style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{q}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* ── Lifestyle Tips ── */}
           {result.lifestyle && (
             <div className="fade-up" style={{ background: 'linear-gradient(135deg, #fffbeb, #fef9ee)', border: '1px solid #fde68a', borderRadius: 20, padding: 24, marginBottom: 16, animationDelay: '0.25s' }}>
@@ -570,57 +581,68 @@ export default async function ResultsPage({ params }) {
   </div>
 )}
 
-          {/* ── Disclaimer ── */}
-          <div className="fade-up" style={{ background: 'linear-gradient(135deg, #fef2f2, #fff1f2)', border: '1.5px solid #fecaca', borderRadius: 16, padding: '18px 20px', marginBottom: 24, animationDelay: '0.3s' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-              <span style={{ fontSize: 20, flexShrink: 0 }}>🛡️</span>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', marginBottom: 6 }}>Medical Disclaimer — Zaroor Padhein</p>
-                <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.8 }}>
-                  Yeh report summary sirf <strong>samajhne ke liye</strong> hai — doctor ka replacement nahi hai. Apni health ke baare mein koi bhi{' '}
-                  <strong>decision doctor ki salah ke baad hi lein.</strong>
-                  <br />
-                  <span style={{ display: 'inline-block', marginTop: 8, background: '#dc2626', color: 'white', padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
-                    ⚠️ Doctor se milein — yeh medical advice nahi hai
-                  </span>
-                </p>
+          {/* ── Doctor Questions ── */}
+          {result.doctor_questions?.length > 0 && (
+            <div className="fade-up doctor-card" style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', padding: 24, marginBottom: 16, animationDelay: '0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>💬</div>
+                <div>
+                  <h2 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Ask Your Doctor</h2>
+                  <p style={{ fontSize: 12, color: '#94a3b8' }}>Prepare these questions for your next visit</p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {result.doctor_questions.map((q, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 16px', background: '#f8fafc', borderRadius: 12, border: '1px solid #f1f5f9' }}>
+                    <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#dbeafe', color: '#1d4ed8', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+                    <p style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{q}</p>
+                  </div>
+                ))}
               </div>
             </div>
+          )}
+
+          {/* ── PDF Download — Pro gated ── */}
+          <div className="fade-up" style={{ marginBottom: 16, animationDelay: '0.45s' }}>
+            {isPro ? (
+              <DownloadButton
+                report={JSON.parse(JSON.stringify(report))}
+                result={JSON.parse(JSON.stringify(result))}
+              />
+            ) : (
+              <div style={{ background: 'linear-gradient(135deg, #fffbeb, #fef3c7)', border: '1.5px solid #fcd34d', borderRadius: 20, padding: 24, textAlign: 'center' }}>
+                <div style={{ fontSize: 32, marginBottom: 10 }}>🔒</div>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>PDF Download — Pro Plan</p>
+                <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6, marginBottom: 4 }}>
+                  Sehat24 branded PDF — doctor ke paas le jaao.
+                </p>
+                <p style={{ fontSize: 12, color: '#b45309', marginBottom: 16 }}>
+                  Pro plan mein PDF download free hai — sirf ₹199/month
+                </p>
+                <a
+                  href={isLoggedIn ? '/upgrade' : `/auth/login?redirect=/results/${id}&source=pdf_gate`}
+                  style={{
+                    display: 'block', width: '100%', padding: '14px',
+                    borderRadius: 14, background: '#d97706', color: 'white',
+                    fontSize: 14, fontWeight: 700, textAlign: 'center',
+                    textDecoration: 'none', boxSizing: 'border-box',
+                  }}
+                >
+                  🔒 PDF Download — Pro mein upgrade karo
+                </a>
+              </div>
+            )}
           </div>
+
+          {/* ── Disclaimer ── */}
+          <p className="fade-up" style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginBottom: 24, animationDelay: '0.3s' }}>
+            🛡️ Yeh report sirf samajhne ke liye hai — doctor ka replacement nahi hai.
+          </p>
 
           {/* ── Feedback & Follow-up ── */}
           <div className="fade-up" style={{ animationDelay: '0.33s' }}>
             <FeedbackSection reportId={String(report._id)} />
           </div>
-
-          {/* ══ NEW: Feedback Incentive (4-5 star prompt) ══ */}
-          {/* <div className="fade-up feedback-incentive" style={{ animationDelay: '0.36s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <span style={{ fontSize: 28 }}>⭐</span>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: '#92400e', marginBottom: 2 }}>Helpful lagi report?</p>
-                <p style={{ fontSize: 12, color: '#b45309' }}>Apne dost ya family ko bhi batao — bilkul free hai</p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              <a
-                href={`https://wa.me/?text=${encodeURIComponent(`Yaar, is site se apni medical report Hindi mein samjho — bilkul free! Maine try ki, bahut helpful tha 🙏\n\nsehat24.com`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 16px', background: '#25d366', color: 'white', borderRadius: 12, textDecoration: 'none', fontSize: 13, fontWeight: 700 }}
-              >
-                📤 WhatsApp pe Share karo
-              </a>
-              <a
-                href="https://g.page/r/sehat24/review"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ flex: 1, minWidth: 140, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 16px', background: 'white', border: '1.5px solid #fde68a', color: '#92400e', borderRadius: 12, textDecoration: 'none', fontSize: 13, fontWeight: 700 }}
-              >
-                ⭐ Google Review Do
-              </a>
-            </div>
-          </div> */}
 
           {/* ══ NEW: Instagram Follow Card ══ */}
           <section
@@ -690,81 +712,11 @@ export default async function ResultsPage({ params }) {
             </div>
           </section>
 
-          {/* ── Action Buttons ── */}
-          <div className="fade-up action-buttons" style={{ animationDelay: '0.45s' }}>
-            <Link href="/upload" style={{ flex: 1, padding: '14px', borderRadius: 14, border: '1px solid #e2e8f0', background: 'white', fontSize: 14, fontWeight: 600, color: '#64748b', textDecoration: 'none', textAlign: 'center' }}>
-              New Report
-            </Link>
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(`Maine apni ${result.report_type || 'health'} report Sehat24 pe analyze ki — Hindi mein results dekho! 🇮🇳\n\n👉 sehat24.com/results/${id}\n\nSehat24 — Free medical report analyzer for India`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ flex: 1, padding: '14px', borderRadius: 14, background: '#25d366', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-            >
-              📤 Share
-            </a>
-            <Link href="/dashboard" style={{ flex: 1, padding: '14px', borderRadius: 14, background: '#0d9488', color: 'white', fontSize: 14, fontWeight: 600, textDecoration: 'none', textAlign: 'center' }}>
-              Dashboard →
-            </Link>
-          </div>
-
-          {/* ── PDF Download — Conditional ── */}
-          <div className="fade-up" style={{ animationDelay: '0.48s' }}>
-            {isLoggedIn ? (
-              <DownloadButton
-                report={JSON.parse(JSON.stringify(report))}
-                result={JSON.parse(JSON.stringify(result))}
-              />
-            ) : (
-              <div style={{ background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1.5px solid #99f6e4', borderRadius: 20, padding: 24, textAlign: 'center' }}>
-                <p style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>📄 PDF Report Download karo</p>
-                <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>
-                  Sehat24 branded PDF — doctor ke paas le jaao.<br />
-                  Login karo — bilkul free hai. 🇮🇳
-                </p>
-                <a href={`/auth/login?redirect=/results/${id}`} className="login-btn" style={{ display: 'block', width: '100%', padding: '16px', borderRadius: 14, background: '#0d9488', color: 'white', fontSize: 14, fontWeight: 600, textAlign: 'center', textDecoration: 'none', transition: 'all 0.2s', marginTop: 14 }}>
-                  🔐 Login karke PDF Download karo
-                </a>
-              </div>
-            )}
-          </div>
-
-          {/* ══ NEW: Blog Recommendations ══ */}
-          <nav
-            role="navigation"
-            aria-label="Related health articles"
-            className="fade-up"
-            style={{ background: 'white', borderRadius: 20, border: '1px solid #f1f5f9', padding: 20, marginBottom: 16, animationDelay: '0.38s' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-              <span style={{ fontSize: 18 }}>📚</span>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 0 }}>Aur samjho — Related Articles</p>
-                <p style={{ fontSize: 11, color: '#94a3b8' }}>Aapki report se related guides Hindi mein</p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {blogRecs.map((b, i) => (
-                <Link
-                  key={i}
-                  href={b.url}
-                  className="blog-rec-card"
-                  title={`${b.title} - Sehat24`}
-                  rel="internal"
-                  aria-label={b.title}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 20, flexShrink: 0 }}>{b.emoji}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', lineHeight: 1.4 }}>{b.title}</span>
-                  </div>
-                  <span className="blog-rec-read">Padhein →</span>
-                </Link>
-              ))}
-            </div>
-          </nav>
-
         </div>
       </div>
+
+      {/* Login wall modal — anon users only, shown once per session after 3s */}
+      {!isLoggedIn && <LoginWallModal reportId={id} />}
     </>
   )
 }

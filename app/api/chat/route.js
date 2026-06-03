@@ -240,7 +240,6 @@ export async function POST(req) {
     const userDoc = cookieUserId ? await User.findById(cookieUserId).lean() : null
 
     // ── Conversation history ──────────────────────────
-    if (history.length > 6) console.log('Chat history truncated to 6 messages')
     const recentHistory = history
       .filter(m => m.role && m.content && String(m.content).trim())
       .slice(-6)

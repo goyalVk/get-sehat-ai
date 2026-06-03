@@ -7,7 +7,7 @@ import admin from '@/lib/firebaseAdmin'
 export async function POST(req) {
   try {
     await connectDB()
-    const { phone, firebaseUid, token, name } = await req.json()
+    const { phone, firebaseUid, token, name, anonId } = await req.json()
 
     if (!phone || !firebaseUid || !token) {
       return NextResponse.json(
@@ -31,7 +31,7 @@ export async function POST(req) {
         firstName: name || null,
         plan: 'free',
         reportsUsed: 0,
-        reportsLimit: 2
+        reportsLimit: 5
       })
     }
 
@@ -56,7 +56,10 @@ export async function POST(req) {
 
         const welcomeTokens = await PushTokenModel.find({
           active: true,
-          userId: new mongoose.Types.ObjectId(user._id)
+          $or: [
+            { userId: new mongoose.Types.ObjectId(user._id) },
+            ...(anonId ? [{ anonId }] : [])
+          ]
         }).lean()
 
         const welcomeList = welcomeTokens.map(t => t.token)

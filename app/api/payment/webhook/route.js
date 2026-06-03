@@ -20,7 +20,6 @@ export async function POST(req) {
       .digest('hex')
 
     if (expectedSignature !== signature) {
-      console.log('Invalid signature ❌')
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 400 }
@@ -28,7 +27,6 @@ export async function POST(req) {
     }
 
     const event = JSON.parse(body)
-    console.log('Webhook event:', event.event)
 
     if (event.event === 'payment.captured') {
       const payment = event.payload.payment.entity
@@ -39,11 +37,6 @@ export async function POST(req) {
       const phoneWithout91 = cleanPhone
         .replace('+91', '')
         .replace(/^91/, '')
-
-      console.log('Raw phone:', rawPhone)
-      console.log('Clean phone:', cleanPhone)
-      console.log('Without 91:', phoneWithout91)
-      console.log('Amount: ₹', payment.amount / 100)
 
       await connectDB()
 
@@ -58,7 +51,6 @@ export async function POST(req) {
       })
 
       if (user?.plan === 'paid' && user?.paymentId === payment.id) {
-        console.log('Payment already processed, skipping:', payment.id)
         return NextResponse.json({ ok: true })
       }
 
@@ -74,7 +66,6 @@ export async function POST(req) {
             Date.now() + 30 * 24 * 60 * 60 * 1000
           )
         })
-        console.log('✅ User upgraded:', user.phone)
 
         // ── Pro welcome push notification ─────────────
         try {

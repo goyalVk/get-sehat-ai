@@ -41,6 +41,7 @@ export default function UploadPage() {
   const [sampleLoading, setSampleLoading] = useState(false)
   const [showLoginNudge, setShowLoginNudge] = useState(false)
   const [isGuest, setIsGuest]               = useState(true)
+  const [userPlan, setUserPlan]             = useState('free')
   const [showRetryNudge, setShowRetryNudge] = useState(false)
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function UploadPage() {
       })()
       const hasUserId  = !!storedUser?.id
       setIsGuest(!hasUserId)
+      setUserPlan(storedUser?.plan || 'free')
       if (count >= 1 && !dismissed && !hasUserId) setShowLoginNudge(true)
 
       // Post-login retry: user just came back after logging in
@@ -73,15 +75,33 @@ export default function UploadPage() {
       setError('Sirf PDF ya image (JPG, PNG) upload kar sakte hain')
       return
     }
-    if (f.type === 'application/pdf' && f.size > 5 * 1024 * 1024) {
-      setError('PDF bahut bada hai — 5MB se chhota PDF upload karo 📄')
+
+    const storedUser = (() => { try { return JSON.parse(localStorage.getItem('s24_user')) } catch { return null } })()
+    const _userId  = storedUser?.id || null
+    const _plan    = storedUser?.plan || null
+    const _isPro   = _plan === 'paid' || _plan === 'pro'
+    const _isGuest = !_userId
+
+    const maxSize = _isPro ? 15 * 1024 * 1024 : _isGuest ? 3 * 1024 * 1024 : 5 * 1024 * 1024
+
+    if (f.size > maxSize) {
+      const fileSizeMB = (f.size / (1024 * 1024)).toFixed(1)
+      if (_isGuest) {
+        setError(`Aapki file ${fileSizeMB}MB ki hai — 3MB se badi hai. Login karo aur 5MB tak free mein analyze karo! 🔓`)
+        setErrorType('file_size_guest')
+      } else if (!_isPro) {
+        setError(`Aapki file ${fileSizeMB}MB ki hai — free plan mein 5MB tak allowed hai. Pro plan mein 15MB tak analyze hoti hai ✨`)
+        setErrorType('file_size_free')
+      } else {
+        setError(`Aapki file ${fileSizeMB}MB ki hai — 15MB se compress karke try karo`)
+        setErrorType('file_size_pro')
+      }
+      setFile(null)
       return
     }
-    if (f.type !== 'application/pdf' && f.size > 10 * 1024 * 1024) {
-      setError('Photo bahut badi hai — 10MB se chhoti image try karo')
-      return
-    }
+
     setError('')
+    setErrorType('')
     setFile(f)
   }
 
@@ -112,8 +132,20 @@ export default function UploadPage() {
     setSampleLoading(false)
   }
 
+  const SAMPLE_NAMES = ['sample-cbc-report.pdf', 'sample_report.pdf', 'sample-report.pdf']
+
   const analyze = async () => {
     if (!file) return
+
+    // Client-side anon gate — instant, no API call needed
+    // Server-side enforces the same rule as hard gate
+    const isSampleFile = SAMPLE_NAMES.includes(file.name?.toLowerCase())
+    if (!isSampleFile && isGuest && getUploadCount() >= 1) {
+      setError('Doosri report ke liye login karein — free hai! 👇')
+      setErrorType('anon_gate')
+      return
+    }
+
     setLoading(true); setError('')
     events.reportUpload(file.type)
     try {
@@ -125,8 +157,6 @@ export default function UploadPage() {
           return JSON.parse(localStorage.getItem('s24_user') || 'null')
         } catch { return null }
       })()
-      console.log('storedUser from localStorage:', storedUser)
-      console.log('userId being appended:', storedUser?.id)
       if (storedUser?.id) formData.append('userId', storedUser.id)
       trackVisit()
       formData.append('visitCount', getVisitCount())
@@ -144,17 +174,21 @@ export default function UploadPage() {
           setLoading(false)
           return
         }
+        if (data.requiresLogin) {
+          setError(data.error || 'Badi file hai — login karo aur 5MB tak free mein analyze karo! 🔓')
+          setErrorType('file_size_guest')
+          setLoading(false)
+          return
+        }
         if (data.requiresUpgrade) {
-          setError('Yeh file bahut badi hai 📁 — 10MB se chhoti file upload karo ya Pro plan lo')
-          setErrorType('too_large')
-          setTimeout(() => router.push('/upgrade'), 2000)
+          setError(data.error || 'Badi file hai — Pro plan mein 15MB tak analyze hoti hai ✨')
+          setErrorType('file_size_free')
           setLoading(false)
           return
         }
         if (data.loginRequired) {
-          setError('Report analyze karne ke liye login karo 🙏')
-          setErrorType('login')
-          setTimeout(() => router.push('/auth/login'), 2000)
+          setError('Doosri report ke liye login karein — free hai! 👇')
+          setErrorType('anon_gate')
           setLoading(false)
           return
         }
@@ -206,14 +240,20 @@ export default function UploadPage() {
       return { msg: 'Yeh medical report nahi lagti 🩺 — CBC, blood test ya thyroid report upload karo', type: 'non_medical' }
     if (e.includes('lock laga hai') || e.includes('password') || e.includes('lock hatao'))
       return { msg: 'PDF pe lock laga hai 🔒 — iLovePDF.com se password hataao, phir upload karo', type: 'password' }
-    if (e.includes('unclear hai') || e.includes('seedha camera') || e.includes('dobara photo lo'))
-      return { msg: 'Photo thodi unclear hai 📸 — achhi roshni mein seedha camera se photo lo', type: 'low_quality' }
+    // Fix 1: low_quality removed — no server message ever matched its strings
     if (e.includes('bahut chhoti') || e.includes('original lab report'))
       return { msg: 'File bahut chhoti hai 😕 — original lab report ka clear photo lo', type: 'too_small' }
-    if (e.includes('clearly nahi dikhi') || e.includes('padh nahi paaye') || e.includes('samajh nahi'))
+    // Fix 4: "Could not process" / "padh nahi paaye" — pass server message directly
+    if (e.includes('padh nahi paaye') || e.includes('could not process'))
+      return { msg: apiError, type: 'parse_error' }
+    if (e.includes('clearly nahi dikhi') || e.includes('samajh nahi'))
       return { msg: 'Report samajh nahi aayi 😕 — PDF format mein try karo ya achhi roshni mein photo lo', type: 'parse_error' }
-    if (e.includes('bahut badi') || e.includes('bahut bada') || e.includes('too large') || e.includes('5mb'))
-      return { msg: 'File bahut badi hai 📁 — 5MB se chhoti file bhejo', type: 'too_large' }
+    // Fix 6: Pro user >15MB — must come before too_large check
+    if (e.includes('compress karke try karo'))
+      return { msg: apiError, type: 'file_size_pro' }
+    // Fix 2: too_large — dynamic message from server, no hardcoded "5MB"
+    if (e.includes('badi hai') || e.includes('compress karke') || e.includes('bada hai'))
+      return { msg: apiError, type: 'too_large' }
     if (e.includes('"type":"error"') || e.includes('invalid_request_error'))
       return { msg: 'Kuch technical problem aayi 🙏 — dobara try karo ya WhatsApp pe contact karo', type: 'api_error' }
     return { msg: 'Kuch problem aayi 😕 — dobara try karo', type: 'generic' }
@@ -229,6 +269,7 @@ export default function UploadPage() {
     router.push('/auth/login?redirect=/upload')
   }
 
+  const isPro  = userPlan === 'paid' || userPlan === 'pro'
   const noFile = !file && !loading
 
   return (
@@ -462,11 +503,294 @@ export default function UploadPage() {
               borderRadius: 100, padding: '6px 16px',
               fontSize: 11, color: '#94a3b8',
             }}>
-              PDF max 5MB • JPG / PNG / WebP max 10MB
+              PDF / JPG / PNG / WebP • Free: 5MB • Pro: 15MB
             </span>
           </div>
         )}
       </div>
+
+      {/* ── Error cards — immediately below drop zone ── */}
+
+      {/* Guest file size — login to unlock 5MB */}
+      {error && errorType === 'file_size_guest' && (
+        <div style={{
+          marginTop: 16,
+          background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)',
+          border: '1.5px solid #0d9488',
+          borderRadius: 16, overflow: 'hidden',
+        }}>
+          <div style={{ padding: '20px 16px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <span style={{ fontSize: 28 }}>📁</span>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#0d9488', margin: 0 }}>
+                Badi file hai — login karo
+              </p>
+            </div>
+            <p style={{ fontSize: 13, color: '#134e4a', lineHeight: 1.65, marginBottom: 16 }}>
+              {error || 'Badi file hai — login karo aur zyada analyze karo!'}
+            </p>
+            <a
+              href="/auth/login?redirect=/upload"
+              style={{
+                display: 'block', width: '100%', padding: '13px',
+                background: '#0d9488', color: 'white',
+                borderRadius: 12, fontSize: 14, fontWeight: 700,
+                textDecoration: 'none', textAlign: 'center',
+                boxSizing: 'border-box',
+              }}
+            >
+              🔓 Login Karo — Free →
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Free user file size — upgrade to Pro for 15MB */}
+      {error && errorType === 'file_size_free' && (
+        <div style={{
+          marginTop: 16,
+          background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+          border: '1.5px solid #fcd34d',
+          borderRadius: 16, overflow: 'hidden',
+        }}>
+          <div style={{ padding: '20px 16px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <span style={{ fontSize: 28 }}>⚡</span>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', margin: 0 }}>
+                Badi file — Pro plan mein 15MB tak
+              </p>
+            </div>
+            <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.65, marginBottom: 16 }}>
+              {error || 'Badi file hai — Pro plan mein upgrade karo'}
+            </p>
+            <a
+              href="/upgrade"
+              style={{
+                display: 'block', width: '100%', padding: '13px',
+                background: '#d97706', color: 'white',
+                borderRadius: 12, fontSize: 14, fontWeight: 700,
+                textDecoration: 'none', textAlign: 'center',
+                boxSizing: 'border-box',
+              }}
+            >
+              ⚡ Pro Upgrade Karo — ₹199/month →
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Anon gate — login required for 2nd upload */}
+      {error && errorType === 'anon_gate' && (
+        <div style={{
+          marginTop: 16,
+          background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)',
+          border: '1.5px solid #0d9488',
+          borderRadius: 16, overflow: 'hidden',
+        }}>
+          <div style={{ padding: '20px 16px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <span style={{ fontSize: 28 }}>🔓</span>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#0d9488', margin: 0 }}>
+                Doosri report ke liye login karein — 5 aur free reports milenge! 🎁
+              </p>
+            </div>
+            <p style={{ fontSize: 13, color: '#134e4a', lineHeight: 1.65, marginBottom: 16 }}>
+              Login karo — 5 free reports, report history, PDF download aur AI chat bilkul free. 🇮🇳
+            </p>
+            <a
+              href="/auth/login?redirect=/upload"
+              style={{
+                display: 'block', width: '100%', padding: '13px',
+                background: '#0d9488', color: 'white',
+                borderRadius: 12, fontSize: 14, fontWeight: 700,
+                textDecoration: 'none', textAlign: 'center',
+                boxSizing: 'border-box',
+              }}
+            >
+              📱 Login Karo — Free →
+            </a>
+          </div>
+        </div>
+      )}
+
+      {error && errorType === 'report_too_large' && (
+        <div style={{
+          marginTop: 16,
+          background: 'linear-gradient(135deg,#fffbeb,#fef3c7)',
+          border: '1.5px solid #fcd34d',
+          borderRadius: 16, overflow: 'hidden',
+        }}>
+          <div style={{ padding: '18px 16px 14px' }}>
+            <p style={{ fontSize: 16, fontWeight: 800, color: '#92400e', margin: '0 0 8px' }}>
+              Yeh report thodi badi hai! 📋
+            </p>
+            <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6, margin: '0 0 16px' }}>
+              Aapki report mein bahut saari details hain — Pro plan mein unlimited badi reports analyze hoti hain. Abhi upgrade karo sirf ₹199/month mein! 🚀
+            </p>
+            <button
+              onClick={() => router.push('/upgrade')}
+              style={{
+                display: 'block', width: '100%', padding: '12px',
+                background: '#d97706', color: 'white',
+                border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 800,
+                cursor: 'pointer', fontFamily: 'inherit', marginBottom: 8,
+              }}
+            >
+              🚀 Pro Upgrade Karo ₹199/month
+            </button>
+            <button
+              onClick={() => { resetUpload(); router.push('/upload') }}
+              style={{
+                display: 'block', width: '100%', padding: '11px',
+                background: 'white', color: '#92400e',
+                border: '1.5px solid #fcd34d', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              📄 Chhoti report try karo
+            </button>
+          </div>
+        </div>
+      )}
+
+      {error && errorType !== 'report_too_large' && errorType !== 'anon_gate' && errorType !== 'file_size_guest' && errorType !== 'file_size_free' && (
+        <div style={{
+          marginTop: 16,
+          background: '#fef2f2', border: '1.5px solid #fecaca',
+          borderRadius: 16, overflow: 'hidden',
+        }}>
+          {/* Message row */}
+          <div style={{ padding: '14px 16px 10px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>⚠️</span>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#dc2626', lineHeight: 1.55, margin: 0 }}>
+              {error}
+            </p>
+          </div>
+
+          {/* Contextual tip */}
+          {errorType === 'non_medical' && (
+            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 Blood test, CBC, sugar report, thyroid report — inhe upload karo.
+            </p>
+          )}
+          {errorType === 'password' && (
+            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 iLovePDF.com pe PDF upload karo → Security → Remove Password
+            </p>
+          )}
+          {errorType === 'parse_error' && (
+            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 Achhi roshni mein flat surface pe rakhke dobara photo lo — ya PDF format mein upload karo 📄 PDF se best results aate hain
+            </p>
+          )}
+          {errorType === 'too_small' && (
+            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 Screenshot ya thumbnail mat bhejo — original report ka pura photo lo.
+            </p>
+          )}
+          {errorType === 'file_size_pro' && (
+            <p style={{ fontSize: 12, color: '#64748b', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 ilovepdf.com pe free mein compress karo — 15MB se neeche laao{' '}
+              <a href="https://ilovepdf.com" target="_blank" rel="noopener noreferrer"
+                 style={{ color: '#0d9488' }}>
+                Compress karo →
+              </a>
+            </p>
+          )}
+
+          {/* Upgrade button */}
+          {errorType === 'limit' && (
+            <div style={{ padding: '0 16px 14px' }}>
+              <button
+                onClick={() => router.push('/upgrade')}
+                style={{
+                  display: 'block', width: '100%', padding: '12px',
+                  background: '#0d9488', color: 'white',
+                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                🚀 Pro Upgrade Karo — ₹199/month
+              </button>
+            </div>
+          )}
+          {errorType === 'too_large' && !isPro && (
+            <div style={{ padding: '0 16px 8px' }}>
+              <a href="/upgrade" style={{
+                display: 'block',
+                background: '#0d9488',
+                color: 'white',
+                padding: '10px 16px',
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 600,
+                textDecoration: 'none',
+                textAlign: 'center',
+              }}>
+                ⚡ Pro mein 15MB tak analyze hoti hai — Upgrade karo
+              </a>
+            </div>
+          )}
+
+          {/* Retry + WhatsApp — shown for all errors except limit/login redirects */}
+          {errorType !== 'limit' && errorType !== 'login' && (
+            <div style={{ padding: '0 16px 14px', display: 'flex', gap: 8 }}>
+              <button
+                onClick={resetUpload}
+                style={{
+                  flex: 1, padding: '11px',
+                  background: '#dc2626', color: 'white',
+                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                🔄 Dobara Try Karo
+              </button>
+              <a
+                href="https://wa.me/918076170877?text=Meri+report+upload+nahi+ho+rahi+%F0%9F%99%8F"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  flex: 1, padding: '11px',
+                  background: '#22c55e', color: 'white',
+                  borderRadius: 10, fontSize: 13, fontWeight: 700,
+                  textDecoration: 'none',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                }}
+              >
+                💬 WhatsApp Help
+              </a>
+            </div>
+          )}
+
+          {/* Guest login prompt — shown when not logged in */}
+          {isGuest && errorType !== 'limit' && errorType !== 'login' && (
+            <div style={{
+              margin: '0 16px 14px',
+              background: 'linear-gradient(135deg,#f0fdfa,#ecfdf5)',
+              border: '1.5px solid #0d9488', borderRadius: 12, padding: '14px',
+            }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#0d9488', marginBottom: 4 }}>
+                📱 Login karo aur report save karo — dobara analyze karte hain free mein!
+              </p>
+              <p style={{ fontSize: 11, color: '#134e4a', lineHeight: 1.55, marginBottom: 10 }}>
+                Login ke baad report history, abnormal alerts aur AI chat bhi milega.
+              </p>
+              <button
+                onClick={handleLoginForRetry}
+                style={{
+                  width: '100%', padding: '11px',
+                  background: '#0d9488', color: 'white',
+                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                📱 OTP se Login Karo
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── SECTION 4: Camera + Sample Buttons ── */}
       {noFile && (
@@ -596,165 +920,6 @@ export default function UploadPage() {
         }}>
           ...aur baaki sabhi Indian labs ✅
         </p>
-        </div>
-      )}
-
-      {/* ── SECTION 8: Error ── */}
-      {error && errorType === 'report_too_large' && (
-        <div style={{
-          marginTop: 16,
-          background: 'linear-gradient(135deg,#fffbeb,#fef3c7)',
-          border: '1.5px solid #fcd34d',
-          borderRadius: 16, overflow: 'hidden',
-        }}>
-          <div style={{ padding: '18px 16px 14px' }}>
-            <p style={{ fontSize: 16, fontWeight: 800, color: '#92400e', margin: '0 0 8px' }}>
-              Yeh report thodi badi hai! 📋
-            </p>
-            <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6, margin: '0 0 16px' }}>
-              Aapki report mein bahut saari details hain — Pro plan mein unlimited badi reports analyze hoti hain. Abhi upgrade karo sirf ₹199/month mein! 🚀
-            </p>
-            <button
-              onClick={() => router.push('/upgrade')}
-              style={{
-                display: 'block', width: '100%', padding: '12px',
-                background: '#d97706', color: 'white',
-                border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 800,
-                cursor: 'pointer', fontFamily: 'inherit', marginBottom: 8,
-              }}
-            >
-              🚀 Pro Upgrade Karo ₹199/month
-            </button>
-            <button
-              onClick={() => { resetUpload(); router.push('/upload') }}
-              style={{
-                display: 'block', width: '100%', padding: '11px',
-                background: 'white', color: '#92400e',
-                border: '1.5px solid #fcd34d', borderRadius: 10, fontSize: 13, fontWeight: 700,
-                cursor: 'pointer', fontFamily: 'inherit',
-              }}
-            >
-              📄 Chhoti report try karo
-            </button>
-          </div>
-        </div>
-      )}
-
-      {error && errorType !== 'report_too_large' && (
-        <div style={{
-          marginTop: 16,
-          background: '#fef2f2', border: '1.5px solid #fecaca',
-          borderRadius: 16, overflow: 'hidden',
-        }}>
-          {/* Message row */}
-          <div style={{ padding: '14px 16px 10px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>⚠️</span>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#dc2626', lineHeight: 1.55, margin: 0 }}>
-              {error}
-            </p>
-          </div>
-
-          {/* Contextual tip */}
-          {errorType === 'low_quality' && (
-            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
-              💡 Seedha camera se photo lo, achhi roshni mein. WhatsApp se forward karne se quality bahut kam ho jaati hai.
-            </p>
-          )}
-          {errorType === 'non_medical' && (
-            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
-              💡 Blood test, CBC, sugar report, thyroid report — inhe upload karo.
-            </p>
-          )}
-          {errorType === 'password' && (
-            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
-              💡 iLovePDF.com pe PDF upload karo → Security → Remove Password
-            </p>
-          )}
-          {errorType === 'parse_error' && (
-            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
-              💡 PDF format best kaam karta hai. Image blur ho toh achhe se dobara photo lo.
-            </p>
-          )}
-          {errorType === 'too_small' && (
-            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
-              💡 Screenshot ya thumbnail mat bhejo — original report ka pura photo lo.
-            </p>
-          )}
-
-          {/* Upgrade button */}
-          {errorType === 'limit' && (
-            <div style={{ padding: '0 16px 14px' }}>
-              <button
-                onClick={() => router.push('/upgrade')}
-                style={{
-                  display: 'block', width: '100%', padding: '12px',
-                  background: '#0d9488', color: 'white',
-                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
-                  cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                🚀 Pro Upgrade Karo — ₹199/month
-              </button>
-            </div>
-          )}
-
-          {/* Retry + WhatsApp — shown for all errors except limit/login redirects */}
-          {errorType !== 'limit' && errorType !== 'login' && (
-            <div style={{ padding: '0 16px 14px', display: 'flex', gap: 8 }}>
-              <button
-                onClick={resetUpload}
-                style={{
-                  flex: 1, padding: '11px',
-                  background: '#dc2626', color: 'white',
-                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
-                  cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                🔄 Dobara Try Karo
-              </button>
-              <a
-                href="https://wa.me/918076170877?text=Meri+report+upload+nahi+ho+rahi+%F0%9F%99%8F"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  flex: 1, padding: '11px',
-                  background: '#22c55e', color: 'white',
-                  borderRadius: 10, fontSize: 13, fontWeight: 700,
-                  textDecoration: 'none',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-                }}
-              >
-                💬 WhatsApp Help
-              </a>
-            </div>
-          )}
-
-          {/* Guest login prompt — shown when not logged in */}
-          {isGuest && errorType !== 'limit' && errorType !== 'login' && (
-            <div style={{
-              margin: '0 16px 14px',
-              background: 'linear-gradient(135deg,#f0fdfa,#ecfdf5)',
-              border: '1.5px solid #0d9488', borderRadius: 12, padding: '14px',
-            }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#0d9488', marginBottom: 4 }}>
-                📱 Login karo aur report save karo — dobara analyze karte hain free mein!
-              </p>
-              <p style={{ fontSize: 11, color: '#134e4a', lineHeight: 1.55, marginBottom: 10 }}>
-                Login ke baad report history, abnormal alerts aur AI chat bhi milega.
-              </p>
-              <button
-                onClick={handleLoginForRetry}
-                style={{
-                  width: '100%', padding: '11px',
-                  background: '#0d9488', color: 'white',
-                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
-                  cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                📱 OTP se Login Karo
-              </button>
-            </div>
-          )}
         </div>
       )}
 

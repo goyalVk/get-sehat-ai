@@ -24,8 +24,10 @@ export default function Navbar() {
     router.push('/')
   }
 
-  const firstName  = user?.firstName || user?.phone?.slice(-4) || ''
-  const isAuthPage = pathname?.startsWith('/auth')
+  const firstName    = user?.firstName || user?.phone?.slice(-4) || ''
+  const isAuthPage   = pathname?.startsWith('/auth')
+  const isPro        = user?.plan === 'paid' || user?.plan === 'pro'
+  const showUpgrade  = user && !isPro && pathname !== '/upgrade'
 
   return (
 <>
@@ -108,6 +110,22 @@ export default function Navbar() {
                     <span className="nav-link-label">{link.label}</span>
                   </Link>
                 ))}
+
+                {showUpgrade && (
+                  <Link href="/upgrade" style={{
+                    background: '#0d9488',
+                    color: '#ffffff',
+                    padding: '6px 14px',
+                    borderRadius: 10,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}>
+                    ⚡ Upgrade
+                  </Link>
+                )}
 
                 {/* Avatar */}
                 <div style={{ position: 'relative', marginLeft: 4 }}>

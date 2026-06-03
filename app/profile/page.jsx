@@ -70,7 +70,7 @@ export default function ProfilePage() {
     : user?.phone?.slice(-2) || 'U'
 
   const reportsPercent = Math.min(
-    ((user?.reportsUsed || 0) / (user?.reportsLimit || 2)) * 100, 100
+    ((user?.reportsUsed || 0) / (user?.reportsLimit || 5)) * 100, 100
   )
 
   return (
@@ -115,24 +115,24 @@ export default function ProfilePage() {
 
         {/* Plan Card */}
         <div style={{
-          background: user?.plan === 'paid' ? '#e6faf8' : '#ffffff',
-          border: `1px solid ${user?.plan === 'paid' ? '#0d9488' : '#e2e8f0'}`,
+          background: (user?.plan === 'paid' || user?.plan === 'pro') ? '#e6faf8' : '#ffffff',
+          border: `1px solid ${(user?.plan === 'paid' || user?.plan === 'pro') ? '#0d9488' : '#e2e8f0'}`,
           borderRadius: 16, padding: 20, marginBottom: 20
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <p style={{ fontSize: 11, color: '#94a3b8', margin: '0 0 4px' }}>Current Plan</p>
-              <p style={{ fontSize: 18, fontWeight: 700, color: user?.plan === 'paid' ? '#0d9488' : '#1e293b', margin: 0 }}>
-                {user?.plan === 'paid' ? '✓ Paid Plan' : 'Free Plan'}
+              <p style={{ fontSize: 18, fontWeight: 700, color: (user?.plan === 'paid' || user?.plan === 'pro') ? '#0d9488' : '#1e293b', margin: 0 }}>
+                {(user?.plan === 'paid' || user?.plan === 'pro') ? '✓ Paid Plan' : 'Free Plan'}
               </p>
               <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
-                {user?.plan === 'paid'
+                {(user?.plan === 'paid' || user?.plan === 'pro')
                   ? 'Unlimited reports'
-                  : `${user?.reportsUsed || 0} / ${user?.reportsLimit || 2} reports used`
+                  : `${user?.reportsUsed || 0} / ${user?.reportsLimit || 5} reports used`
                 }
               </p>
             </div>
-            {user?.plan !== 'paid' && (
+            {user?.plan !== 'paid' && user?.plan !== 'pro' && (
               <Link href="/upgrade" style={{
                 background: '#0d9488', color: '#ffffff',
                 padding: '8px 16px', borderRadius: 12,
@@ -144,7 +144,7 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {user?.plan !== 'paid' && (
+          {user?.plan !== 'paid' && user?.plan !== 'pro' && (
             <div style={{ marginTop: 12 }}>
               <div style={{ width: '100%', background: '#e2e8f0', borderRadius: 999, height: 6 }}>
                 <div style={{

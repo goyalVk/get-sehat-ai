@@ -110,6 +110,7 @@ export default function HistoryPage() {
   const [loading, setLoading]   = useState(true)
   const [expanded, setExpanded] = useState({})
   const [total, setTotal]       = useState(0)
+  const [isPro, setIsPro]                     = useState(false)
   const [historyFeedback, setHistoryFeedback] = useState('')
   const [historyRating, setHistoryRating]     = useState(0)
   const [historyHover, setHistoryHover]       = useState(0)
@@ -120,8 +121,10 @@ export default function HistoryPage() {
 
   const fetchData = async () => {
     try {
-      const authRes = await fetch('/api/auth/me')
-      if (!authRes.ok) { router.push('/auth/login'); return }
+      const authRes  = await fetch('/api/auth/me')
+      const authData = await authRes.json()
+      if (!authRes.ok || !authData.id) { router.push('/auth/login'); return }
+      setIsPro(authData.plan === 'paid' || authData.plan === 'pro')
 
       const res  = await fetch('/api/reports')
       const data = await res.json()
@@ -283,6 +286,43 @@ export default function HistoryPage() {
               ))}
             </div>
           </div>
+
+          {/* Upgrade CTA — free users only */}
+          {!isPro && (
+            <div style={{
+              background: 'linear-gradient(135deg, #f0fdfa, #e6fffa)',
+              border: '1px solid #99f6e4',
+              borderRadius: 16,
+              padding: '16px 20px',
+              marginBottom: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12
+            }}>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 700, color: '#0d9488', margin: '0 0 2px' }}>
+                  ⚡ Pro plan mein upgrade karo
+                </p>
+                <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
+                  Unlimited reports + PDF download — sirf ₹199/month
+                </p>
+              </div>
+              <a href="/upgrade" style={{
+                background: '#0d9488',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: 10,
+                fontSize: 12,
+                fontWeight: 600,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
+              }}>
+                Upgrade →
+              </a>
+            </div>
+          )}
 
           {/* Empty State */}
           {total === 0 && (

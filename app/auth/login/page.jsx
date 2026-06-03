@@ -134,17 +134,30 @@ function LoginForm() {
           phone:       user.phoneNumber,
           firebaseUid: user.uid,
           token:       await user.getIdToken(),
-          name:        name.trim()
+          name:        name.trim(),
+          anonId:      (() => { try { return localStorage.getItem('s24_uid') } catch { return null } })()
         })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      try { localStorage.setItem('s24_user', JSON.stringify({ id: data.user?.id })) } catch {}
+      try { localStorage.setItem('s24_user', JSON.stringify({ id: data.user?.id, plan: data.user?.plan || 'free' })) } catch {}
       if (isNewUser) {
         events.signupCompleted()
       } else {
         events.loginCompleted()
       }
+
+      // Map any anon reports to this userId — fire-and-forget
+      try {
+        const anonId = localStorage.getItem('s24_uid')
+        if (anonId && data.user?.id) {
+          fetch('/api/auth/map-anon', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ anonId, userId: data.user.id }),
+          }).catch(() => {})
+        }
+      } catch {}
 
       // Link any existing push token / anonId to the newly authenticated user
       const pushToken = localStorage.getItem('s24_push_token')

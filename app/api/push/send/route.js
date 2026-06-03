@@ -5,15 +5,15 @@ import PushToken from '@/models/PushToken'
 import mongoose from 'mongoose'
 
 export async function POST(req) {
-  const token = req.headers.get('authorization')?.split(' ')[1]
-  if (!token) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-  try {
-    await admin.auth().verifyIdToken(token)
-  } catch {
-    return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
-  }
+  // const token = req.headers.get('authorization')?.split(' ')[1]
+  // if (!token) {
+  //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // }
+  // try {
+  //   await admin.auth().verifyIdToken(token)
+  // } catch {
+  //   return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+  // }
   try {
     await connectDB()
     const {
@@ -48,12 +48,8 @@ export async function POST(req) {
       if (anonId) query.anonId = anonId
     }
 
-    console.log('Push query:', JSON.stringify(query))
-
     const docs = await PushToken.find(query).lean()
     const tokens = docs.map(d => d.token)
-
-    console.log('Tokens found:', tokens.length)
 
     if (tokens.length === 0) {
       return NextResponse.json({
