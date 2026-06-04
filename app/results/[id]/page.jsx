@@ -180,9 +180,6 @@ export default async function ResultsPage({ params }) {
         .herb-btn:hover { opacity: 0.85; transform: translateY(-1px); }
         .login-btn:hover { background: #0f766e !important; transform: translateY(-1px); }
 
-        /* ── Action buttons row ── */
-        .action-buttons { display: flex; gap: 10px; margin-bottom: 12px; }
-
         /* ── Blog recommendation cards ── */
         .blog-rec-card {
           display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -232,14 +229,6 @@ export default async function ResultsPage({ params }) {
 
           /* All section h2 cap */
           h2 { font-size: 15px !important; }
-
-          /* Action buttons — stack */
-          .action-buttons { flex-direction: column !important; }
-          .action-buttons a, .action-buttons > * {
-            width: 100% !important;
-            text-align: center !important;
-            justify-content: center !important;
-          }
 
           /* Instagram card — stack */
           .ig-follow-card {
@@ -709,6 +698,34 @@ export default async function ResultsPage({ params }) {
               >
                 📊 Dashboard Dekho
               </Link>
+              {/* WhatsApp Share Button */}
+              {(() => {
+                const shareText = encodeURIComponent(
+                  `Maine apni ${result?.report_type || 'lab report'} Sehat24 pe analyze ki — Hindi mein results dekho! 🇮🕳\n👉 sehat24.com/results/${id}\nSehat24 — Free medical report analyzer for India`
+                )
+                return (
+                  <a
+                    href={`https://wa.me/?text=${shareText}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      background: '#25D366',
+                      color: 'white',
+                      padding: '10px 18px',
+                      borderRadius: 12,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    💬 WhatsApp pe Share karo
+                  </a>
+                )
+              })()}
             </div>
           </section>
 
