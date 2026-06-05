@@ -291,10 +291,10 @@ function DashboardContent() {
             }}>
               <div>
                 <p style={{ fontSize: 13, fontWeight: 700, color: '#0d9488', margin: '0 0 2px' }}>
-                  ⚡ Pro plan mein upgrade karo
+                  ⚡ ₹199 mein poora mahina — unlimited reports!
                 </p>
                 <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
-                  Unlimited reports + PDF download — sirf ₹199/month
+                  Jitni bhi reports ho — sab analyze karo + PDF download karo
                 </p>
               </div>
               <a href="/upgrade" style={{
@@ -308,7 +308,7 @@ function DashboardContent() {
                 whiteSpace: 'nowrap',
                 flexShrink: 0
               }}>
-                Upgrade →
+                🔓 Pro lo — Sirf ₹199
               </a>
             </div>
           )}

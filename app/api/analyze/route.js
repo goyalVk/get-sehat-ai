@@ -395,7 +395,7 @@ export async function POST(req) {
     if (user) {
       if (!isPro && user.reportsUsed >= user.reportsLimit) {
         return NextResponse.json({
-          error:        'Aapne 5 free reports use kar li hain — Pro mein upgrade karo, unlimited reports + PDF download sirf ₹199/month 🚀',
+          error:        '⚡ ₹199 mein poora mahina — unlimited reports! Jitni bhi reports ho — sab analyze karo + PDF download karo',
           limitReached: true,
           upgradeUrl:   'https://rzp.io/rzp/f5GzI7Qj'
         }, { status: 403 })
@@ -752,7 +752,7 @@ export async function POST(req) {
                   fcmOptions: { link: 'https://sehat24.com/upgrade' },
                   data: {
                     title: '📊 Sirf 1 free report bacha hai!',
-                    body:  'Pro lo pehle — unlimited reports + PDF sirf ₹199/month 🚀',
+                    body:  '₹199 mein poora mahina unlimited reports + PDF download. Koi automatic deduction nahi!',
                     url:   'https://sehat24.com/upgrade',
                     icon:  'https://sehat24.com/icon-192x192.png'
                   }

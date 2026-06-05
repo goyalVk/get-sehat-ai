@@ -561,7 +561,7 @@ export default function UploadPage() {
               </p>
             </div>
             <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.65, marginBottom: 16 }}>
-              {error || 'Badi file hai — Pro plan mein upgrade karo'}
+              {error || 'Jitni bhi reports ho — sab analyze karo + PDF download karo'}
             </p>
             <a
               href="/upgrade"
@@ -573,7 +573,7 @@ export default function UploadPage() {
                 boxSizing: 'border-box',
               }}
             >
-              ⚡ Pro Upgrade Karo — ₹199/month →
+              🔓 Pro lo — Sirf ₹199
             </a>
           </div>
         </div>
@@ -625,7 +625,7 @@ export default function UploadPage() {
               Yeh report thodi badi hai! 📋
             </p>
             <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6, margin: '0 0 16px' }}>
-              Aapki report mein bahut saari details hain — Pro plan mein unlimited badi reports analyze hoti hain. Abhi upgrade karo sirf ₹199/month mein! 🚀
+              Jitni bhi reports ho — sab analyze karo + PDF download karo
             </p>
             <button
               onClick={() => router.push('/upgrade')}
@@ -636,7 +636,7 @@ export default function UploadPage() {
                 cursor: 'pointer', fontFamily: 'inherit', marginBottom: 8,
               }}
             >
-              🚀 Pro Upgrade Karo ₹199/month
+              🔓 Pro lo — Sirf ₹199
             </button>
             <button
               onClick={() => { resetUpload(); router.push('/upload') }}

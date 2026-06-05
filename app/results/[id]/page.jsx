@@ -380,7 +380,7 @@ export default async function ResultsPage({ params }) {
                   Pro mein meri limit badh jaati hai — wahan aapko poori summary, lifestyle tips aur ayurvedic suggestions bhi dunga 😊
                 </p>
                 <a href="/upgrade" style={{ display: 'inline-block', background: '#0d9488', color: 'white', padding: '12px 28px', borderRadius: 12, textDecoration: 'none', fontSize: 14, fontWeight: 700 }}>
-                  Pro lo sirf ₹199/month →
+                  🔓 Pro lo — Sirf ₹199
                 </a>
               </div>
             )}
@@ -422,10 +422,10 @@ export default async function ResultsPage({ params }) {
             }}>
               <div style={{ fontSize: 28, marginBottom: 8 }}>⚡</div>
               <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
-                Free reports khatam ho gayi!
+                ⚡ ₹199 mein poora mahina — unlimited reports!
               </p>
               <p style={{ fontSize: 13, color: '#78350f', marginBottom: 16, lineHeight: 1.5 }}>
-                Pro lo — Unlimited reports + PDF download + History track. Sirf ₹199/month 🇮🇳
+                Jitni bhi reports ho — sab analyze karo + PDF download karo
               </p>
               <a href="/upgrade" style={{
                 display: 'block',
@@ -433,7 +433,7 @@ export default async function ResultsPage({ params }) {
                 color: 'white', padding: 12, borderRadius: 12,
                 fontWeight: 700, fontSize: 14, textDecoration: 'none'
               }}>
-                ⚡ Pro Upgrade Karo →
+                🔓 Pro lo — Sirf ₹199
               </a>
             </div>
           )}
@@ -606,7 +606,7 @@ export default async function ResultsPage({ params }) {
                   Sehat24 branded PDF — doctor ke paas le jaao.
                 </p>
                 <p style={{ fontSize: 12, color: '#b45309', marginBottom: 16 }}>
-                  Pro plan mein PDF download free hai — sirf ₹199/month
+                  Jitni bhi reports ho — sab analyze karo + PDF download karo
                 </p>
                 <a
                   href={isLoggedIn ? '/upgrade' : `/auth/login?redirect=/results/${id}&source=pdf_gate`}
@@ -617,7 +617,7 @@ export default async function ResultsPage({ params }) {
                     textDecoration: 'none', boxSizing: 'border-box',
                   }}
                 >
-                  🔒 PDF Download — Pro mein upgrade karo
+                  🔓 Pro lo — Sirf ₹199
                 </a>
               </div>
             )}
