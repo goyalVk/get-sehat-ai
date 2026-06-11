@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 const UserSchema = new mongoose.Schema(
   {
     phone:        { type: String, required: true, unique: true },
-    firebaseUid:  { type: String, required: true, unique: true },
+    firebaseUid:  { type: String, default: null, sparse: true },
     
     // Personal info
     firstName:    { type: String, default: null },
@@ -25,6 +25,11 @@ const UserSchema = new mongoose.Schema(
     isActive:     { type: Boolean, default: true },
     isBlocked:    { type: Boolean, default: false },
     blockedReason: { type: String, default: null },
+
+    // OTP Auth
+    otp:         { type: String, default: null },
+    otpExpiry:   { type: Date,   default: null },
+    otpAttempts: { type: Number, default: 0 },
   },
   { timestamps: true }
 )

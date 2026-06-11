@@ -2,11 +2,28 @@ import { NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import User from '@/models/user'
 import { cookies } from 'next/headers'
+import jwt from 'jsonwebtoken'
 
 export async function GET() {
   try {
     const cookieStore = await cookies()
-    const userId = cookieStore.get('userId')?.value
+
+    // Try JWT token cookie first (new OTP auth)
+    let userId = null
+    const tokenCookie = cookieStore.get('token')?.value
+    if (tokenCookie) {
+      try {
+        const decoded = jwt.verify(tokenCookie, process.env.JWT_SECRET)
+        userId = decoded.userId
+      } catch (e) {
+        // Invalid/expired JWT — try fallback
+      }
+    }
+
+    // Fallback — old Firebase userId cookie
+    if (!userId) {
+      userId = cookieStore.get('userId')?.value
+    }
 
     if (!userId) {
       return NextResponse.json(

@@ -1,8 +1,6 @@
 'use client'
-import { useState, Suspense, useEffect, useRef } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { auth } from '@/lib/firebase'
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import Link from 'next/link'
 import { events } from '@/components/Analytics'
 import { requestPushPermission } from '@/lib/pushNotification'
@@ -12,65 +10,14 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const redirectTo   = searchParams.get('redirect') || '/dashboard'
 
-  const [phone, setPhone]       = useState('')
-  const [name, setName]         = useState('')
-  const [otp, setOtp]           = useState('')
-  const [step, setStep]         = useState('phone')
-  const [loading, setLoading]   = useState(false)
+  const [phone, setPhone]           = useState('')
+  const [name, setName]             = useState('')
+  const [otp, setOtp]               = useState('')
+  const [step, setStep]             = useState('phone')
+  const [loading, setLoading]       = useState(false)
   const [loadingMsg, setLoadingMsg] = useState('')
-  const [error, setError]       = useState('')
-  const [confirm, setConfirm]   = useState(null)
-  const [isNewUser, setIsNewUser] = useState(false)
-  const recaptchaInitialized    = useRef(false)
-
-  // ── Pre-initialize recaptcha on mount ──
-  useEffect(() => {
-    const init = async () => {
-      try {
-        if (recaptchaInitialized.current) return
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          size: 'invisible',
-          callback: () => {},
-          'expired-callback': () => {
-            recaptchaInitialized.current = false
-            window.recaptchaVerifier = null
-          }
-        })
-        await window.recaptchaVerifier.render()
-        recaptchaInitialized.current = true
-      } catch (err) {
-        console.error('Recaptcha init error:', err)
-      }
-    }
-    init()
-    return () => {
-      if (window.recaptchaVerifier) {
-        try { window.recaptchaVerifier.clear() } catch {}
-        window.recaptchaVerifier = null
-        recaptchaInitialized.current = false
-      }
-    }
-  }, [])
-
-  const resetRecaptcha = async () => {
-    try {
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-      }
-    } catch {}
-    recaptchaInitialized.current = false
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      size: 'invisible',
-      callback: () => {},
-      'expired-callback': () => {
-        recaptchaInitialized.current = false
-        window.recaptchaVerifier = null
-      }
-    })
-    await window.recaptchaVerifier.render()
-    recaptchaInitialized.current = true
-  }
+  const [error, setError]           = useState('')
+  const [isNewUser, setIsNewUser]   = useState(false)
 
   const sendOTP = async () => {
     setError('')
@@ -82,72 +29,69 @@ function LoginForm() {
     setLoading(true)
     setLoadingMsg('OTP bhej rahe hain...')
     try {
-      // ── Ensure recaptcha ready ──
-      if (!recaptchaInitialized.current || !window.recaptchaVerifier) {
-        await resetRecaptcha()
+      // Check user first — before sending OTP
+      const checkRes  = await fetch('/api/auth/check-user', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ phone: `+91${phone}` }),
+      })
+      const checkData = await checkRes.json()
+      setIsNewUser(!checkData.exists || !checkData.hasName)
+
+      // Send OTP via 2Factor
+      const res  = await fetch('/api/auth/send-otp', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ phone }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'OTP bhejne mein error. Dobara try karo.')
+        return
       }
 
-      // ── Run OTP + check-user in parallel ──
-      const [confirmation, checkRes] = await Promise.all([
-        signInWithPhoneNumber(auth, `+91${phone}`, window.recaptchaVerifier),
-        fetch('/api/auth/check-user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: `+91${phone}` })
-        })
-      ])
-
-      setConfirm(confirmation)
-      const checkData = await checkRes.json()
-      setIsNewUser(!checkData.exists)
       setStep('otp')
 
-    } catch (err) {
-      console.error('OTP Error:', err.code, err.message)
-      await resetRecaptcha().catch(() => {})
-      if (err.code === 'auth/too-many-requests') {
-        setError('Bahut zyada requests. Thodi der baad try karo.')
-      } else if (err.code === 'auth/invalid-phone-number') {
-        setError('Phone number galat hai. Dobara check karo.')
-      } else {
-        setError('OTP bhejne mein error. Dobara try karo.')
-      }
+    } catch {
+      setError('OTP bhejne mein error. Dobara try karo.')
+    } finally {
+      setLoading(false)
+      setLoadingMsg('')
     }
-    setLoading(false)
-    setLoadingMsg('')
   }
 
   const verifyOTP = async () => {
-    
     setError('')
     if (!otp || otp.length !== 6) { setError('6 digit OTP enter karo'); return }
     if (isNewUser && !name.trim()) { setError('Apna naam enter karo'); return }
     setLoading(true)
     setLoadingMsg('Verify ho raha hai...')
     try {
-      const result = await confirm.confirm(otp)
-      const user   = result.user
-      const res    = await fetch('/api/auth/verify', {
-        method: 'POST',
+      const res  = await fetch('/api/auth/verify-otp', {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phone:       user.phoneNumber,
-          firebaseUid: user.uid,
-          token:       await user.getIdToken(),
-          name:        name.trim(),
-          anonId:      (() => { try { return localStorage.getItem('s24_uid') } catch { return null } })()
-        })
+        body:    JSON.stringify({ phone, otp, name: name.trim() }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      try { localStorage.setItem('s24_user', JSON.stringify({ id: data.user?.id, plan: data.user?.plan || 'free' })) } catch {}
+      if (!res.ok) {
+        setError(data.error || 'OTP galat hai ya expire ho gaya. Dobara try karo.')
+        return
+      }
+
+      try {
+        localStorage.setItem('s24_user', JSON.stringify({
+          id:   data.user?.id,
+          plan: data.user?.plan || 'free'
+        }))
+      } catch {}
+
       if (isNewUser) {
         events.signupCompleted()
       } else {
         events.loginCompleted()
       }
 
-      // Map any anon reports to this userId — fire-and-forget
+      // Map anon reports
       try {
         const anonId = localStorage.getItem('s24_uid')
         if (anonId && data.user?.id) {
@@ -159,25 +103,28 @@ function LoginForm() {
         }
       } catch {}
 
-      // Link any existing push token / anonId to the newly authenticated user
-      const pushToken = localStorage.getItem('s24_push_token')
-      const anonId    = localStorage.getItem('s24_uid')
-      if (pushToken || anonId) {
-        fetch('/api/push/link-user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: pushToken || null, anonId: anonId || null })
-        }).catch(console.error)
-      }
-      await requestPushPermission()
+      // Link push token
+      try {
+        const pushToken = localStorage.getItem('s24_push_token')
+        const anonId    = localStorage.getItem('s24_uid')
+        if (pushToken || anonId) {
+          fetch('/api/push/link-user', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ token: pushToken || null, anonId: anonId || null }),
+          }).catch(console.error)
+        }
+      } catch {}
 
+      await requestPushPermission()
       router.push(redirectTo)
-    } catch (err) {
-      console.error(err)
+
+    } catch {
       setError('OTP galat hai ya expire ho gaya. Dobara try karo.')
+    } finally {
+      setLoading(false)
+      setLoadingMsg('')
     }
-    setLoading(false)
-    setLoadingMsg('')
   }
 
   return (
@@ -319,7 +266,6 @@ function LoginForm() {
           <Link href="/privacy" style={{ color: '#94a3b8' }}>Privacy Policy</Link>
         </p>
 
-        <div id="recaptcha-container" />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     </main>

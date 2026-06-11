@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 
-export function middleware(request) {
+export async function middleware(request) {
   const ua = request.headers.get('user-agent') || ''
-
   if (!ua.trim()) {
     return NextResponse.json(
       { error: 'Access denied' },
