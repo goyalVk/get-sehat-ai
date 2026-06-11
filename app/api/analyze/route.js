@@ -346,7 +346,8 @@ export async function POST(req) {
     const authHeader   = req.headers.get('authorization')
     const headerUserId = authHeader?.replace('Bearer ', '').trim() || null
 
-    const resolvedUserId = cookieUserId || headerUserId || null
+    // earlyUserId fallback — from formData (handles cookie missing cases)
+    const resolvedUserId = cookieUserId || headerUserId || earlyUserId || null
     userId               = resolvedUserId
 
     let user  = null
@@ -481,22 +482,22 @@ export async function POST(req) {
     if (resolvedFileType === 'application/pdf') {
       const pdfText   = buffer.toString('latin1')
       const pageCount = (pdfText.match(/\/Type\s*\/Page[^s]/g) || []).length
-      const maxPages  = isPro ? Infinity : isGuestUser ? GUEST_MAX_PAGES : FREE_MAX_PAGES
+      const maxPages  = isPro ? Infinity : !resolvedUserId ? GUEST_MAX_PAGES : FREE_MAX_PAGES
 
       if (pageCount > 0 && pageCount > maxPages) {
         await Report.create({
           fileName: file.name, fileType: resolvedFileType, fileSize: file.size,
           userId: user?._id?.toString() || null, anonId, sessionId: crypto.randomUUID(),
           status: 'failed', isSpam: false, preCheckFailed: true,
-          spamReason: isGuestUser ? 'pdf_pages_guest' : 'pdf_pages_free',
-          errorMessage: isGuestUser
+          spamReason: !resolvedUserId ? 'pdf_pages_guest' : 'pdf_pages_free',
+          errorMessage: !resolvedUserId
             ? `PDF mein ${pageCount} pages hain — login karo aur 10 pages tak free mein analyze karo! 🔓`
             : `PDF mein ${pageCount} pages hain — Pro plan mein unlimited pages analyze hoti hain ✨`,
-          errorType: isGuestUser ? 'pdf_pages_guest' : 'pdf_pages_free',
+          errorType: !resolvedUserId ? 'pdf_pages_guest' : 'pdf_pages_free',
           userAgent,
         })
         return NextResponse.json(
-          isGuestUser
+          !resolvedUserId
             ? { requiresLogin:   true, error: `PDF mein zyada pages hain — login karo aur 10 pages tak free mein analyze karo! 🔓` }
             : { requiresUpgrade: true, error: `PDF mein ${pageCount} pages hain — Pro plan mein unlimited pages analyze hoti hain ✨` },
           { status: 403 }
