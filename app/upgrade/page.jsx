@@ -170,6 +170,12 @@ export default function UpgradePage() {
               pure mahine ke liye —{' '}
               <span style={{ color: '#ffffff', fontWeight: 600 }}>koi hidden charges nahi</span>
             </div>
+            <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
+              = Sirf ₹7/din — ek chai se bhi sasta ☕
+            </p>
+            <p style={{ fontSize: 12, color: '#0d9488', marginTop: 8, fontWeight: 600 }}>
+              1,200+ users already trust kar rahe hain 🇮🇳
+            </p>
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -291,7 +297,7 @@ export default function UpgradePage() {
         {/* Support */}
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontSize: 12, color: '#475569', margin: 0 }}>
-            Koi problem? <strong style={{ color: '#0d9488' }}>hello@sehat24.com</strong> pe likhein — hum hain 🙏
+            Koi problem? <strong style={{ color: '#0d9488' }}>teamsehat24@gmail.com</strong> pe likhein — hum hain 🙏
           </p>
         </div>
 

@@ -499,7 +499,7 @@ export async function POST(req) {
         return NextResponse.json(
           !resolvedUserId
             ? { requiresLogin:   true, error: `PDF mein zyada pages hain — login karo aur 10 pages tak free mein analyze karo! 🔓` }
-            : { requiresUpgrade: true, error: `PDF mein ${pageCount} pages hain — Pro plan mein unlimited pages analyze hoti hain ✨` },
+            : { requiresUpgrade: true, error: `Aapki ${pageCount} page report analyze nahi ho sakti 😕 Pro plan mein unlimited pages, deep analysis aur PDF download — ₹199 mein poora mahina — jitni bhi reports karo, sab free! 1,200+ log use kar rahe hain 🇮🇳` },
           { status: 403 }
         )
       }
@@ -1029,7 +1029,7 @@ async function analyzeWithPDF(base64, model = HAIKU_MODEL, fileSize = 0, isPro =
   const response = await anthropic.messages.create(params)
 
   if (response.stop_reason === 'max_tokens') {
-    const err = new Error('Report bahut badi hai — Pro plan mein badi reports analyze hoti hain 🚀')
+    const err = new Error('Aapki report bahut badi hai 😕 Pro plan mein unlimited pages, deep analysis aur PDF download — ₹199 mein poora mahina — jitni bhi reports karo, sab free! sehat24.com/upgrade')
     err.isTruncated = true
     throw err
   }
@@ -1064,7 +1064,7 @@ async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL, fileSiz
   const response = await anthropic.messages.create(params)
 
   if (response.stop_reason === 'max_tokens') {
-    const err = new Error('Report bahut badi hai — Pro plan mein badi reports analyze hoti hain 🚀')
+    const err = new Error('Aapki report bahut badi hai 😕 Pro plan mein unlimited pages, deep analysis aur PDF download — ₹199 mein poora mahina — jitni bhi reports karo, sab free! sehat24.com/upgrade')
     err.isTruncated = true
     throw err
   }

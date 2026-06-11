@@ -125,6 +125,27 @@ DRUG INTERACTIONS
 - Paracetamol + Ibuprofen → alternate karo, saath mat lo
 
 ═══════════════════════════════════════
+KIDNEY DISEASE — SPECIAL FLOW
+═══════════════════════════════════════
+If user mentions kidney failure, dialysis, creatinine high, CKD, or stage 3/4/5:
+
+1. Acknowledge seriously but calmly — "Kidney disease serious hai lekin manage ho sakti hai"
+2. Diet restrictions (very important for kidney patients):
+   - Potassium restrict karo: banana, orange, tomato, potato kam karo
+   - Phosphorus restrict: dairy, nuts, cola drinks kam karo
+   - Protein moderate: doctor ki advice pe
+   - Fluid restriction if dialysis: doctor se poochho daily limit
+3. Safe herbs for kidney (consult doctor first):
+   - Punarnava, Gokshura, Varuna — traditional kidney support
+   - Chandraprabha vati — ayurvedic support
+4. Dialysis support:
+   - Regular schedule follow karo
+   - Fistula care important hai
+   - BP control zaroori
+5. ALWAYS say: "Kidney disease mein koi bhi herb ya supplement lene se pehle nephrologist se zaroor poochhein — kuch herbs kidney pe load barhate hain"
+6. Refer to nephrologist urgently if: creatinine > 5, urine output very low, swelling in legs/face
+
+═══════════════════════════════════════
 AYURVEDIC HERBS — CONDITION MAPPING
 ═══════════════════════════════════════
 Diabetes: Karela, Methi, Giloy, Jamun seeds
@@ -182,6 +203,37 @@ Uric acid: Men 3.5-7.2, Women 2.6-6.0 mg/dL
 CRP: Normal less than 6 mg/L — high means inflammation or infection
 
 ═══════════════════════════════════════
+SEHAT24 RELATED QUESTIONS
+═══════════════════════════════════════
+If user asks about Sehat24 app, features, download, or mobile app:
+
+App download / mobile app question:
+Say: "Sehat24 abhi web app hai — sehat24.com pe mobile browser mein perfectly kaam karta hai! Home screen pe add karo — bilkul app jaisa feel hoga. Android: Chrome → 3 dots → Add to Home Screen. iPhone: Safari → Share → Add to Home Screen 📱"
+
+App kab aayegi:
+Say: "Sehat24 ka dedicated mobile app jald aa raha hai! Abhi ke liye sehat24.com ko home screen pe add karo — same experience milega. 🚀"
+
+Sehat24 kya hai:
+Say: "Sehat24 ek free AI-powered medical report analyzer hai — aapki lab reports Hindi mein explain karta hai. Upload karo, samjho, healthy raho! 🇮🇳"
+
+Sehat24 features:
+Say: "Sehat24 pe yeh sab free milta hai:
+✅ Lab reports analyze karo — Hindi mein explanation
+✅ Medicine chat — photo upload karke puchho
+✅ 5 free reports — registered users ke liye
+✅ Pro plan mein unlimited — sirf ₹199/month"
+
+Sehat24 Pro plan:
+Say: "Sehat24 Pro — sirf ₹199/month:
+✅ Unlimited reports
+✅ PDF download
+✅ Deep analysis
+Upgrade: sehat24.com/upgrade 🚀"
+
+Contact or support:
+Say: "Sehat24 team se contact karo: 📧 teamsehat24@gmail.com | 🌐 sehat24.com"
+
+═══════════════════════════════════════
 STRICT RULES
 ═══════════════════════════════════════
 ✅ Answer: illness symptoms, herb suggestions, lifestyle
@@ -190,6 +242,7 @@ STRICT RULES
 ✅ Answer: drug interactions, side effects, storage
 ✅ Answer: lab value explanations
 ✅ Answer: general health and wellness questions
+✅ Answer: kidney disease, dialysis, CKD queries with special care
 
 ❌ NEVER guess composition of unknown brands
 ❌ NEVER give specific dosage for individual patient
@@ -222,12 +275,35 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Message required' }, { status: 400 })
     }
 
+    // Empty message with no image — ask for more detail
+    if ((!message || message.length < 3) && !image) {
+      return NextResponse.json({
+        reply: 'Kaunsi medicine ya health problem ke baare mein jaanna chahte hain? Thoda detail mein batao. 🙏'
+      }, { status: 200 })
+    }
+
     // ── Rate limit ────────────────────────────────────
-    const cookieStore = await cookies()
+    const cookieStore  = await cookies()
     const cookieUserId = cookieStore.get('userId')?.value
-    const forwarded    = req.headers.get('x-forwarded-for')
-    const ip           = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
-    const identifier   = cookieUserId || ip
+
+    // JWT token cookie support — new OTP auth users
+    let jwtUserId = null
+    const tokenCookie = cookieStore.get('token')?.value
+    if (tokenCookie) {
+      try {
+        const jwt = await import('jsonwebtoken')
+        const decoded = jwt.default.verify(tokenCookie, process.env.JWT_SECRET)
+        jwtUserId = decoded.userId
+      } catch {
+        // Invalid token — ignore
+      }
+    }
+
+    const resolvedUserId = jwtUserId || cookieUserId || null
+
+    const forwarded  = req.headers.get('x-forwarded-for')
+    const ip         = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
+    const identifier = resolvedUserId || ip
 
     if (!checkRateLimit(identifier)) {
       return NextResponse.json({
@@ -237,7 +313,7 @@ export async function POST(req) {
     }
 
     // ── User lookup ───────────────────────────────────
-    const userDoc = cookieUserId ? await User.findById(cookieUserId).lean() : null
+    const userDoc = resolvedUserId ? await User.findById(resolvedUserId).lean() : null
 
     // ── Conversation history ──────────────────────────
     const recentHistory = history
@@ -289,12 +365,12 @@ export async function POST(req) {
 
     // ── Save user message ─────────────────────────────
     ChatLog.create({
-      userId:    userDoc?._id || null,
+      userId:   userDoc?._id || null,
       anonId,
       sessionId,
-      role:      'user',
-      message:   message || 'Is medicine ke baare mein batao',
-      chatType:  'medicine',
+      role:     'user',
+      message:  message || 'Is medicine ke baare mein batao',
+      chatType: 'medicine',
     }).catch(e => console.error('ChatLog user save error:', e.message))
 
     // ── Stream response ───────────────────────────────
@@ -308,11 +384,24 @@ export async function POST(req) {
     const encoder  = new TextEncoder()
     const readable = new ReadableStream({
       async start(controller) {
+        let fullResponse = ''
         try {
           for await (const chunk of stream) {
             if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
+              fullResponse += chunk.delta.text
               controller.enqueue(encoder.encode(chunk.delta.text))
             }
+          }
+          // Save bot response to DB
+          if (fullResponse.trim()) {
+            ChatLog.create({
+              userId:   userDoc?._id || null,
+              anonId,
+              sessionId,
+              role:     'assistant',
+              message:  fullResponse.trim(),
+              chatType: 'medicine',
+            }).catch(e => console.error('ChatLog bot save error:', e.message))
           }
         } catch (streamErr) {
           console.error('Stream error:', streamErr)

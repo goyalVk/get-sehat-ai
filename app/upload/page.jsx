@@ -557,11 +557,15 @@ export default function UploadPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               <span style={{ fontSize: 28 }}>⚡</span>
               <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', margin: 0 }}>
-                Badi file — Pro plan mein 15MB tak
+                Badi file hai 😕 Pro mein analyze karo!
               </p>
             </div>
             <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.65, marginBottom: 16 }}>
-              {error || 'Jitni bhi reports ho — sab analyze karo + PDF download karo'}
+              {error || 'File badi hai'}
+              <br/><br/>
+              ✅ Unlimited pages &nbsp; ✅ Deep analysis<br/>
+              ✅ PDF download &nbsp; ✅ ₹199 mein poora mahina — jitni bhi reports karo, sab free! ☕<br/>
+              <span style={{ fontSize: 12, color: '#92400e' }}>1,200+ log already use kar rahe hain 🇮🇳</span>
             </p>
             <a
               href="/upgrade"
@@ -573,7 +577,7 @@ export default function UploadPage() {
                 boxSizing: 'border-box',
               }}
             >
-              🔓 Pro lo — Sirf ₹199
+              ⚡ ₹199 mein poora mahina — unlimited reports!
             </a>
           </div>
         </div>
@@ -622,10 +626,12 @@ export default function UploadPage() {
         }}>
           <div style={{ padding: '18px 16px 14px' }}>
             <p style={{ fontSize: 16, fontWeight: 800, color: '#92400e', margin: '0 0 8px' }}>
-              Yeh report thodi badi hai! 📋
+              Badi report hai 😕 Pro mein analyze karo!
             </p>
             <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6, margin: '0 0 16px' }}>
-              Jitni bhi reports ho — sab analyze karo + PDF download karo
+              ✅ Unlimited pages &nbsp; ✅ Deep analysis<br/>
+              ✅ PDF download &nbsp; ✅ ₹199 mein poora mahina — jitni bhi reports karo, sab free! ☕<br/>
+              <span style={{ fontSize: 12 }}>1,200+ log already use kar rahe hain 🇮🇳</span>
             </p>
             <button
               onClick={() => router.push('/upgrade')}
@@ -636,7 +642,7 @@ export default function UploadPage() {
                 cursor: 'pointer', fontFamily: 'inherit', marginBottom: 8,
               }}
             >
-              🔓 Pro lo — Sirf ₹199
+              ⚡ ⚡ ₹199 mein poora mahina — unlimited reports!
             </button>
             <button
               onClick={() => { resetUpload(); router.push('/upload') }}
