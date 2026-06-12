@@ -1,5 +1,5 @@
 'use client'
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { events } from '@/components/Analytics'
@@ -18,6 +18,21 @@ function LoginForm() {
   const [loadingMsg, setLoadingMsg] = useState('')
   const [error, setError]           = useState('')
   const [isNewUser, setIsNewUser]   = useState(false)
+  const [resendTimer, setResendTimer] = useState(0)
+  const timerRef = useRef(null)
+
+  const startTimer = () => {
+    setResendTimer(60)
+    timerRef.current = setInterval(() => {
+      setResendTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
 
   const sendOTP = async () => {
     setError('')
@@ -51,6 +66,8 @@ function LoginForm() {
       }
 
       setStep('otp')
+      clearInterval(timerRef.current)
+      startTimer()
 
     } catch {
       setError('OTP bhejne mein error. Dobara try karo.')
@@ -249,13 +266,34 @@ function LoginForm() {
                 ) : 'Verify & Continue →'}
               </button>
 
-              <button onClick={sendOTP} disabled={loading} style={{
-                width: '100%', background: 'transparent', color: '#94a3b8',
-                border: 'none', padding: '10px', fontSize: 13, cursor: 'pointer',
-                fontFamily: "'Plus Jakarta Sans', sans-serif"
-              }}>
-                Resend OTP
-              </button>
+              {resendTimer > 0 ? (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '10px',
+                  fontSize: 13,
+                  color: '#94a3b8',
+                  fontFamily: "'Plus Jakarta Sans', sans-serif"
+                }}>
+                  ⏱️ SMS aa raha hai... {resendTimer} seconds
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    clearInterval(timerRef.current)
+                    startTimer()
+                    sendOTP()
+                  }}
+                  disabled={loading}
+                  style={{
+                    width: '100%', background: 'transparent', color: '#0d9488',
+                    border: 'none', padding: '10px', fontSize: 13,
+                    cursor: 'pointer', fontWeight: 600,
+                    fontFamily: "'Plus Jakarta Sans', sans-serif"
+                  }}
+                >
+                  🔄 Resend OTP
+                </button>
+              )}
             </div>
           )}
         </div>

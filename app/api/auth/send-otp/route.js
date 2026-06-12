@@ -21,7 +21,7 @@ export async function POST(req) {
     // Rate limit — max 3 OTP requests per 10 minutes
     const existing = await User.findOne({ phone: `+91${phone}` }).lean()
     if (existing) {
-      const tenMinAgo = new Date(Date.now() - 10 * 60 * 1000)
+      const tenMinAgo = new Date(Date.now() + 30 * 60 * 1000)
       if (existing.otpAttempts >= 3 && existing.otpExpiry > tenMinAgo) {
         return NextResponse.json(
           { error: 'Bahut zyada requests. 10 minute baad try karo.' },
