@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import DownloadButton from '@/components/DownloadButton'
 import FeedbackSection from '@/components/FeedbackSection'
+import VoicePlayer from '@/components/VoicePlayer'
 import ConversionTracker from '@/components/ConversionTracker'
 import LoginWallModal from '@/components/LoginWallModal'
 
@@ -361,6 +362,12 @@ export default async function ResultsPage({ params }) {
               </div>
             </div>
           )}
+
+          {/* ── Voice Player ── */}
+          <VoicePlayer
+            report={JSON.parse(JSON.stringify(report))}
+            result={JSON.parse(JSON.stringify(result))}
+          />
 
           {/* ── AI Summary ── */}
           <div className="fade-up summary-card" style={{ background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 20, padding: 28, marginBottom: 24, animationDelay: '0.1s', position: 'relative', overflow: 'hidden' }}>
