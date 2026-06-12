@@ -82,6 +82,13 @@ export default function VoicePlayer({ report, result }) {
   }
 
   const handlePlay = () => {
+    // Track voice usage
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'voice_report_played', {
+        event_category: 'engagement',
+        event_label: 'results_page'
+      })
+    }
     if (!supported) return
 
     if (isPaused && window.speechSynthesis.paused) {
