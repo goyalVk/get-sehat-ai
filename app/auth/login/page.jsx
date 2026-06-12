@@ -266,6 +266,18 @@ function LoginForm() {
                 ) : 'Verify & Continue →'}
               </button>
 
+              {/* Trust message */}
+              <p style={{
+                fontSize: 12,
+                color: '#64748b',
+                textAlign: 'center',
+                marginBottom: 12,
+                lineHeight: 1.6
+              }}>
+                📱 OTP "Southern Express" se aayega —
+                yeh hamara trusted SMS partner hai 🔒
+              </p>
+
               {resendTimer > 0 ? (
                 <div style={{
                   textAlign: 'center',
