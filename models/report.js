@@ -102,6 +102,16 @@ const ReportSchema = new mongoose.Schema(
       }],
     },
 
+
+    // History page feedback — overall experience
+    historyFeedback: {
+      rating:      { type: Number, min: 1, max: 5, default: null },
+      comment:     { type: String, maxlength: 500, default: null },
+      ratedAt:     { type: Date, default: null },
+      totalReports:{ type: Number, default: null },
+      reportTypes: [{ type: String }],
+    },
+
     // Spam detection
     isSpam:        { type: Boolean, default: false },
     spamReason:    { type: String, default: null },

@@ -79,6 +79,9 @@ function ChatContent() {
   const [imagePreview, setImagePreview] = useState(null)
   const [loading, setLoading]           = useState(false)
   const [msgsSent, setMsgsSent]         = useState(0)
+  const [isPro, setIsPro]           = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [totalChatUsed, setTotalChatUsed] = useState(0)
 
   // Scroll only on new messages, NOT on mount
   useEffect(() => {
@@ -88,6 +91,33 @@ function ChatContent() {
     }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [messages.length, loading])
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(async data => {
+        if (data?.id) {
+          setIsLoggedIn(true)
+          const plan   = data.plan
+          const endsAt = data.subscriptionEndsAt
+          const proActive = (plan === 'paid' || plan === 'pro') &&
+            (!endsAt || new Date(endsAt) > new Date())
+          setIsPro(proActive)
+
+          // Free user = DB se actual chat count lo
+          if (!proActive) {
+            try {
+              const countRes  = await fetch('/api/chat/count')
+              const countData = await countRes.json()
+              if (countData?.count !== undefined) {
+                setMsgsSent(countData.count)
+              }
+            } catch {}
+          }
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const handleImage = useCallback((f) => {
     if (!f || !f.type.startsWith('image/')) return
@@ -126,7 +156,29 @@ function ChatContent() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        setMessages(prev => [...prev, { role: 'assistant', text: err.reply || 'Kuch gadbad ho gayi. Dobara try karo. 🙏' }])
+
+        // Guest user
+        if (err.requiresLogin) {
+          setMessages(prev => [...prev, {
+            role: 'assistant',
+            text: '🔓 Chat ke liye login karein — pehli report bhi free milegi!'
+          }])
+          return
+        }
+
+        // Free limit reached
+        if (err.limitReached) {
+          setMessages(prev => [...prev, {
+            role: 'assistant',
+            text: '10 free messages complete ho gaye 🙏\n\n~~₹599~~ → ₹199/month\n✅ Unlimited chat\n✅ Unlimited reports\n✅ PDF + Voice'
+          }])
+          return
+        }
+
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          text: err.reply || 'Kuch gadbad ho gayi. Dobara try karo. 🙏'
+        }])
         return
       }
 
@@ -473,7 +525,9 @@ function ChatContent() {
               </span>
             </div>
           </div>
-          <div className="c-badge">{30 - msgsSent} msgs left</div>
+          <div className="c-badge" suppressHydrationWarning>
+            {isPro ? '✨ Unlimited' : `${Math.max(0, 10 - msgsSent)} msgs left`}
+          </div>
         </div>
 
         {/* ── Messages ── */}

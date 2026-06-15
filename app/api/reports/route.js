@@ -10,7 +10,25 @@ export async function GET() {
     await connectDB()
 
     const cookieStore = await cookies()
-    const userId = cookieStore.get('userId')?.value
+    const cookieUserId = cookieStore.get('userId')?.value
+
+    // JWT token support — OTP users ke liye
+    let jwtUserId = null
+    const tokenCookie = cookieStore.get('token')?.value
+    if (tokenCookie) {
+      try {
+        const jwt = await import('jsonwebtoken')
+        const decoded = jwt.default.verify(
+          tokenCookie,
+          process.env.JWT_SECRET
+        )
+        jwtUserId = decoded.userId
+      } catch {
+        // Invalid token — ignore
+      }
+    }
+
+    const userId = jwtUserId || cookieUserId || null
 
     if (!userId) {
       return NextResponse.json({ error: 'Not logged in' }, { status: 401 })
@@ -42,7 +60,25 @@ export async function DELETE(req) {
     await connectDB()
 
     const cookieStore = await cookies()
-    const userId = cookieStore.get('userId')?.value
+    const cookieUserId = cookieStore.get('userId')?.value
+
+    // JWT token support — OTP users ke liye
+    let jwtUserId = null
+    const tokenCookie = cookieStore.get('token')?.value
+    if (tokenCookie) {
+      try {
+        const jwt = await import('jsonwebtoken')
+        const decoded = jwt.default.verify(
+          tokenCookie,
+          process.env.JWT_SECRET
+        )
+        jwtUserId = decoded.userId
+      } catch {
+        // Invalid token — ignore
+      }
+    }
+
+    const userId = jwtUserId || cookieUserId || null
 
     if (!userId) {
       return NextResponse.json({ error: 'Not logged in' }, { status: 401 })
@@ -69,10 +105,21 @@ export async function DELETE(req) {
       return NextResponse.json({ error: 'Report not found' }, { status: 404 })
     }
 
-    // reportsUsed decrement karo
-    await User.findByIdAndUpdate(userId, [
-      { $set: { reportsUsed: { $max: [0, { $subtract: ['$reportsUsed', 1] }] } } }
-    ]).catch(err => console.error('Failed to decrement reportsUsed:', err.message))
+    // Pro users = decrement karo (unlimited reports hain)
+    // Free users = decrement mat karo (hasAnalyzed flag se control hoga)
+    const deletedUser = await User.findById(userId).lean()
+    const isProUser = deletedUser &&
+      (deletedUser.plan === 'paid' || deletedUser.plan === 'pro') &&
+      (!deletedUser.subscriptionEndsAt ||
+        new Date(deletedUser.subscriptionEndsAt) > new Date())
+
+    if (isProUser) {
+      await User.findByIdAndUpdate(
+        userId,
+        { $inc: { reportsUsed: -1 } },
+        { new: true }
+      ).catch(err => console.error('Failed to decrement reportsUsed:', err.message))
+    }
 
     return NextResponse.json({ success: true })
 

@@ -164,15 +164,14 @@ export default function HistoryPage() {
     if (!historyRating) return
     setHistorySending(true)
     try {
-      await fetch('/api/feedback', {
+      await fetch('/api/feedback/history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          page: 'history',
-          rating: historyRating,
-          feedback: historyFeedback,
+          rating:       historyRating,
+          feedback:     historyFeedback,
           totalReports: total,
-          reportTypes: Object.keys(grouped),
+          reportTypes:  Object.keys(grouped),
         }),
       })
       setHistorySent(true)

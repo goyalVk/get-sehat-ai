@@ -102,6 +102,19 @@ function LoginForm() {
         }))
       } catch {}
 
+      // Save consent for ALL users — new + existing
+      localStorage.setItem('sehat24_consent_v1', 'true')
+      localStorage.setItem('sehat24_consent_date', new Date().toISOString())
+      fetch('/api/consent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          consent: true,
+          version: 'v1',
+          timestamp: new Date().toISOString()
+        })
+      }).catch(() => {})
+
       if (isNewUser) {
         events.signupCompleted()
       } else {
@@ -250,14 +263,22 @@ function LoginForm() {
 
               {error && <p style={{ fontSize: 12, color: '#dc2626', marginBottom: 12 }}>{error}</p>}
 
-              <button onClick={verifyOTP} disabled={loading} style={{
-                width: '100%', background: '#0d9488', color: 'white',
-                border: 'none', borderRadius: 12, padding: '14px',
-                fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                opacity: loading ? 0.8 : 1, marginBottom: 10,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
-              }}>
+              <button
+                onClick={verifyOTP}
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  background: '#0d9488',
+                  color: 'white',
+                  border: 'none', borderRadius: 12, padding: '14px',
+                  fontSize: 14, fontWeight: 600,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  opacity: loading ? 0.8 : 1, marginBottom: 10,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  transition: 'all 0.2s'
+                }}
+              >
                 {loading ? (
                   <>
                     <div style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />

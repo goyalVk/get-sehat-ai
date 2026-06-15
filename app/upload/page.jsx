@@ -141,7 +141,7 @@ export default function UploadPage() {
     // Server-side enforces the same rule as hard gate
     const isSampleFile = SAMPLE_NAMES.includes(file.name?.toLowerCase())
     if (!isSampleFile && isGuest && getUploadCount() >= 1) {
-      setError('Doosri report ke liye login karein — free hai! 👇')
+      setError('Login karo — pehli report bilkul FREE! 🔓')
       setErrorType('anon_gate')
       return
     }
@@ -168,9 +168,8 @@ export default function UploadPage() {
       const data = await res.json()
       if (!res.ok) {
         if (data.limitReached) {
-          setError('✨ Aapki free report use ho gayi! Pro plan pe redirect ho rahe hain...')
+          setError('free_limit')
           setErrorType('limit')
-          setTimeout(() => router.push('/upgrade'), 2000)
           setLoading(false)
           return
         }
@@ -187,7 +186,7 @@ export default function UploadPage() {
           return
         }
         if (data.loginRequired) {
-          setError('Doosri report ke liye login karein — free hai! 👇')
+          setError('Login karo — pehli report bilkul FREE! 🔓')
           setErrorType('anon_gate')
           setLoading(false)
           return
@@ -354,7 +353,7 @@ export default function UploadPage() {
           background: '#f0fdfa', border: '1px solid #99f6e4',
           borderRadius: 100, marginBottom: 14,
         }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#0d9488' }}>✅ 6000+ Reports Analyzed</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#0d9488' }}>✅ 8,000+ Reports Analyzed</span>
         </div>
 
         <h1 style={{
@@ -588,31 +587,73 @@ export default function UploadPage() {
         <div style={{
           marginTop: 16,
           background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)',
-          border: '1.5px solid #0d9488',
-          borderRadius: 16, overflow: 'hidden',
+          border: '1.5px solid #99f6e4',
+          borderRadius: 16,
+          overflow: 'hidden',
         }}>
           <div style={{ padding: '20px 16px 16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              marginBottom: 10
+            }}>
               <span style={{ fontSize: 28 }}>🔓</span>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#0d9488', margin: 0 }}>
-                Doosri report ke liye login karein — 5 aur free reports milenge! 🎁
+              <p style={{
+                fontSize: 15,
+                fontWeight: 700,
+                color: '#134e4a',
+                margin: 0
+              }}>
+                Pehli report bilkul FREE!
               </p>
             </div>
-            <p style={{ fontSize: 13, color: '#134e4a', lineHeight: 1.65, marginBottom: 16 }}>
-              Login karo — 5 free reports, report history, PDF download aur AI chat bilkul free. 🇮🇳
+            <p style={{
+              fontSize: 13,
+              color: '#0d9488',
+              lineHeight: 1.65,
+              marginBottom: 16
+            }}>
+              Login karo aur apni medical report Hindi mein samjho 🇮🇳
+              <br/>
+              <span style={{ fontSize: 12, color: '#64748b' }}>
+                Koi credit card nahi • Koi hidden charges nahi
+              </span>
             </p>
             <a
-              href="/auth/login?redirect=/upload"
+              href="/auth/login"
               style={{
-                display: 'block', width: '100%', padding: '13px',
-                background: '#0d9488', color: 'white',
-                borderRadius: 12, fontSize: 14, fontWeight: 700,
-                textDecoration: 'none', textAlign: 'center',
+                display: 'block',
+                width: '100%',
+                padding: '13px',
+                background: 'linear-gradient(135deg, #0d9488, #0891b2)',
+                color: 'white',
+                borderRadius: 12,
+                fontSize: 14,
+                fontWeight: 700,
+                textDecoration: 'none',
+                textAlign: 'center',
                 boxSizing: 'border-box',
+                marginBottom: 10
               }}
             >
-              📱 Login Karo — Free →
+              🔓 Login Karo — Free Mein
             </a>
+            <p style={{
+              fontSize: 11,
+              color: '#94a3b8',
+              textAlign: 'center',
+              margin: 0
+            }}>
+              Already account hai?{' '}
+              <a href="/auth/login" style={{
+                color: '#0d9488',
+                fontWeight: 600,
+                textDecoration: 'none'
+              }}>
+                Sign in karo →
+              </a>
+            </p>
           </div>
         </div>
       )}
@@ -659,7 +700,133 @@ export default function UploadPage() {
         </div>
       )}
 
-      {error && errorType !== 'report_too_large' && errorType !== 'anon_gate' && errorType !== 'file_size_guest' && errorType !== 'file_size_free' && (
+      {error && errorType === 'limit' && (
+        <div style={{
+          marginTop: 16,
+          background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+          border: '1.5px solid #fcd34d',
+          borderRadius: 16,
+          overflow: 'hidden',
+        }}>
+          <div style={{ padding: '20px 16px 16px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              marginBottom: 12
+            }}>
+              <span style={{ fontSize: 28 }}>⚡</span>
+              <div>
+                <p style={{
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: '#92400e',
+                  margin: 0
+                }}>
+                  Free report use ho gayi! 😊
+                </p>
+                <p style={{
+                  fontSize: 12,
+                  color: '#b45309',
+                  margin: 0,
+                  marginTop: 2
+                }}>
+                  Aur reports ke liye Pro lo
+                </p>
+              </div>
+            </div>
+            <div style={{
+              background: 'white',
+              borderRadius: 10,
+              padding: '12px 14px',
+              marginBottom: 14,
+              border: '1px solid #fde68a'
+            }}>
+              <p style={{
+                fontSize: 12,
+                color: '#78350f',
+                margin: 0,
+                lineHeight: 1.8
+              }}>
+                ✅ Unlimited reports — koi limit nahi<br/>
+                ✅ PDF download — doctor ko share karo<br/>
+                ✅ Voice — Hindi mein sunein<br/>
+                ✅ Unlimited chat — medicine poochho<br/>
+                ✅ Complete history — sab reports ek jagah
+              </p>
+            </div>
+            <div style={{
+              textAlign: 'center',
+              marginBottom: 14
+            }}>
+              <span style={{
+                fontSize: 13,
+                color: '#94a3b8',
+                textDecoration: 'line-through',
+                marginRight: 8
+              }}>
+                ₹599/month
+              </span>
+              <span style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: '#92400e'
+              }}>
+                ₹199/month
+              </span>
+              <span style={{
+                display: 'inline-block',
+                background: '#dc2626',
+                color: 'white',
+                fontSize: 10,
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: 100,
+                marginLeft: 8
+              }}>
+                Save 67%
+              </span>
+              <p style={{
+                fontSize: 11,
+                color: '#b45309',
+                margin: '4px 0 0'
+              }}>
+                = Sirf ₹6.6/din ☕
+              </p>
+            </div>
+            <a
+              href="/upgrade"
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '13px',
+                background: 'linear-gradient(135deg, #0d9488, #0891b2)',
+                color: 'white',
+                borderRadius: 12,
+                fontSize: 14,
+                fontWeight: 700,
+                textDecoration: 'none',
+                textAlign: 'center',
+                boxSizing: 'border-box',
+                marginBottom: 10
+              }}
+            >
+              🔓 Pro lo — ₹199/month
+            </a>
+            <p style={{
+              fontSize: 11,
+              color: '#92400e',
+              textAlign: 'center',
+              margin: 0,
+              fontWeight: 600
+            }}>
+              1,200+ Indians already use kar rahe hain 🇮🇳
+            </p>
+          </div>
+        </div>
+      )}
+
+      {error && errorType !== 'report_too_large' && errorType !== 'anon_gate' && errorType !== 'file_size_guest' && errorType !== 'file_size_free' && errorType !== 'limit' && (
         <div style={{
           marginTop: 16,
           background: '#fef2f2', border: '1.5px solid #fecaca',
@@ -704,22 +871,6 @@ export default function UploadPage() {
             </p>
           )}
 
-          {/* Upgrade button */}
-          {errorType === 'limit' && (
-            <div style={{ padding: '0 16px 14px' }}>
-              <button
-                onClick={() => router.push('/upgrade')}
-                style={{
-                  display: 'block', width: '100%', padding: '12px',
-                  background: '#0d9488', color: 'white',
-                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
-                  cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                🚀 Pro Upgrade Karo — ₹199/month
-              </button>
-            </div>
-          )}
           {errorType === 'too_large' && !isPro && (
             <div style={{ padding: '0 16px 8px' }}>
               <a href="/upgrade" style={{

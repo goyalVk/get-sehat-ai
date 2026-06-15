@@ -15,6 +15,17 @@ const UserSchema = new mongoose.Schema(
     reportsUsed:  { type: Number, default: 0 },
     reportsLimit: { type: Number, default: 5 },
 
+    // Permanent flag — free user ne kabhi bhi report analyze ki hai
+    // Delete se reset nahi hoga
+    hasAnalyzed: { type: Boolean, default: false },
+
+    // Legal consent — DPDP Act 2023
+    consent: {
+      agreed:   { type: Boolean, default: false },
+      version:  { type: String,  default: null },
+      agreedAt: { type: Date,    default: null },
+    },
+
     paidAt:             { type: Date,    default: null },
     paymentId:          { type: String,  default: null },
     paymentAmount:      { type: Number,  default: null },

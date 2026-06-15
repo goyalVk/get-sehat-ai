@@ -100,8 +100,14 @@ function DashboardContent() {
 
   const urgentReports = reports.filter(r => r.urgentFlags?.length > 0).length
   const firstName     = user?.firstName || user?.phone?.slice(-4) || 'there'
-  const isPro         = user?.plan === 'paid' || user?.plan === 'pro'
-  const reportsLeft   = isPro ? '∞' : String(Math.max(0, (user?.reportsLimit || 5) - (user?.reportsUsed || 0)))
+  const isPro         =
+    (user?.plan === 'paid' || user?.plan === 'pro') &&
+    (!user?.subscriptionEndsAt ||
+      new Date(user.subscriptionEndsAt) > new Date())
+  const FREE_REPORT_LIMIT = 1
+  const reportsLeft = isPro
+    ? 'Unlimited'
+    : Math.max(0, FREE_REPORT_LIMIT - (user?.reportsUsed || 0))
 
   return (
     <>

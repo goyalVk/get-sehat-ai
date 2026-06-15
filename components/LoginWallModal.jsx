@@ -79,7 +79,7 @@ export default function LoginWallModal({ reportId }) {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 34, margin: '0 auto',
           }}>
-            🎁
+            🔓
           </div>
         </div>
 
@@ -92,14 +92,27 @@ export default function LoginWallModal({ reportId }) {
               marginBottom: 10, lineHeight: 1.35,
             }}
           >
-            Apni report save karo + 5 aur free reports pao! 🎁
+            Apni pehli report FREE analyze karo! 🔓
           </p>
           <p style={{
             fontSize: 14, color: '#64748b',
             lineHeight: 1.75, margin: 0,
           }}>
-            Phone se login karo — 5 free reports, report history aur PDF download bilkul free!
+            Login karo — Hindi mein result milega 🇮🇳
           </p>
+          <div style={{
+            display: 'inline-block',
+            marginTop: 10,
+            padding: '4px 14px',
+            background: '#f0fdfa',
+            border: '1px solid #99f6e4',
+            borderRadius: 20,
+            fontSize: 12,
+            fontWeight: 700,
+            color: '#0d9488',
+          }}>
+            Pehli report bilkul free — koi card nahi
+          </div>
         </div>
 
         {/* Login button */}
@@ -119,7 +132,7 @@ export default function LoginWallModal({ reportId }) {
             boxShadow: '0 4px 20px rgba(13,148,136,0.32)',
           }}
         >
-          Login karo — Free hai! 🔓
+          🔓 Login Karo — Free Mein
         </a>
 
         {/* Skip */}

@@ -389,16 +389,18 @@ export async function POST(req) {
     }
 
     // ── Model selection ───────────────────────────────
-    // Pro → Sonnet (richer analysis), Guest + Free → Haiku (fast, cost effective)
-    const modelToUse = isPro ? SONNET_MODEL : HAIKU_MODEL
+    // Pro → Sonnet, Free first report → Sonnet (WOW moment), Guest → Haiku
+    const modelToUse = (isPro || (!isPro && user && user.reportsUsed === 0))
+      ? SONNET_MODEL
+      : HAIKU_MODEL
 
     // ── Free user report limit check ──────────────────
     if (user) {
-      if (!isPro && user.reportsUsed >= user.reportsLimit) {
+      if (!isPro && (user.reportsUsed >= 1 || user.hasAnalyzed)) {
         return NextResponse.json({
-          error:        '⚡ ₹199 mein poora mahina — unlimited reports! Jitni bhi reports ho — sab analyze karo + PDF download karo',
+          error: 'Aapki free report use ho gayi 😊 Unlimited reports ke liye Pro lo!',
           limitReached: true,
-          upgradeUrl:   'https://rzp.io/rzp/f5GzI7Qj'
+          upgradeUrl: '/upgrade'
         }, { status: 403 })
       }
     }
@@ -418,23 +420,15 @@ export async function POST(req) {
       }
     }
 
-    // ── Anon hard gate — max 1 non-failed non-sample report ──
-    // Counts 'processing' + 'completed' to close the race window where
-    // first report is still analyzing when second upload is attempted.
-    // Client enforces the same rule as a fast pre-check.
-    if (!userId && anonId) {
-      const anonReportCount = await Report.countDocuments({
-        anonId,
-        userId:   null,
-        status:   { $ne: 'failed' },
-        isSample: { $ne: true },
-      })
-      if (anonReportCount >= 1) {
-        return NextResponse.json(
-          { loginRequired: true, error: 'Doosri report ke liye login karein' },
-          { status: 403 }
-        )
-      }
+    // Guest users = block completely — v4 paid model
+    if (!userId) {
+      return NextResponse.json(
+        {
+          loginRequired: true,
+          error: 'Report analyze karne ke liye login karein — pehli report bilkul free! 🔓'
+        },
+        { status: 403 }
+      )
     }
 
     // ── Image too small — warn but proceed to analysis ─
@@ -529,20 +523,70 @@ export async function POST(req) {
     const cachedByHash = await Report.findOne({ reportHash, status: 'completed' })
 
     if (cachedByHash?.analysisResult?.report_type) {
-      if (user && !isPro && user.reportsUsed >= user.reportsLimit) {
+      // Check free limit
+      if (user && !isPro && user.reportsUsed >= 1) {
         return NextResponse.json({
-          error:        'Aapki free report use ho gayi 🙏 Pro upgrade karo — unlimited reports lo!',
+          error: 'Aapki free report use ho gayi 😊 Unlimited reports ke liye Pro lo!',
           limitReached: true,
-          upgradeUrl:   'https://rzp.io/rzp/f5GzI7Qj'
+          upgradeUrl: '/upgrade'
         }, { status: 403 })
       }
+
+      // Create new report entry for this user
+      // So it appears in their dashboard/history
+      const newReport = await Report.create({
+        // User identity
+        userId:         userId || null,
+        anonId:         anonId || null,
+
+        // File info — copy from original
+        fileName:       cachedByHash.fileName || 'report.pdf',
+        fileType:       cachedByHash.fileType || 'application/pdf',
+        fileSize:       cachedByHash.fileSize || 0,
+
+        // Status
+        status:         'completed',
+        isSample:       false,
+
+        // Patient + Lab — copy from original
+        patient:        cachedByHash.patient || null,
+        lab:            cachedByHash.lab     || null,
+
+        // Report classification — copy from original
+        reportType:     cachedByHash.reportType     || null,
+        reportCategory: cachedByHash.reportCategory || 'other',
+
+        // AI result — copy from original
+        result:         cachedByHash.result         || null,
+        analysisResult: cachedByHash.analysisResult || null,
+        parameters:     cachedByHash.parameters     || [],
+        urgentFlags:    cachedByHash.urgentFlags    || [],
+
+        // Cache metadata
+        reportHash:      reportHash,
+        fromCache:       true,
+        uploadCount:     1,
+        firstUploadedAt: new Date(),
+        lastUploadedAt:  new Date(),
+      })
+
+      // Update original cache hit count
       await Report.findByIdAndUpdate(cachedByHash._id, {
-        $inc:          { uploadCount: 1 },
+        $inc: { uploadCount: 1 },
         lastUploadedAt: new Date()
       })
+
+      // Update user reportsUsed
+      if (user) {
+        await User.findByIdAndUpdate(user._id, {
+          $inc: { reportsUsed: 1 },
+          $set: { hasAnalyzed: true }
+        })
+      }
+
       return NextResponse.json({
         success:   true,
-        reportId:  cachedByHash._id.toString(),
+        reportId:  newReport._id.toString(),
         data:      cachedByHash.analysisResult,
         fromCache: true
       })
@@ -686,7 +730,8 @@ export async function POST(req) {
     // ── Increment usage ───────────────────────────────
     if (userId && savedReport) {
       await User.findByIdAndUpdate(userId, {
-        $inc: { reportsUsed: 1 }
+        $inc: { reportsUsed: 1 },
+        $set: { hasAnalyzed: true }
       })
     }
 

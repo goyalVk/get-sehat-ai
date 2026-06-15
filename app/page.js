@@ -4,7 +4,7 @@ import FAQSection from '@/components/FAQSection'
 
 export const metadata = {
   title: 'Sehat24 — Free Medical Report Analyzer in Hindi | Lab Report Samjho',
-  description: 'Koi bhi lab report Hindi mein samjho — CBC, Thyroid, HbA1c, Vitamin D. 6000+ reports analyzed. SRL, Lal PathLabs, Apollo, Thyrocare sab supported. Bilkul Free.',
+  description: 'Koi bhi lab report Hindi mein samjho — CBC, Thyroid, HbA1c, Vitamin D. 8000+ reports analyzed. SRL, Lal PathLabs, Apollo, Thyrocare sab supported. Bilkul Free.',
   keywords: [
     'medical report hindi mein','lab report analyzer hindi',
     'blood test report hindi','CBC report hindi mein samjho',
@@ -15,7 +15,7 @@ export const metadata = {
   ],
   openGraph: {
     title: 'Sehat24 — Apni Report Hindi Mein Samjho',
-    description: '6000+ reports analyzed. Free. 30 seconds. Hindi mein.',
+    description: '8000+ reports analyzed. Free. 30 seconds. Hindi mein.',
     url: 'https://sehat24.com',
     siteName: 'Sehat24',
     locale: 'hi_IN',
@@ -24,7 +24,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Sehat24 — Free Medical Report Analyzer in Hindi',
-    description: '6000+ reports analyzed. Free. 30 seconds.',
+    description: '8000+ reports analyzed. Free. 30 seconds.',
   },
   alternates: { canonical: 'https://sehat24.com' },
 }
@@ -255,10 +255,10 @@ export default function Home() {
             {/* Stat strip */}
             <div className="a3 stat-strip" style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap', marginBottom:36 }}>
               {[
-                { num:'6000+', label:'Reports Analyzed' },
-                { num:'49%',    label:'Hemoglobin Low mila' },
-                { num:'69%',    label:'Vitamin D ki kami' },
-                { num:'46%',    label:'Urgent Health Flags' },
+                { num:'8,000+', label:'Reports Analysed' },
+                { num:'1,200+',  label:'Indians Ka Bharosa 🇮🇳' },
+                { num:'4.8⭐',  label:'Average Rating' },
+                { num:'Free',    label:'Pehli Report — Abhi Try Karo!' },
               ].map((s, i) => (
                 <div key={i} className="stat-card" style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:16, padding:'14px 20px', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', textAlign:'center', minWidth:110 }}>
                   <p style={{ fontFamily:'var(--font-display)', fontSize:26, fontWeight:400, color:'var(--teal-400)', margin:'0 0 2px', lineHeight:1 }}>{s.num}</p>
@@ -316,7 +316,7 @@ export default function Home() {
             <div style={{ textAlign:'center', marginBottom:52 }}>
               <p className="t-overline" style={{ marginBottom:12 }}>Real Patient Data</p>
               <h2 className="sec-h2" style={{ fontFamily:'var(--font-display)', fontSize:40, fontWeight:300, color:'var(--ink)', lineHeight:1.2, marginBottom:12 }}>
-                Sehat24<sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>™</sup> ke 6000+ Reports ka{' '}<em style={{ fontStyle:'italic', color:'var(--teal-600)' }}>Sach</em>
+                Sehat24<sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>™</sup> ke 8,000+ Reports ka{' '}<em style={{ fontStyle:'italic', color:'var(--teal-600)' }}>Sach</em>
               </h2>
               <p style={{ fontFamily:'var(--font-body)', fontSize:15, color:'var(--ink-ghost)', maxWidth:520, margin:'0 auto' }}>
                 Yeh fake numbers nahi hain — yeh real Indian patients ka data hai
@@ -708,13 +708,20 @@ export default function Home() {
               </div>
               <div className="card feature-card" style={{ padding:'32px 28px', border:'1px solid #fde68a', background:'white' }}>
                 <div style={{ fontSize:40, marginBottom:20, display:'block' }} aria-label="Folder storage">🗂️</div>
-                <h3 style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, color:'var(--ink)', marginBottom:10 }}>Secure Storage</h3>
-                <p style={{ fontFamily:'var(--font-body)', fontSize:13, color:'var(--ink-faint)', lineHeight:1.7, marginBottom:20 }}>Saari zindagi ki reports — ek jagah. Doctor ke paas jaate waqt poora history ready.</p>
-                <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:20 }}>
-                  {['PDF, photo — sab store hota','Doctor summary PDF banao','Family member add karo'].map((item,i) => (
-                    <div key={i} style={{ display:'flex', alignItems:'center', gap:9 }}><span style={{ color:'#d97706', fontWeight:700, fontSize:12 }}>→</span><span style={{ fontFamily:'var(--font-body)', fontSize:13, color:'var(--ink-muted)' }}>{item}</span></div>
-                  ))}
-                </div>
+               <h3 style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, color:'var(--ink)', marginBottom:10 }}>Analysis History — Hamesha Saved</h3>
+              <p style={{ fontFamily:'var(--font-body)', fontSize:13, color:'var(--ink-faint)', lineHeight:1.7, marginBottom:20 }}>Har report ka analysis — values, trends aur Hindi explanation — hamesha save rehta hai. ChatGPT bhool jaata hai, Sehat24 yaad rakhta hai.</p>
+              <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:20 }}>
+                {[
+                  'AI analysis kabhi bhi dekho',
+                  'Trends compare karo — improve hua ya nahi',
+                  'Doctor ke paas poora history ready'
+                ].map((item,i) => (
+                  <div key={i} style={{ display:'flex', alignItems:'center', gap:9 }}>
+                    <span style={{ color:'#d97706', fontWeight:700, fontSize:12 }}>→</span>
+                    <span style={{ fontFamily:'var(--font-body)', fontSize:13, color:'var(--ink-muted)' }}>{item}</span>
+                  </div>
+                ))}
+              </div>
                 <div style={{ background:'#fffbeb', borderRadius:12, padding:'12px 14px', display:'flex', flexDirection:'column', gap:6 }}>
                   {[{name:'CBC_April_2025.pdf',date:'Apr 12',type:'🩸'},{name:'Thyroid_Jan_2025.pdf',date:'Jan 8',type:'💊'},{name:'Lipid_Oct_2024.pdf',date:'Oct 3',type:'🧪'}].map((file,i) => (
                     <div key={i} style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -725,6 +732,124 @@ export default function Home() {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ WHY NOT CHATGPT ══ */}
+        <section style={{
+          padding: '60px 24px',
+          background: 'rgba(13,148,136,0.04)',
+          borderTop: '1px solid rgba(13,148,136,0.1)',
+          borderBottom: '1px solid rgba(13,148,136,0.1)',
+        }}>
+          <div style={{ maxWidth: 760, margin: '0 auto' }}>
+            <h2 style={{
+              fontSize: 24,
+              fontWeight: 800,
+              color: '#0f172a',
+              textAlign: 'center',
+              marginBottom: 8
+            }}>
+              ChatGPT se alag kyun hai Sehat24? 🤔
+            </h2>
+            <p style={{
+              textAlign: 'center',
+              color: '#64748b',
+              fontSize: 14,
+              marginBottom: 32
+            }}>
+              Yeh sirf ek AI chatbot nahi — yeh aapka personal health record hai
+            </p>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: 16
+            }}>
+              {[
+                {
+                  icon: '📋',
+                  title: 'Analyzed Report Store hoti hai',
+                  chatgpt: 'ChatGPT report bhoolti hai — refresh = gone',
+                  sehat24: 'Sehat24 analysed report hamesha save karta hai — kabhi bhi dekho',
+                  color: '#0d9488'
+                },
+                {
+                  icon: '📈',
+                  title: 'Trend Compare karo',
+                  chatgpt: 'ChatGPT history nahi jaanti — har baar naya',
+                  sehat24: '3 mahine ki CBC compare karo — improvement dekho',
+                  color: '#7c3aed'
+                },
+                {
+                  icon: '🇮🇳',
+                  title: 'Hindi mein — Indian context',
+                  chatgpt: 'ChatGPT English mein bolti hai — confusing',
+                  sehat24: 'Hinglish mein — Indian labs, Indian ranges, Indian herbs',
+                  color: '#dc2626'
+                },
+                {
+                  icon: '🔬',
+                  title: 'Medical report specialist',
+                  chatgpt: 'ChatGPT sab kuch karta hai — medical expert nahi',
+                  sehat24: 'Sirf medical reports — deep specialized analysis',
+                  color: '#d97706'
+                },
+                {
+                  icon: '👨‍👩‍👧',
+                  title: 'Family health track',
+                  chatgpt: 'ChatGPT family history nahi jaanti',
+                  sehat24: 'Papa, Mummy, bacche — sab ki history ek jagah',
+                  color: '#0891b2'
+                },
+                {
+                  icon: '🌿',
+                  title: 'Ayurvedic suggestions',
+                  chatgpt: 'Generic advice — Indian context missing',
+                  sehat24: 'Report ke hisaab se Ayurvedic herbs suggest karta hai',
+                  color: '#16a34a'
+                },
+              ].map((item, i) => (
+                <div key={i} style={{
+                  background: 'white',
+                  borderRadius: 16,
+                  padding: '20px',
+                  border: '1px solid #f1f5f9',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                }}>
+                  <div style={{ fontSize: 28, marginBottom: 10 }}>{item.icon}</div>
+                  <h3 style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: '#0f172a',
+                    marginBottom: 12
+                  }}>
+                    {item.title}
+                  </h3>
+                  <div style={{
+                    fontSize: 12,
+                    color: '#94a3b8',
+                    marginBottom: 8,
+                    display: 'flex',
+                    gap: 6,
+                    alignItems: 'flex-start'
+                  }}>
+                    <span>❌</span>
+                    <span>{item.chatgpt}</span>
+                  </div>
+                  <div style={{
+                    fontSize: 12,
+                    color: item.color,
+                    fontWeight: 600,
+                    display: 'flex',
+                    gap: 6,
+                    alignItems: 'flex-start'
+                  }}>
+                    <span>✅</span>
+                    <span>{item.sehat24}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -937,8 +1062,9 @@ export default function Home() {
           <p style={{ textAlign:'center', fontSize:11, fontWeight:700, color:'var(--teal-600)', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:32 }}>Real Logon Ki Baat 🗣️</p>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:16 }}>
             {[
-              {icon:'🔬',name:'Lab Technician',loc:'Delhi, India',text:'"Roz patients reports lekar aate hain aur koi samajh nahi paata. Maine khud apni full body report upload ki — 2 minute mein Hindi mein sab clear ho gaya. Ab main apne har patient ko Sehat24 recommend karta hoon."'},
-              {icon:'👨‍👩‍👧',name:'Milan Kumar',   loc:'Noida, India',text:'"Pichle 6 mahine ki reports compare karke pata chala sugar slowly badh rahi thi. Sehat24 ne pakad liya — doctor ne bola pehle hi aa gaye."'},
+              {icon:'👨',name:'Chhakaudi Ram',  loc:'Bihar',  text:'"CBC report pehli baar samajh aayi — doctor bhi surprised tha! Sehat24 ne Hindi mein sab explain kar diya 🙏"'},
+              {icon:'👩',name:'Ms. Saloni',     loc:'Mumbai', text:'"CBC, Kidney aur Liver sab ek saath analyze ho gaya. Bahut helpful thi — bilkul clear explanation mili!"'},
+              {icon:'👨',name:'Aniket Gupta',   loc:'Delhi',  text:'"Ultrasound report ka matlab samajh nahi aata tha. Sehat24 ne 2 minute mein Hindi mein explain kar diya ❤️"'},
             ].map((t,i) => (
               <div key={i} style={{ background:'var(--dark-800)', border:'1px solid rgba(13,148,136,0.25)', borderRadius:16, padding:24 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>

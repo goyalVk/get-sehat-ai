@@ -301,19 +301,52 @@ export async function POST(req) {
 
     const resolvedUserId = jwtUserId || cookieUserId || null
 
+    // Guest users = no chat — v4 paid model
+    if (!resolvedUserId) {
+      return NextResponse.json({
+        reply: 'Chat use karne ke liye login karein — pehli report bhi free milegi! 🔓',
+        requiresLogin: true
+      }, { status: 401 })
+    }
+
     const forwarded  = req.headers.get('x-forwarded-for')
     const ip         = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
     const identifier = resolvedUserId || ip
 
+    // Pro users = unlimited chat
+    // Free users = 10 messages total (DB based)
+    const userDoc = resolvedUserId
+      ? await User.findById(resolvedUserId).lean()
+      : null
+
+    const isPro = userDoc &&
+      (userDoc.plan === 'paid' || userDoc.plan === 'pro') &&
+      (!userDoc.subscriptionEndsAt ||
+        userDoc.subscriptionEndsAt > new Date())
+
+    if (!isPro) {
+      // DB se actual count nikalo
+      const chatCount = await ChatLog.countDocuments({
+        userId: userDoc?._id,
+        role: 'user'
+      })
+
+      if (chatCount >= 10) {
+        return NextResponse.json({
+          reply: `Chat limit ho gayi 🙏\n\n~~₹599~~ → ₹199/month\nUnlimited chat + sab features\nSirf ₹6.6/din ☕\n\n👉 sehat24.com/upgrade`,
+          limitReached: true,
+          upgradeUrl: '/upgrade'
+        }, { status: 429 })
+      }
+    }
+
+    // Keep existing rate limit for abuse prevention
     if (!checkRateLimit(identifier)) {
       return NextResponse.json({
-        reply: 'Aaj ke 30 sawaal ho gaye. Kal wapas aao! 🙏',
+        reply: 'Bahut zyada requests aa gayi. Thodi der baad try karo. 🙏',
         limitReached: true
       }, { status: 429 })
     }
-
-    // ── User lookup ───────────────────────────────────
-    const userDoc = resolvedUserId ? await User.findById(resolvedUserId).lean() : null
 
     // ── Conversation history ──────────────────────────
     const recentHistory = history

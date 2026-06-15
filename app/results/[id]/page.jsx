@@ -85,6 +85,12 @@ export default async function ResultsPage({ params }) {
     (currentUser?.plan === 'paid' || currentUser?.plan === 'pro') &&
     (!currentUser?.subscriptionEndsAt || currentUser.subscriptionEndsAt > new Date())
 
+  // First time free user = 1 report used = show all features with CTA
+  const isFirstTimeUser =
+    !isPro &&
+    isLoggedIn &&
+    currentUser?.reportsUsed === 1
+
   if (report.status === 'processing') {
     return (
       <main style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -363,11 +369,73 @@ export default async function ResultsPage({ params }) {
             </div>
           )}
 
-          {/* ── Voice Player ── */}
-          <VoicePlayer
-            report={JSON.parse(JSON.stringify(report))}
-            result={JSON.parse(JSON.stringify(result))}
-          />
+          {/* Voice — Pro OR first time free user */}
+          {(isPro || isFirstTimeUser) ? (
+            <div>
+              <VoicePlayer
+                report={JSON.parse(JSON.stringify(report))}
+                result={JSON.parse(JSON.stringify(result))}
+              />
+              {!isPro && isFirstTimeUser && (
+                <p style={{
+                  fontSize: 11,
+                  color: '#0d9488',
+                  textAlign: 'center',
+                  marginTop: -8,
+                  marginBottom: 16
+                }}>
+                  🔒 Voice feature — Pro mein available
+                  <a href="/upgrade" style={{
+                    color: '#0d9488',
+                    fontWeight: 700,
+                    marginLeft: 6,
+                    textDecoration: 'underline'
+                  }}>
+                    ~~₹599~~ → ₹199/month
+                  </a>
+                </p>
+              )}
+            </div>
+          ) : (
+            <div style={{
+              background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)',
+              border: '1.5px solid #99f6e4',
+              borderRadius: 16,
+              padding: '16px 20px',
+              marginBottom: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              flexWrap: 'wrap'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 24 }}>🔊</span>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: '#134e4a', margin: 0 }}>
+                    Report Sunein — Pro Feature
+                  </p>
+                  <p style={{ fontSize: 12, color: '#0d9488', margin: 0 }}>
+                    Hindi mein poori report sunein
+                  </p>
+                </div>
+              </div>
+              <a href="/upgrade" style={{
+                background: '#0d9488',
+                color: 'white',
+                border: 'none',
+                borderRadius: 10,
+                padding: '8px 16px',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap'
+              }}>
+                ~~₹599~~ → ₹199
+              </a>
+            </div>
+          )}
 
           {/* ── AI Summary ── */}
           <div className="fade-up summary-card" style={{ background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)', border: '1px solid #99f6e4', borderRadius: 20, padding: 28, marginBottom: 24, animationDelay: '0.1s', position: 'relative', overflow: 'hidden' }}>
@@ -605,26 +673,70 @@ export default async function ResultsPage({ params }) {
                 report={JSON.parse(JSON.stringify(report))}
                 result={JSON.parse(JSON.stringify(result))}
               />
+            ) : isFirstTimeUser ? (
+              <div style={{
+                background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+                border: '1.5px solid #fcd34d',
+                borderRadius: 20,
+                padding: 24,
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: 32, marginBottom: 10 }}>📄</div>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
+                  PDF Download — Pro Feature
+                </p>
+                <p style={{ fontSize: 13, color: '#78350f', marginBottom: 16 }}>
+                  Yeh report PDF mein download karo — doctor ke paas le jaao
+                </p>
+                <a href="/upgrade" style={{
+                  display: 'block',
+                  padding: '14px',
+                  borderRadius: 14,
+                  background: '#d97706',
+                  color: 'white',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  textAlign: 'center'
+                }}>
+                  🔓 ~~₹599~~ → ₹199/month — Unlock PDF
+                </a>
+              </div>
             ) : (
-              <div style={{ background: 'linear-gradient(135deg, #fffbeb, #fef3c7)', border: '1.5px solid #fcd34d', borderRadius: 20, padding: 24, textAlign: 'center' }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+                border: '1.5px solid #fcd34d',
+                borderRadius: 20,
+                padding: 24,
+                textAlign: 'center'
+              }}>
                 <div style={{ fontSize: 32, marginBottom: 10 }}>🔒</div>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>PDF Download — Pro Plan</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
+                  PDF Download — Pro Plan
+                </p>
                 <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6, marginBottom: 4 }}>
-                  Sehat24 branded PDF — doctor ke paas le jaao.
+                  Sehat24 branded PDF — doctor ke paas le jaao
                 </p>
                 <p style={{ fontSize: 12, color: '#b45309', marginBottom: 16 }}>
-                  Jitni bhi reports ho — sab analyze karo + PDF download karo
+                  ~~₹599~~ → ₹199/month — Unlimited reports + PDF
                 </p>
                 <a
                   href={isLoggedIn ? '/upgrade' : `/auth/login?redirect=/results/${id}&source=pdf_gate`}
                   style={{
-                    display: 'block', width: '100%', padding: '14px',
-                    borderRadius: 14, background: '#d97706', color: 'white',
-                    fontSize: 14, fontWeight: 700, textAlign: 'center',
-                    textDecoration: 'none', boxSizing: 'border-box',
+                    display: 'block',
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: 14,
+                    background: '#d97706',
+                    color: 'white',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    boxSizing: 'border-box',
                   }}
                 >
-                  🔓 Pro lo — Sirf ₹199
+                  🔓 Pro lo — ~~₹599~~ → ₹199/month
                 </a>
               </div>
             )}

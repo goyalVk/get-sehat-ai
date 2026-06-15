@@ -42,8 +42,14 @@ export async function POST(req) {
       `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/${phone}/${otp}/OTP1`,
       { method: 'GET' }
     )
-    const twoFactorBody = await twoFactorRes.json()
-    console.log('2Factor response:', twoFactorBody)
+    const twoFactorText = await twoFactorRes.text()
+    console.log('2Factor raw response:', twoFactorText)
+    let twoFactorBody
+    try {
+      twoFactorBody = JSON.parse(twoFactorText)
+    } catch {
+      twoFactorBody = { Status: 'Error', Details: twoFactorText }
+    }
 
     if (twoFactorBody.Status !== 'Success') {
       return NextResponse.json(
