@@ -170,7 +170,7 @@ function ChatContent() {
         if (err.limitReached) {
           setMessages(prev => [...prev, {
             role: 'assistant',
-            text: '10 free messages complete ho gaye 🙏\n\n~~₹599~~ → ₹199/month\n✅ Unlimited chat\n✅ Unlimited reports\n✅ PDF + Voice'
+            text: '10 free messages complete ho gaye 🙏\n\n₹599 → ₹199/month (Save 67%)\n✅ Unlimited chat\n✅ Unlimited reports\n✅ PDF + Voice'
           }])
           return
         }

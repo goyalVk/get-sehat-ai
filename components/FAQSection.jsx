@@ -3,8 +3,8 @@ import { useState } from 'react'
 
 const faqs = [
   {
-    q: 'Kya Sehat24 bilkul free hai?',
-    a: 'Haan — report analysis, Medicine AI Chat, PDF download sab bilkul free hai. Koi hidden charge nahi, koi credit card nahi.'
+    q: 'Kya Sehat24 free hai?',
+    a: 'Pehli report bilkul free hai — koi credit card nahi, koi hidden charge nahi. Unlimited reports, PDF download aur Voice ke liye Pro plan hai — sirf ₹199/month.'
   },
   {
     q: 'Mera data safe hai? Kahan jaata hai?',

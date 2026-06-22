@@ -18,11 +18,9 @@ export const dynamic     = 'force-dynamic'  // never cache — reads cookies() o
 // ── Model config ──────────────────────────────────────
 const HAIKU_MODEL    = 'claude-haiku-4-5-20251001'
 const SONNET_MODEL   = 'claude-sonnet-4-5'
-const GUEST_MAX_SIZE  =  3 * 1024 * 1024  //  3MB — anonymous users
-const FREE_MAX_SIZE   =  5 * 1024 * 1024  //  5MB — free logged-in users
-const PRO_MAX_SIZE    = 15 * 1024 * 1024  // 15MB — pro users
-const GUEST_MAX_PAGES = 5                 //  5 pages — anonymous users
-const FREE_MAX_PAGES  = 10               // 10 pages — free logged-in users
+const FREE_MAX_PAGES = 10  // 10 pages — free users only
+// Pro = unlimited pages, any file size
+// Guest = blocked completely
 // Pro = unlimited — no page check needed
 
 // ── Non-medical filenames (module level) ─────────────
@@ -362,31 +360,8 @@ export async function POST(req) {
 
     // ── Per-plan limits ───────────────────────────────
     const isGuestUser     = !userId
-    const maxFileSize     = isPro ? PRO_MAX_SIZE : isGuestUser ? GUEST_MAX_SIZE : FREE_MAX_SIZE
-    // Compress images that are large but still within plan limit
-    const compressThreshold = isPro ? 10 * 1024 * 1024 : isGuestUser ? 2 * 1024 * 1024 : 3 * 1024 * 1024
-
-    // ── Per-plan file size gate ───────────────────────
-    if (file.size > maxFileSize) {
-      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1)
-      if (isGuestUser) {
-        return NextResponse.json({
-          error:        `Aapki file ${fileSizeMB}MB ki hai — 3MB se badi hai. Login karo aur 5MB tak free mein analyze karo! 🔓`,
-          requiresLogin: true,
-        }, { status: 403 })
-      } else if (!isPro) {
-        return NextResponse.json({
-          error:        `Aapki file ${fileSizeMB}MB ki hai — free plan mein 5MB tak allowed hai. Pro plan mein 15MB tak analyze hoti hai ✨`,
-          requiresUpgrade: true,
-          upgradeUrl:   'https://rzp.io/rzp/f5GzI7Qj'
-        }, { status: 403 })
-      } else {
-        return NextResponse.json(
-          { error: `Aapki file ${fileSizeMB}MB ki hai — 15MB se compress karke try karo` },
-          { status: 400 }
-        )
-      }
-    }
+    // v4: No file size limits — only compression threshold
+    const compressThreshold = isPro ? 10 * 1024 * 1024 : 3 * 1024 * 1024
 
     // ── Model selection ───────────────────────────────
     // Pro → Sonnet, Free first report → Sonnet (WOW moment), Guest → Haiku
@@ -449,15 +424,6 @@ export async function POST(req) {
       console.warn(`MIME mismatch — declared: ${file.type}, actual: ${detectedMime} — using actual`)
     }
 
-    // ── PDF size check (plan-aware) ───────────────────
-    if (resolvedFileType === 'application/pdf' && buffer.length > maxFileSize) {
-      const limitMB = Math.round(maxFileSize / 1024 / 1024)
-      return NextResponse.json(
-        { error: `PDF bahut bada hai 📄 — ${limitMB}MB se chhota wala upload karo` },
-        { status: 400 }
-      )
-    }
-
     // ── Password protected PDF check ─────────────────
     if (resolvedFileType === 'application/pdf') {
       const pdfHeader = buffer.toString('latin1', 0, Math.min(buffer.length, 8192))
@@ -476,26 +442,25 @@ export async function POST(req) {
     if (resolvedFileType === 'application/pdf') {
       const pdfText   = buffer.toString('latin1')
       const pageCount = (pdfText.match(/\/Type\s*\/Page[^s]/g) || []).length
-      const maxPages  = isPro ? Infinity : !resolvedUserId ? GUEST_MAX_PAGES : FREE_MAX_PAGES
+      // v4: Guest blocked above — sirf free vs pro
+      const maxPages = isPro ? Infinity : FREE_MAX_PAGES
 
       if (pageCount > 0 && pageCount > maxPages) {
         await Report.create({
           fileName: file.name, fileType: resolvedFileType, fileSize: file.size,
-          userId: user?._id?.toString() || null, anonId, sessionId: crypto.randomUUID(),
+          userId: user?._id?.toString() || null, anonId,
+          sessionId: crypto.randomUUID(),
           status: 'failed', isSpam: false, preCheckFailed: true,
-          spamReason: !resolvedUserId ? 'pdf_pages_guest' : 'pdf_pages_free',
-          errorMessage: !resolvedUserId
-            ? `PDF mein ${pageCount} pages hain — login karo aur 10 pages tak free mein analyze karo! 🔓`
-            : `PDF mein ${pageCount} pages hain — Pro plan mein unlimited pages analyze hoti hain ✨`,
-          errorType: !resolvedUserId ? 'pdf_pages_guest' : 'pdf_pages_free',
+          spamReason: 'pdf_pages_free',
+          errorMessage: `PDF mein ${pageCount} pages hain`,
+          errorType: 'pdf_pages_free',
           userAgent,
         })
-        return NextResponse.json(
-          !resolvedUserId
-            ? { requiresLogin:   true, error: `PDF mein zyada pages hain — login karo aur 10 pages tak free mein analyze karo! 🔓` }
-            : { requiresUpgrade: true, error: `Aapki ${pageCount} page report analyze nahi ho sakti 😕 Pro plan mein unlimited pages, deep analysis aur PDF download — ₹199 mein poora mahina — jitni bhi reports karo, sab free! 1,200+ log use kar rahe hain 🇮🇳` },
-          { status: 403 }
-        )
+        return NextResponse.json({
+          limitReached: true,
+          upgradeUrl: '/upgrade',
+          error: `${pageCount} page ki report ke liye Pro chahiye 😊 ₹599 → ₹199/month (Save 67%)`
+        }, { status: 403 })
       }
     }
 
@@ -508,12 +473,6 @@ export async function POST(req) {
         effectiveMediaType = 'image/jpeg'
       }
 
-      if (finalBuffer.length > maxFileSize) {
-        const limitMB = Math.round(maxFileSize / 1024 / 1024)
-        return NextResponse.json({
-          error: `Photo bahut badi hai 😕 — ${limitMB}MB se chhoti photo try karo`
-        }, { status: 400 })
-      }
     }
 
     const base64 = finalBuffer.toString('base64')
@@ -524,7 +483,7 @@ export async function POST(req) {
 
     if (cachedByHash?.analysisResult?.report_type) {
       // Check free limit
-      if (user && !isPro && user.reportsUsed >= 1) {
+      if (user && !isPro && (user.reportsUsed >= 1 || user.hasAnalyzed)) {
         return NextResponse.json({
           error: 'Aapki free report use ho gayi 😊 Unlimited reports ke liye Pro lo!',
           limitReached: true,
@@ -736,13 +695,12 @@ export async function POST(req) {
     }
 
     // ── Upgrade nudge — free limit reached / pre-upgrade ─
-    let isAtLimit    = false
-    let isPreUpgrade = false
+    let isAtLimit = false
     try {
       if (userId && user?.plan === 'free') {
         const updatedUser = await User.findById(userId).lean()
 
-        if (updatedUser?.reportsUsed >= updatedUser?.reportsLimit) {
+        if (updatedUser?.reportsUsed >= 1 || updatedUser?.hasAnalyzed) {
           isAtLimit = true
           const { default: PushToken } = await import('@/models/PushToken')
           const { default: mongoose }  = await import('mongoose')
@@ -774,37 +732,6 @@ export async function POST(req) {
               }).catch(console.error)
           }
 
-        } else if (
-          updatedUser?.reportsUsed === updatedUser?.reportsLimit - 1
-        ) {
-          isPreUpgrade = true
-          const { default: PushToken } = await import('@/models/PushToken')
-          const { default: mongoose }  = await import('mongoose')
-
-          const preTokens = await PushToken.find({
-            active: true,
-            $or: [
-              { userId: new mongoose.Types.ObjectId(userId) },
-              ...(anonId ? [{ anonId }] : [])
-            ]
-          }).lean()
-
-          if (preTokens.length > 0) {
-            const adminSdk = await import('@/lib/firebaseAdmin')
-            await adminSdk.default.messaging()
-              .sendEachForMulticast({
-                tokens: preTokens.map(t => t.token),
-                webpush: {
-                  fcmOptions: { link: 'https://sehat24.com/upgrade' },
-                  data: {
-                    title: '📊 Sirf 1 free report bacha hai!',
-                    body:  '₹199 mein poora mahina unlimited reports + PDF download. Koi automatic deduction nahi!',
-                    url:   'https://sehat24.com/upgrade',
-                    icon:  'https://sehat24.com/icon-192x192.png'
-                  }
-                }
-              }).catch(console.error)
-          }
         }
       }
     } catch (upgradeNotifErr) {
@@ -863,42 +790,8 @@ export async function POST(req) {
       console.error('History nudge error:', historyNotifErr.message)
     }
 
-    // ── Login nudge — anonymous user ─────────────────
-    if (!userId && anonId) {
-      try {
-        const { default: PushTokenModel } = await import('@/models/PushToken')
-        const adminSdk = await import('@/lib/firebaseAdmin')
-
-        const anonTokens = await PushTokenModel.find({
-          active: true,
-          anonId,
-          userId: null
-        }).lean()
-
-        const anonList = anonTokens.map(t => t.token)
-
-        if (anonList.length > 0) {
-          await adminSdk.default.messaging()
-            .sendEachForMulticast({
-              tokens: anonList,
-              webpush: {
-                fcmOptions: { link: 'https://sehat24.com/auth/login' },
-                data: {
-                  title: '🔓 Login karo — Full Access Pao!',
-                  body:  'History dekho, trends track karo, PDF download karo — bilkul free!',
-                  url:   'https://sehat24.com/auth/login',
-                  icon:  'https://sehat24.com/icon-192x192.png'
-                }
-              }
-            }).catch(console.error)
-        }
-      } catch (err) {
-        console.error('Login nudge error:', err.message)
-      }
-    }
-
     // ── Push notification ─────────────────────────────
-    if (!isAtLimit && !isPreUpgrade) {
+    if (!isAtLimit) {
       try {
         const { default: adminApp } =
           await import('@/lib/firebaseAdmin')
@@ -1074,7 +967,7 @@ async function analyzeWithPDF(base64, model = HAIKU_MODEL, fileSize = 0, isPro =
   const response = await anthropic.messages.create(params)
 
   if (response.stop_reason === 'max_tokens') {
-    const err = new Error('Aapki report bahut badi hai 😕 Pro plan mein unlimited pages, deep analysis aur PDF download — ₹199 mein poora mahina — jitni bhi reports karo, sab free! sehat24.com/upgrade')
+    const err = new Error('Aapki report bahut badi hai 😕 Pro mein unlimited pages + deep analysis + PDF download — ₹199/month. sehat24.com/upgrade')
     err.isTruncated = true
     throw err
   }
@@ -1109,7 +1002,7 @@ async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL, fileSiz
   const response = await anthropic.messages.create(params)
 
   if (response.stop_reason === 'max_tokens') {
-    const err = new Error('Aapki report bahut badi hai 😕 Pro plan mein unlimited pages, deep analysis aur PDF download — ₹199 mein poora mahina — jitni bhi reports karo, sab free! sehat24.com/upgrade')
+    const err = new Error('Aapki report bahut badi hai 😕 Pro mein unlimited pages + deep analysis + PDF download — ₹199/month. sehat24.com/upgrade')
     err.isTruncated = true
     throw err
   }

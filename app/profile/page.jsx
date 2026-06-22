@@ -69,6 +69,11 @@ export default function ProfilePage() {
     ? `${form.firstName[0]}${form.lastName[0]}`.toUpperCase()
     : user?.phone?.slice(-2) || 'U'
 
+  const isPro =
+    (user?.plan === 'paid' || user?.plan === 'pro') &&
+    (!user?.subscriptionEndsAt ||
+      new Date(user.subscriptionEndsAt) > new Date())
+
   const reportsPercent = Math.min(
     ((user?.reportsUsed || 0) / (user?.reportsLimit || 5)) * 100, 100
   )
@@ -115,36 +120,40 @@ export default function ProfilePage() {
 
         {/* Plan Card */}
         <div style={{
-          background: (user?.plan === 'paid' || user?.plan === 'pro') ? '#e6faf8' : '#ffffff',
-          border: `1px solid ${(user?.plan === 'paid' || user?.plan === 'pro') ? '#0d9488' : '#e2e8f0'}`,
+          background: isPro ? '#e6faf8' : '#ffffff',
+          border: `1px solid ${isPro ? '#0d9488' : '#e2e8f0'}`,
           borderRadius: 16, padding: 20, marginBottom: 20
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <p style={{ fontSize: 11, color: '#94a3b8', margin: '0 0 4px' }}>Current Plan</p>
-              <p style={{ fontSize: 18, fontWeight: 700, color: (user?.plan === 'paid' || user?.plan === 'pro') ? '#0d9488' : '#1e293b', margin: 0 }}>
-                {(user?.plan === 'paid' || user?.plan === 'pro') ? '✓ Paid Plan' : 'Free Plan'}
+              <p style={{ fontSize: 18, fontWeight: 700, color: isPro ? '#0d9488' : '#1e293b', margin: 0 }}>
+                {isPro ? '✓ Pro Plan' : 'Free Plan'}
               </p>
               <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
-                {(user?.plan === 'paid' || user?.plan === 'pro')
-                  ? 'Unlimited reports'
-                  : `${user?.reportsUsed || 0} / ${user?.reportsLimit || 5} reports used`
+                {isPro
+                  ? `Unlimited reports${user?.subscriptionEndsAt
+                      ? ' — Valid till ' + new Date(user.subscriptionEndsAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                      : ''}`
+                  : user?.hasAnalyzed
+                    ? '1/1 free report used — Upgrade karo'
+                    : '0/1 free report available'
                 }
               </p>
             </div>
-            {user?.plan !== 'paid' && user?.plan !== 'pro' && (
+            {!isPro && (
               <Link href="/upgrade" style={{
                 background: '#0d9488', color: '#ffffff',
                 padding: '8px 16px', borderRadius: 12,
                 fontSize: 13, fontWeight: 600,
                 textDecoration: 'none'
               }}>
-                Upgrade →
+                <s>₹599</s> → ₹199 <span style={{background:'#dc2626',color:'white',fontSize:10,fontWeight:800,padding:'2px 8px',borderRadius:100,marginLeft:6}}>Save 67%</span>
               </Link>
             )}
           </div>
 
-          {user?.plan !== 'paid' && user?.plan !== 'pro' && (
+          {!isPro && (
             <div style={{ marginTop: 12 }}>
               <div style={{ width: '100%', background: '#e2e8f0', borderRadius: 999, height: 6 }}>
                 <div style={{

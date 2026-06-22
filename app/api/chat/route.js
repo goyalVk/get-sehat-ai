@@ -333,7 +333,7 @@ export async function POST(req) {
 
       if (chatCount >= 10) {
         return NextResponse.json({
-          reply: `Chat limit ho gayi 🙏\n\n~~₹599~~ → ₹199/month\nUnlimited chat + sab features\nSirf ₹6.6/din ☕\n\n👉 sehat24.com/upgrade`,
+          reply: `Chat limit ho gayi 🙏\n\n₹599 → ₹199/month (Save 67%)\nUnlimited chat + sab features\nSirf ₹6.6/din ☕\n\n👉 sehat24.com/upgrade`,
           limitReached: true,
           upgradeUrl: '/upgrade'
         }, { status: 429 })

@@ -55,16 +55,22 @@ export async function POST(req) {
       }
 
       if (user) {
+         const amountPaid = payment.amount / 100
+          const isAnnual   = amountPaid >= 1999
+
         await User.findByIdAndUpdate(user._id, {
           plan:               'paid',
+          planType:      isAnnual ? 'annual' : 'monthly',
           reportsLimit:       999999,
           reportsUsed:        0,
           paidAt:             new Date(),
           paymentId:          payment.id,
-          paymentAmount:      payment.amount / 100,
+          paymentAmount:      amountPaid,
           subscriptionEndsAt: new Date(
-            Date.now() + 30 * 24 * 60 * 60 * 1000
-          )
+          Date.now() + (isAnnual
+            ? 365 * 24 * 60 * 60 * 1000   // 1 year
+            :  30 * 24 * 60 * 60 * 1000)  // 30 days
+        )
         })
 
         // ── Pro welcome push notification ─────────────

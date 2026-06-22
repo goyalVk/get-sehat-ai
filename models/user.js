@@ -11,7 +11,8 @@ const UserSchema = new mongoose.Schema(
     email:        { type: String, default: null, sparse: true },
     
     // Plan
-    plan:         { type: String, enum: ['free', 'paid', 'pro'], default: 'free' },
+    plan:     { type: String, enum: ['free', 'paid', 'pro'], default: 'free' },
+    planType: { type: String, enum: ['monthly', 'annual', null], default: null },
     reportsUsed:  { type: Number, default: 0 },
     reportsLimit: { type: Number, default: 5 },
 

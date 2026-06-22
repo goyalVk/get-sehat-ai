@@ -74,22 +74,40 @@ export default async function ResultsPage({ params }) {
   const report = await Report.findById(id).lean()
   if (!report) notFound()
 
-  const cookieStore = await cookies()
-  const userId    = cookieStore.get('userId')?.value
+  const cookieStore  = await cookies()
+  const cookieUserId = cookieStore.get('userId')?.value
+
+  // JWT token support — OTP users ke liye
+  let jwtUserId = null
+  const tokenCookie = cookieStore.get('token')?.value
+  if (tokenCookie) {
+    try {
+      const jwt = (await import('jsonwebtoken')).default
+      const decoded = jwt.verify(tokenCookie, process.env.JWT_SECRET)
+      jwtUserId = decoded.userId
+    } catch {}
+  }
+
+  const userId     = jwtUserId || cookieUserId || null
   const isLoggedIn = !!userId
-  const currentUser = userId ? await User.findById(userId).lean() : null
-  const isFreeLimitReached =
-    currentUser?.plan === 'free' &&
-    currentUser?.reportsUsed >= currentUser?.reportsLimit
+  const currentUser = userId
+    ? await User.findById(userId).lean()
+    : null
   const isPro =
     (currentUser?.plan === 'paid' || currentUser?.plan === 'pro') &&
     (!currentUser?.subscriptionEndsAt || currentUser.subscriptionEndsAt > new Date())
 
+  const isFreeLimitReached =
+    !isPro &&
+    isLoggedIn &&
+    (currentUser?.reportsUsed >= 1 || currentUser?.hasAnalyzed === true)
+
   // First time free user = 1 report used = show all features with CTA
   const isFirstTimeUser =
     !isPro &&
-    isLoggedIn &&
-    currentUser?.reportsUsed === 1
+  isLoggedIn &&
+  currentUser?.hasAnalyzed === true &&
+  currentUser?.reportsUsed <= 1
 
   if (report.status === 'processing') {
     return (
@@ -391,7 +409,7 @@ export default async function ResultsPage({ params }) {
                     marginLeft: 6,
                     textDecoration: 'underline'
                   }}>
-                    ~~₹599~~ → ₹199/month
+                    <s>₹599</s> → ₹199/month <span style={{background:'#dc2626',color:'white',fontSize:10,fontWeight:800,padding:'2px 8px',borderRadius:100,marginLeft:4}}>Save 67%</span>
                   </a>
                 </p>
               )}
@@ -432,7 +450,7 @@ export default async function ResultsPage({ params }) {
                 textDecoration: 'none',
                 whiteSpace: 'nowrap'
               }}>
-                ~~₹599~~ → ₹199
+                <s>₹599</s> → ₹199
               </a>
             </div>
           )}
@@ -668,39 +686,30 @@ export default async function ResultsPage({ params }) {
 
           {/* ── PDF Download — Pro gated ── */}
           <div className="fade-up" style={{ marginBottom: 16, animationDelay: '0.45s' }}>
-            {isPro ? (
-              <DownloadButton
-                report={JSON.parse(JSON.stringify(report))}
-                result={JSON.parse(JSON.stringify(result))}
-              />
-            ) : isFirstTimeUser ? (
-              <div style={{
-                background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
-                border: '1.5px solid #fcd34d',
-                borderRadius: 20,
-                padding: 24,
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: 32, marginBottom: 10 }}>📄</div>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
-                  PDF Download — Pro Feature
-                </p>
-                <p style={{ fontSize: 13, color: '#78350f', marginBottom: 16 }}>
-                  Yeh report PDF mein download karo — doctor ke paas le jaao
-                </p>
-                <a href="/upgrade" style={{
-                  display: 'block',
-                  padding: '14px',
-                  borderRadius: 14,
-                  background: '#d97706',
-                  color: 'white',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                  textAlign: 'center'
-                }}>
-                  🔓 ~~₹599~~ → ₹199/month — Unlock PDF
-                </a>
+            {isLoggedIn ? (
+              <div>
+                <DownloadButton
+                  report={JSON.parse(JSON.stringify(report))}
+                  result={JSON.parse(JSON.stringify(result))}
+                />
+                {!isPro && (
+                  <p style={{
+                    fontSize: 11,
+                    color: '#0d9488',
+                    textAlign: 'center',
+                    marginTop: 8,
+                    marginBottom: 16
+                  }}>
+                    📄 Unlimited PDF + reports ke liye Pro lo —{' '}
+                    <a href="/upgrade" style={{
+                      color: '#0d9488',
+                      fontWeight: 700,
+                      textDecoration: 'underline'
+                    }}>
+                      <s>₹599</s> → ₹199/month
+                    </a>
+                  </p>
+                )}
               </div>
             ) : (
               <div style={{
@@ -712,31 +721,23 @@ export default async function ResultsPage({ params }) {
               }}>
                 <div style={{ fontSize: 32, marginBottom: 10 }}>🔒</div>
                 <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
-                  PDF Download — Pro Plan
-                </p>
-                <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6, marginBottom: 4 }}>
-                  Sehat24 branded PDF — doctor ke paas le jaao
-                </p>
-                <p style={{ fontSize: 12, color: '#b45309', marginBottom: 16 }}>
-                  ~~₹599~~ → ₹199/month — Unlimited reports + PDF
+                  PDF Download ke liye Login Karo
                 </p>
                 <a
-                  href={isLoggedIn ? '/upgrade' : `/auth/login?redirect=/results/${id}&source=pdf_gate`}
+                  href={`/auth/login?redirect=/results/${id}&source=pdf_gate`}
                   style={{
                     display: 'block',
-                    width: '100%',
                     padding: '14px',
                     borderRadius: 14,
                     background: '#d97706',
                     color: 'white',
                     fontSize: 14,
                     fontWeight: 700,
-                    textAlign: 'center',
                     textDecoration: 'none',
-                    boxSizing: 'border-box',
+                    textAlign: 'center',
                   }}
                 >
-                  🔓 Pro lo — ~~₹599~~ → ₹199/month
+                  🔓 Login Karo — Free
                 </a>
               </div>
             )}
@@ -797,19 +798,21 @@ export default async function ResultsPage({ params }) {
               </div>
               <div>
                 <p style={{ fontSize: 15, fontWeight: 700, color: '#134e4a', marginBottom: 4 }}>
-                  Aur reports analyze karo — Free
+                  {isPro ? 'Aur reports analyze karo' : 'Pro lo — Unlimited reports'}
                 </p>
                 <p style={{ fontSize: 13, color: '#0d9488', lineHeight: 1.6 }}>
-                  Thyroid, HbA1c, Vitamin D, Liver — koi bhi report upload karo. 30 seconds mein Hindi mein results.
+                  {isPro
+                    ? 'Thyroid, HbA1c, Vitamin D, Liver — koi bhi report upload karo. 30 seconds mein Hindi mein results.'
+                    : 'Unlimited reports + PDF + Voice + History — sirf ₹199/month'}
                 </p>
               </div>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               <Link
-                href="/upload"
+                href={isPro ? '/upload' : '/upgrade'}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 20px', background: '#0d9488', color: 'white', borderRadius: 12, textDecoration: 'none', fontSize: 14, fontWeight: 700, flex: 1, minWidth: 180, justifyContent: 'center' }}
               >
-                📤 Naya Report Upload Karo →
+                {isPro ? '📤 Naya Report Upload Karo →' : '⚡ Pro lo — ₹199/month'}
               </Link>
               <Link
                 href="/dashboard"

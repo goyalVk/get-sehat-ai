@@ -10,7 +10,7 @@ import { requestPushPermission } from '@/lib/pushNotification'
 const STATS_CHIPS = [
   { icon: '⚡', label: '30 seconds' },
   { icon: '🔒', label: 'Private'    },
-  { icon: '🆓', label: 'Bilkul Free' },
+  { icon: '🆓', label: 'Pehli Report Free' },
   { icon: '🏥', label: 'Har Indian Lab' },
 ]
 
@@ -81,24 +81,6 @@ export default function UploadPage() {
     const _plan    = storedUser?.plan || null
     const _isPro   = _plan === 'paid' || _plan === 'pro'
     const _isGuest = !_userId
-
-    const maxSize = _isPro ? 15 * 1024 * 1024 : _isGuest ? 3 * 1024 * 1024 : 5 * 1024 * 1024
-
-    if (f.size > maxSize) {
-      const fileSizeMB = (f.size / (1024 * 1024)).toFixed(1)
-      if (_isGuest) {
-        setError(`Aapki file ${fileSizeMB}MB ki hai — 3MB se badi hai. Login karo aur 5MB tak free mein analyze karo! 🔓`)
-        setErrorType('file_size_guest')
-      } else if (!_isPro) {
-        setError(`Aapki file ${fileSizeMB}MB ki hai — free plan mein 5MB tak allowed hai. Pro plan mein 15MB tak analyze hoti hai ✨`)
-        setErrorType('file_size_free')
-      } else {
-        setError(`Aapki file ${fileSizeMB}MB ki hai — 15MB se compress karke try karo`)
-        setErrorType('file_size_pro')
-      }
-      setFile(null)
-      return
-    }
 
     setError('')
     setErrorType('')
@@ -174,14 +156,8 @@ export default function UploadPage() {
           return
         }
         if (data.requiresLogin) {
-          setError(data.error || 'Badi file hai — login karo aur 5MB tak free mein analyze karo! 🔓')
+          setError(data.error || 'Login karo — pehli report bilkul free! 🔓')
           setErrorType('file_size_guest')
-          setLoading(false)
-          return
-        }
-        if (data.requiresUpgrade) {
-          setError(data.error || 'Badi file hai — Pro plan mein 15MB tak analyze hoti hai ✨')
-          setErrorType('file_size_free')
           setLoading(false)
           return
         }
@@ -268,7 +244,13 @@ export default function UploadPage() {
     router.push('/auth/login?redirect=/upload')
   }
 
-  const isPro  = userPlan === 'paid' || userPlan === 'pro'
+  const storedUserFull = (() => {
+    try { return JSON.parse(localStorage.getItem('s24_user') || 'null') } catch { return null }
+  })()
+  const isPro =
+    (userPlan === 'paid' || userPlan === 'pro') &&
+    (!storedUserFull?.subscriptionEndsAt ||
+      new Date(storedUserFull.subscriptionEndsAt) > new Date())
   const noFile = !file && !loading
 
   return (
@@ -496,91 +478,21 @@ export default function UploadPage() {
               Report yahan drop karo
             </p>
             <p style={{ fontSize: 14, color: '#94a3b8', marginBottom: 12 }}>ya click karke select karo</p>
-            <span style={{
-              display: 'inline-block',
-              background: '#f8fafc', border: '1px solid #f1f5f9',
-              borderRadius: 100, padding: '6px 16px',
-              fontSize: 11, color: '#94a3b8',
-            }}>
-              PDF / JPG / PNG / WebP • Free: 5MB • Pro: 15MB
+            <span
+              suppressHydrationWarning
+              style={{
+                display: 'inline-block',
+                background: '#f8fafc', border: '1px solid #f1f5f9',
+                borderRadius: 100, padding: '6px 16px',
+                fontSize: 11, color: '#94a3b8',
+              }}>
+              PDF, JPG, PNG — koi bhi size
             </span>
           </div>
         )}
       </div>
 
       {/* ── Error cards — immediately below drop zone ── */}
-
-      {/* Guest file size — login to unlock 5MB */}
-      {error && errorType === 'file_size_guest' && (
-        <div style={{
-          marginTop: 16,
-          background: 'linear-gradient(135deg, #f0fdfa, #ecfdf5)',
-          border: '1.5px solid #0d9488',
-          borderRadius: 16, overflow: 'hidden',
-        }}>
-          <div style={{ padding: '20px 16px 16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <span style={{ fontSize: 28 }}>📁</span>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#0d9488', margin: 0 }}>
-                Badi file hai — login karo
-              </p>
-            </div>
-            <p style={{ fontSize: 13, color: '#134e4a', lineHeight: 1.65, marginBottom: 16 }}>
-              {error || 'Badi file hai — login karo aur zyada analyze karo!'}
-            </p>
-            <a
-              href="/auth/login?redirect=/upload"
-              style={{
-                display: 'block', width: '100%', padding: '13px',
-                background: '#0d9488', color: 'white',
-                borderRadius: 12, fontSize: 14, fontWeight: 700,
-                textDecoration: 'none', textAlign: 'center',
-                boxSizing: 'border-box',
-              }}
-            >
-              🔓 Login Karo — Free →
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* Free user file size — upgrade to Pro for 15MB */}
-      {error && errorType === 'file_size_free' && (
-        <div style={{
-          marginTop: 16,
-          background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
-          border: '1.5px solid #fcd34d',
-          borderRadius: 16, overflow: 'hidden',
-        }}>
-          <div style={{ padding: '20px 16px 16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <span style={{ fontSize: 28 }}>⚡</span>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', margin: 0 }}>
-                Badi file hai 😕 Pro mein analyze karo!
-              </p>
-            </div>
-            <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.65, marginBottom: 16 }}>
-              {error || 'File badi hai'}
-              <br/><br/>
-              ✅ Unlimited pages &nbsp; ✅ Deep analysis<br/>
-              ✅ PDF download &nbsp; ✅ ₹199 mein poora mahina — jitni bhi reports karo, sab free! ☕<br/>
-              <span style={{ fontSize: 12, color: '#92400e' }}>1,200+ log already use kar rahe hain 🇮🇳</span>
-            </p>
-            <a
-              href="/upgrade"
-              style={{
-                display: 'block', width: '100%', padding: '13px',
-                background: '#d97706', color: 'white',
-                borderRadius: 12, fontSize: 14, fontWeight: 700,
-                textDecoration: 'none', textAlign: 'center',
-                boxSizing: 'border-box',
-              }}
-            >
-              ⚡ ₹199 mein poora mahina — unlimited reports!
-            </a>
-          </div>
-        </div>
-      )}
 
       {/* Anon gate — login required for 2nd upload */}
       {error && errorType === 'anon_gate' && (
@@ -863,7 +775,7 @@ export default function UploadPage() {
           )}
           {errorType === 'file_size_pro' && (
             <p style={{ fontSize: 12, color: '#64748b', lineHeight: 1.6, margin: '0 16px 10px' }}>
-              💡 ilovepdf.com pe free mein compress karo — 15MB se neeche laao{' '}
+              💡 Dobara try karo — clear photo ya PDF use karo{' '}
               <a href="https://ilovepdf.com" target="_blank" rel="noopener noreferrer"
                  style={{ color: '#0d9488' }}>
                 Compress karo →
@@ -884,7 +796,7 @@ export default function UploadPage() {
                 textDecoration: 'none',
                 textAlign: 'center',
               }}>
-                ⚡ Pro mein 15MB tak analyze hoti hai — Upgrade karo
+                ⚡ Pro mein unlimited reports + PDF + Voice
               </a>
             </div>
           )}
@@ -1115,7 +1027,7 @@ export default function UploadPage() {
         🇮🇳 Made in India — Har Indian ke liye
       </p>
       <p style={{ fontSize: 12, color: '#cbd5e1', textAlign: 'center', lineHeight: 1.6, margin: 0 }}>
-        Aapki report securely process hoti hai. Bina permission ke data store nahi hota.
+        Aapki report ka analysis securely store hota hai — kabhi bhi dekh sako.
       </p>
 
     </main>

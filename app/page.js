@@ -4,7 +4,7 @@ import FAQSection from '@/components/FAQSection'
 
 export const metadata = {
   title: 'Sehat24 — Free Medical Report Analyzer in Hindi | Lab Report Samjho',
-  description: 'Koi bhi lab report Hindi mein samjho — CBC, Thyroid, HbA1c, Vitamin D. 8000+ reports analyzed. SRL, Lal PathLabs, Apollo, Thyrocare sab supported. Bilkul Free.',
+  description: 'Koi bhi lab report Hindi mein samjho — CBC, Thyroid, HbA1c, Vitamin D. 12,000+ reports analyzed. SRL, Lal PathLabs, Apollo, Thyrocare sab supported. Pehli report free.',
   keywords: [
     'medical report hindi mein','lab report analyzer hindi',
     'blood test report hindi','CBC report hindi mein samjho',
@@ -33,7 +33,7 @@ const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: [
-    { '@type':'Question', name:'Kya Sehat24 bilkul free hai?',             acceptedAnswer:{ '@type':'Answer', text:'Haan — report analysis, Medicine AI Chat, PDF download sab bilkul free hai. Koi hidden charge nahi, koi credit card nahi.' } },
+    { '@type':'Question', name:'Kya Sehat24 bilkul free hai?',             acceptedAnswer:{ '@type':'Answer', text:'Pehli report bilkul free hai — koi credit card nahi, koi hidden charge nahi. Unlimited reports ke liye Pro plan available hai ₹199/month mein.' } },
     { '@type':'Question', name:'Mera data safe hai?',                       acceptedAnswer:{ '@type':'Answer', text:'Aapki report sirf analysis ke liye process hoti hai. Hum aapka data bina permission ke store nahi karte. Privacy hamari priority hai.' } },
     { '@type':'Question', name:'Kaunse reports supported hain?',            acceptedAnswer:{ '@type':'Answer', text:'Blood test CBC, LFT, KFT, HbA1c, Lipid Profile, Thyroid, MRI, CT Scan, X-Ray, Ultrasound, Pathology — kisi bhi Indian lab ki report. SRL, Lal PathLabs, Apollo, Metropolis, Thyrocare sab chalte hain.' } },
     { '@type':'Question', name:'Kya yeh doctor ka replacement hai?',        acceptedAnswer:{ '@type':'Answer', text:'Bilkul nahi. Sehat24 educational information deta hai — doctor ka substitute nahi. Koi bhi health decision doctor ki salah ke baad lein.' } },
@@ -979,7 +979,7 @@ export default function Home() {
         <section className="r-pad" style={{ padding:'72px 24px', background:'var(--surface)' }}>
           <div style={{ maxWidth:860, margin:'0 auto' }}>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }} className="r-col-2">
-              {[{n:'500M+',l:'Indians get medical reports yearly',i:'🇮🇳'},{n:'30 sec',l:'Average analysis time',i:'⚡'},{n:'100%',l:'Free — always',i:'💯'},{n:'22+',l:'Indian languages — coming soon',i:'🗣️'}].map((s,i) => (
+              {[{n:'500M+',l:'Indians get medical reports yearly',i:'🇮🇳'},{n:'30 sec',l:'Average analysis time',i:'⚡'},{n:'Free',l:'Pehli report — koi card nahi',i:'💯'},{n:'22+',l:'Indian languages — coming soon',i:'🗣️'}].map((s,i) => (
                 <div key={i} className="card" style={{ padding:'24px 16px', textAlign:'center' }}>
                   <div style={{ fontSize:24, marginBottom:10 }}>{s.i}</div>
                   <p style={{ fontFamily:'var(--font-display)', fontSize:28, fontWeight:400, color:'var(--teal-600)', marginBottom:4, lineHeight:1 }}>{s.n}</p>

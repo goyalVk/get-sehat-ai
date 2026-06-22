@@ -26,7 +26,7 @@ export default function Navbar() {
 
   const firstName    = user?.firstName || user?.phone?.slice(-4) || ''
   const isAuthPage   = pathname?.startsWith('/auth')
-  const isPro        = user?.plan === 'paid' || user?.plan === 'pro'
+  const isPro = (user?.plan === 'paid' || user?.plan === 'pro') && (!user?.subscriptionEndsAt || new Date(user.subscriptionEndsAt) > new Date())
   const showUpgrade  = user && !isPro && pathname !== '/upgrade'
 
   return (

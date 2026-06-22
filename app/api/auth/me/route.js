@@ -43,15 +43,18 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      id:           user._id,
-      phone:        user.phone,
-      firstName:    user.firstName,
-      lastName:     user.lastName,
-      email:        user.email,
-      plan:         user.plan,
-      reportsUsed:  user.reportsUsed,
-      reportsLimit: user.reportsLimit,
-      createdAt:    user.createdAt,
+      id:                 user._id,
+      phone:              user.phone,
+      firstName:          user.firstName,
+      lastName:           user.lastName,
+      email:              user.email,
+      plan:               user.plan,
+      planType:           user.planType           || null,
+      reportsUsed:        user.reportsUsed,
+      reportsLimit:       user.reportsLimit,
+      subscriptionEndsAt: user.subscriptionEndsAt || null,
+      hasAnalyzed:        user.hasAnalyzed        || false,
+      createdAt:          user.createdAt,
     })
 
   } catch (err) {

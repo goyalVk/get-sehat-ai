@@ -104,6 +104,13 @@ function DashboardContent() {
     (user?.plan === 'paid' || user?.plan === 'pro') &&
     (!user?.subscriptionEndsAt ||
       new Date(user.subscriptionEndsAt) > new Date())
+  console.log('Dashboard user:', {
+    plan: user?.plan,
+    planType: user?.planType,
+    subscriptionEndsAt: user?.subscriptionEndsAt,
+    isPro: isPro
+  })
+
   const FREE_REPORT_LIMIT = 1
   const reportsLeft = isPro
     ? 'Unlimited'
@@ -227,6 +234,37 @@ function DashboardContent() {
               <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 4, lineHeight: 1.5 }}>
                 Based on your latest {reports.length > 0 ? reports[0].reportType || 'report' : 'report'}
               </p>
+              {isPro && (
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  background: 'linear-gradient(135deg, #f0fdfa, #ccfbf1)',
+                  border: '1px solid #99f6e4',
+                  borderRadius: 100,
+                  padding: '4px 14px',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#0d9488',
+                  marginBottom: 8
+                }}>
+                  {(() => {
+                    const endsAt   = user?.subscriptionEndsAt
+                    const label    = user?.planType === 'annual' ? '🏆 Annual Pro' : '⭐ Monthly Pro'
+
+                    if (!endsAt) return label
+
+                    const endDate  = new Date(endsAt)
+                    const today    = new Date()
+                    const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24))
+                    const validTill = endDate.toLocaleDateString('en-IN', {
+                      day: 'numeric', month: 'short', year: 'numeric'
+                    })
+
+                    return `${label} — ${daysLeft} din bache — ${validTill} tak`
+                  })()}
+                </div>
+              )}
               <div style={{ marginTop: 16, width: '100%', background: '#f8fafc', borderRadius: 12, padding: '10px 14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                   <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>
