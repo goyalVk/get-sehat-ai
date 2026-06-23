@@ -803,32 +803,78 @@ export default function UploadPage() {
 
           {/* Retry + WhatsApp — shown for all errors except limit/login redirects */}
           {errorType !== 'limit' && errorType !== 'login' && (
-            <div style={{ padding: '0 16px 14px', display: 'flex', gap: 8 }}>
-              <button
-                onClick={resetUpload}
-                style={{
-                  flex: 1, padding: '11px',
-                  background: '#dc2626', color: 'white',
-                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
-                  cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                🔄 Dobara Try Karo
-              </button>
-              <a
-                href="https://wa.me/918076170877?text=Meri+report+upload+nahi+ho+rahi+%F0%9F%99%8F"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  flex: 1, padding: '11px',
-                  background: '#22c55e', color: 'white',
-                  borderRadius: 10, fontSize: 13, fontWeight: 700,
-                  textDecoration: 'none',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-                }}
-              >
-                💬 WhatsApp Help
-              </a>
+            <div style={{ padding: '0 16px 14px', display: 'flex', gap: 8, flexDirection: 'column' }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  onClick={resetUpload}
+                  style={{
+                    flex: 1, padding: '11px',
+                    background: '#dc2626', color: 'white',
+                    border: 'none', borderRadius: 10,
+                    fontSize: 13, fontWeight: 700,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                  }}
+                >
+                  🔄 Dobara Try Karo
+                </button>
+                <a
+                  href={isPro
+                    ? `https://wa.me/918076170877?text=${encodeURIComponent(`Namaste Sehat24 Team 🙏\n\nMain Sehat24 Pro user hoon aur meri report upload nahi ho rahi.\n\nFile: ${file?.name || 'N/A'}\nError: ${error || 'Unknown'}\n\nPlease help karein.`)}`
+                    : `https://wa.me/918076170877?text=${encodeURIComponent('Meri report upload nahi ho rahi 🙏')}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    flex: 1, padding: '11px',
+                    background: '#22c55e', color: 'white',
+                    borderRadius: 10, fontSize: 13, fontWeight: 700,
+                    textDecoration: 'none',
+                    display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', gap: 5,
+                  }}
+                >
+                  💬 {isPro ? 'Pro Support' : 'WhatsApp Help'}
+                </a>
+              </div>
+
+              {isPro && (
+                <div style={{
+                  background: 'linear-gradient(135deg, #f0fdfa, #ccfbf1)',
+                  border: '1.5px solid #0d9488',
+                  borderRadius: 12,
+                  padding: '12px 14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10
+                }}>
+                  <span style={{ fontSize: 20 }}>👑</span>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#0d9488', margin: 0 }}>
+                      Pro Member — Priority Support
+                    </p>
+                    <p style={{ fontSize: 11, color: '#134e4a', margin: 0 }}>
+                      Hum personally help karenge — WhatsApp karo!
+                    </p>
+                  </div>
+                  <a
+                    href={`https://wa.me/918076170877?text=${encodeURIComponent(`Namaste Sehat24 Team 🙏\n\nMain Sehat24 Pro user hoon.\n\nFile: ${file?.name || 'N/A'}\nError: ${error || 'Unknown'}\n\nPlease help karein.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      background: '#0d9488',
+                      color: 'white',
+                      padding: '8px 14px',
+                      borderRadius: 10,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      textDecoration: 'none',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    💬 WhatsApp
+                  </a>
+                </div>
+              )}
             </div>
           )}
 
