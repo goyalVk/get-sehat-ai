@@ -140,9 +140,14 @@ export default function RootLayout({ children }) {
       </head>
 
       <body style={{ margin: 0, padding: 0, overflowX: 'hidden' }}>
+
+        {/* ✅ Google Analytics */}
         {GA_ID !== 'G-XXXXXXXXXX' && (
           <>
-            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
             <Script id="google-analytics" strategy="afterInteractive">
               {`
                 window.dataLayer = window.dataLayer || [];
@@ -157,6 +162,8 @@ export default function RootLayout({ children }) {
             </Script>
           </>
         )}
+
+        {/* ✅ Google Ads */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-18171290722"
           strategy="afterInteractive"
@@ -169,21 +176,38 @@ export default function RootLayout({ children }) {
             gtag('config', 'AW-18171290722');
           `}
         </Script>
+
+        {/* ✅ Microsoft Clarity — FIXED: using Next.js Script instead of plain <script> */}
+        <Script id="microsoft-clarity" strategy="afterInteractive">
+          {`
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "xbpt7x2u1l");
+          `}
+        </Script>
+
         <Navbar />
         {children}
         <Footer />
+
+        {/* ✅ Chat Widget — fixed positioned */}
         <div style={{
-        position: 'fixed',
-        bottom: 0, right: 0,
-        zIndex: 9999,
-        pointerEvents: 'none'  // ← Layout affect nahi karega
-      }}>
-        <div style={{ pointerEvents: 'auto' }}>
-          <ClientChatWidget />
+          position: 'fixed',
+          bottom: 0,
+          right: 0,
+          zIndex: 9999,
+          pointerEvents: 'none'
+        }}>
+          <div style={{ pointerEvents: 'auto' }}>
+            <ClientChatWidget />
+          </div>
         </div>
-      </div>
+
         <NotificationBanner />
         <PWAInstallPrompt />
+
       </body>
     </html>
   )
