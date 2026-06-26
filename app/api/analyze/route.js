@@ -153,22 +153,6 @@ function detectMimeFromBuffer(buf) {
   return null
 }
 
-// One-time migration per server instance: free users with old limit (2) → new limit (5)
-let _migrationDone = false
-async function maybeRunMigrations() {
-  if (_migrationDone) return
-  _migrationDone = true
-  try {
-    const User = (await import('@/models/user')).default
-    await User.updateMany(
-      { plan: 'free', reportsLimit: 2 },
-      { $set: { reportsLimit: 5 } }
-    )
-  } catch (err) {
-    console.error('Migration error:', err.message)
-  }
-}
-
 // Compresses image in descending quality stages; caller checks final size against plan limit
 async function compressImage(buffer) {
   const sharp = (await import('sharp')).default
@@ -211,7 +195,6 @@ export async function POST(req) {
 
   try {
     await connectDB()
-    maybeRunMigrations()  // fire-and-forget; idempotent
     const formData = await req.formData()
     const file    = formData.get('file')
     anonId            = formData.get('anonId')?.toString() || null

@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   serverExternalPackages: ['mongoose', 'pdf-parse'],
-  generateBuildId: async () => 'v4-paid-' + Date.now(),
+  generateBuildId: async () => {
+    return `sehat24-${Date.now()}`
+  },
 
   compress: true,
   poweredByHeader: false,

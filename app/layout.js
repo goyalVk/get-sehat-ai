@@ -5,6 +5,7 @@ import ClientChatWidget from '@/components/ClientChatWidget'
 import Script from 'next/script'
 import NotificationBanner from '@/components/NotificationBanner'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt'
+import SWUpdateChecker from '@/components/SWUpdateChecker'
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -140,6 +141,7 @@ export default function RootLayout({ children }) {
       </head>
 
       <body style={{ margin: 0, padding: 0, overflowX: 'hidden' }}>
+        <SWUpdateChecker />
 
         {/* ✅ Google Analytics */}
         {GA_ID !== 'G-XXXXXXXXXX' && (

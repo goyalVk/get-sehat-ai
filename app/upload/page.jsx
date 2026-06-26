@@ -43,6 +43,7 @@ export default function UploadPage() {
   const [isGuest, setIsGuest]               = useState(true)
   const [userPlan, setUserPlan]             = useState('free')
   const [showRetryNudge, setShowRetryNudge] = useState(false)
+  const [isPro, setIsPro]                   = useState(false)
 
   useEffect(() => {
     try {
@@ -54,6 +55,12 @@ export default function UploadPage() {
       const hasUserId  = !!storedUser?.id
       setIsGuest(!hasUserId)
       setUserPlan(storedUser?.plan || 'free')
+      const _plan   = storedUser?.plan || 'free'
+      const _endsAt = storedUser?.subscriptionEndsAt
+      setIsPro(
+        (_plan === 'paid' || _plan === 'pro') &&
+        (!_endsAt || new Date(_endsAt) > new Date())
+      )
       if (count >= 1 && !dismissed && !hasUserId) setShowLoginNudge(true)
 
       // Post-login retry: user just came back after logging in
@@ -156,8 +163,8 @@ export default function UploadPage() {
           return
         }
         if (data.requiresLogin) {
-          setError(data.error || 'Login karo — pehli report bilkul free! 🔓')
-          setErrorType('file_size_guest')
+          setError('Login karo — pehli report bilkul FREE! 🔓')
+          setErrorType('anon_gate')
           setLoading(false)
           return
         }
@@ -244,13 +251,6 @@ export default function UploadPage() {
     router.push('/auth/login?redirect=/upload')
   }
 
-  const storedUserFull = (() => {
-    try { return JSON.parse(localStorage.getItem('s24_user') || 'null') } catch { return null }
-  })()
-  const isPro =
-    (userPlan === 'paid' || userPlan === 'pro') &&
-    (!storedUserFull?.subscriptionEndsAt ||
-      new Date(storedUserFull.subscriptionEndsAt) > new Date())
   const noFile = !file && !loading
 
   return (
@@ -335,7 +335,7 @@ export default function UploadPage() {
           background: '#f0fdfa', border: '1px solid #99f6e4',
           borderRadius: 100, marginBottom: 14,
         }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#0d9488' }}>✅ 8,000+ Reports Analyzed</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#0d9488' }}>✅ 12,000+ Reports Analyzed</span>
         </div>
 
         <h1 style={{
@@ -738,7 +738,7 @@ export default function UploadPage() {
         </div>
       )}
 
-      {error && errorType !== 'report_too_large' && errorType !== 'anon_gate' && errorType !== 'file_size_guest' && errorType !== 'file_size_free' && errorType !== 'limit' && (
+      {error && errorType !== 'report_too_large' && errorType !== 'anon_gate' && errorType !== 'limit' && (
         <div style={{
           marginTop: 16,
           background: '#fef2f2', border: '1.5px solid #fecaca',
@@ -1063,7 +1063,7 @@ export default function UploadPage() {
               boxShadow: file ? '0 4px 20px rgba(13,148,136,0.3)' : 'none',
             }}
           >
-            {file ? '🔍 Report Analyze Karo — Free →' : 'Pehle file select karo'}
+            {file ? '🔍 Report Analyze Karo →' : 'Pehle file select karo'}
           </button>
         </div>
       )}
