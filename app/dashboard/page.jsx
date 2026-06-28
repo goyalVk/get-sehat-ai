@@ -10,17 +10,6 @@ const statusConfig = {
   critical: { color: '#ffffff', bg: '#dc2626', label: 'Urgent' },
 }
 
-const categoryIcons = {
-  blood:    '🩸',
-  thyroid:  '🦋',
-  lipid:    '🫀',
-  diabetes: '📊',
-  liver:    '🫁',
-  kidney:   '🔬',
-  vitamin:  '💊',
-  full_body:'📋',
-  other:    '📄',
-}
 
 // ── Main Dashboard Content ──
 function DashboardContent() {
@@ -408,7 +397,6 @@ function DashboardContent() {
                 {reports.map((report, i) => {
                   const abnormal  = report.parameters?.filter(p => p.status?.toLowerCase() !== 'normal') || []
                   const normal    = report.parameters?.filter(p => p.status?.toLowerCase() === 'normal') || []
-                  const icon      = categoryIcons[report.reportCategory] || '📄'
                   const hasUrgent = report.urgentFlags?.length > 0
                   const testDate  = report.lab?.collectedAt
                     ? new Date(report.lab.collectedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -420,7 +408,7 @@ function DashboardContent() {
                       <Link href={`/results/${report._id}`} className="report-card">
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                           <div style={{ width: 44, height: 44, borderRadius: 12, background: hasUrgent ? '#fef2f2' : '#f0fdfa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                            {icon}
+                            📄
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
@@ -429,11 +417,6 @@ function DashboardContent() {
                               </span>
                               {hasUrgent && (
                                 <span className="badge" style={{ background: '#fef2f2', color: '#dc2626' }}>⚠ Urgent</span>
-                              )}
-                              {report.reportCategory && (
-                                <span className="badge" style={{ background: '#f0fdfa', color: '#0d9488' }}>
-                                  {report.reportCategory}
-                                </span>
                               )}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>

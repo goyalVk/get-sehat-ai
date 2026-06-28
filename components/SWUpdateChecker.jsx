@@ -17,6 +17,8 @@ export default function SWUpdateChecker() {
         if (storedVersion !== version) {
           // New version available!
           localStorage.setItem('s24_version', version)
+          localStorage.removeItem('s24_user')
+          localStorage.removeItem('s24_uid')
 
           // Step 3 — Clear all SW caches
           if ('serviceWorker' in navigator) {

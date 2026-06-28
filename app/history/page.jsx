@@ -21,11 +21,17 @@ function getTrendInfo(trend) {
   if (!latestNormal && previousNormal)
     return { type: 'worsening', label: '↑ Worsening', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' }
 
+  // Non-numeric values = stable by status
+  if (latest.value === null || previous.value === null ||
+      isNaN(latest.value) || isNaN(previous.value)) {
+    return { type: 'stable', label: '→ Stable', color: '#d97706', bg: '#fffbeb', border: '#fde68a' }
+  }
+
   const diff = latest.value - previous.value
   const pct  = Math.abs((diff / previous.value) * 100).toFixed(1)
-  if (diff === 0) return { type: 'stable',    label: '→ Stable',     color: '#d97706', bg: '#fffbeb', border: '#fde68a', pct }
-  if (diff < 0)   return { type: 'improving', label: '↓ Improving',  color: '#16a34a', bg: '#f0fdf4', border: '#86efac', pct }
-  return              { type: 'worsening', label: '↑ Worsening',  color: '#dc2626', bg: '#fef2f2', border: '#fecaca', pct }
+  if (diff === 0) return { type: 'stable',    label: '→ Stable',    color: '#d97706', bg: '#fffbeb', border: '#fde68a', pct }
+  if (diff < 0)   return { type: 'improving', label: '↓ Improving', color: '#16a34a', bg: '#f0fdf4', border: '#86efac', pct }
+  return              { type: 'worsening', label: '↑ Worsening', color: '#dc2626', bg: '#fef2f2', border: '#fecaca', pct }
 }
 
 // ── Advice — only for abnormal ──
@@ -38,6 +44,12 @@ function getTrendAdvice(paramName, trend) {
   const previousNormal = previous.status?.toLowerCase() === 'normal'
 
   if (latestNormal && previousNormal) return null
+
+  // Non-numeric values = no advice
+  if (latest.value === null || previous.value === null ||
+      isNaN(latest.value) || isNaN(previous.value)) {
+    return null
+  }
 
   const diff = latest.value - previous.value
   const pct  = Math.abs((diff / previous.value) * 100).toFixed(1)
@@ -73,22 +85,30 @@ function getTrendAdvice(paramName, trend) {
 
 // ── Mini Sparkline ──
 function Sparkline({ trend, color }) {
-  if (trend.length < 2) return null
-  const values = trend.map(t => t.value)
-  const min = Math.min(...values), max = Math.max(...values)
+  if (!trend || trend.length < 2) return null
+
+  // Filter out invalid values
+  const validTrend = trend.filter(t => t?.value != null && !isNaN(Number(t.value)))
+  if (validTrend.length < 2) return null
+
+  const values = validTrend.map(t => Number(t.value))
+  const min = Math.min(...values)
+  const max = Math.max(...values)
   const range = max - min || 1
   const W = 100, H = 36, PAD = 4
   const points = values.map((v, i) => {
     const x = PAD + (i / (values.length - 1)) * (W - PAD * 2)
     const y = H - PAD - ((v - min) / range) * (H - PAD * 2)
-    return `${x},${y}`
+    return `${x.toFixed(2)},${y.toFixed(2)}`
   })
   return (
     <svg width={W} height={H}>
       <polyline points={points.join(' ')} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.4" />
-      {trend.map((_, i) => {
-        const [x, y] = points[i].split(',').map(Number)
-        const isLast = i === trend.length - 1
+      {validTrend.map((_, i) => {
+        const parts = points[i]?.split(',').map(Number)
+        if (!parts || parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return null
+        const [x, y] = parts
+        const isLast = i === validTrend.length - 1
         return <circle key={i} cx={x} cy={y} r={isLast ? 4 : 2.5} fill={isLast ? color : 'white'} stroke={color} strokeWidth={isLast ? 0 : 1.5} />
       })}
     </svg>
@@ -143,11 +163,22 @@ export default function HistoryPage() {
       })
 
       Object.keys(groups).forEach(k => {
+        // Sort by date
         groups[k].sort((a, b) => {
           const da = a.lab?.collectedAt ? new Date(a.lab.collectedAt) : new Date(a.createdAt)
           const db = b.lab?.collectedAt ? new Date(b.lab.collectedAt) : new Date(b.createdAt)
           return da - db
         })
+
+        // Deduplicate — same date = keep latest uploaded only
+        const seen = new Map()
+        groups[k].forEach(r => {
+          const d = r.lab?.collectedAt
+            ? new Date(r.lab.collectedAt).toDateString()
+            : new Date(r.createdAt).toDateString()
+          seen.set(d, r) // last one wins = latest upload
+        })
+        groups[k] = Array.from(seen.values())
       })
 
       setGrouped(groups)
@@ -188,8 +219,10 @@ export default function HistoryPage() {
     reports.map(r => {
       const p = r.parameters?.find(p => p.name?.toLowerCase() === paramName?.toLowerCase())
       if (!p) return null
+      const numericValue = parseFloat(p.value)
       return {
-        value:           parseFloat(p.value),
+        value:           isNaN(numericValue) ? null : numericValue,
+        rawValue:        p.value,
         unit:            p.unit,
         status:          p.status,
         date:            getDate(r),
@@ -653,7 +686,9 @@ export default function HistoryPage() {
                                                   borderRadius: 8, padding: '4px 10px',
                                                   fontSize: 13, fontWeight: 800
                                                 }}>
-                                                  {item.value}
+                                                  {item.value !== null && item.value !== undefined
+                                                    ? item.value
+                                                    : item.rawValue || '—'}
                                                   <span style={{ fontSize: 10, fontWeight: 500, marginLeft: 2 }}>{item.unit}</span>
                                                 </div>
                                                 {item.reference_range && item.reference_range !== 'Not specified' && (
@@ -682,11 +717,13 @@ export default function HistoryPage() {
                                       )}
                                     </div>
 
-                                    {/* Sparkline */}
+                                    {/* Sparkline — only show if numeric values exist */}
+                                    {trend.some(t => t?.value != null && !isNaN(Number(t.value))) && (
                                     <div className="sparkline-container" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                                       <Sparkline trend={trend} color={trendColor} />
                                       <p style={{ fontSize: 10, color: '#94a3b8' }}>{trend.length} tests</p>
                                     </div>
+                                    )}
                                   </div>
                                 </div>
                               )

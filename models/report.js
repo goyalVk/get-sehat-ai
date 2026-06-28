@@ -62,12 +62,6 @@ const ReportSchema = new mongoose.Schema(
 
     // Report classification
     reportType:    { type: String, default: null }, // CBC, LFT, Full Body etc
-    reportCategory: {
-      type: String,
-      enum: ['blood', 'urine', 'thyroid', 'lipid', 'liver', 'kidney', 'diabetes', 'vitamin', 'full_body', 'other'],
-      default: 'other'
-    },
-
     // AI result
     result: { type: mongoose.Schema.Types.Mixed, default: null },
 

@@ -97,8 +97,12 @@ function LoginForm() {
 
       try {
         localStorage.setItem('s24_user', JSON.stringify({
-          id:   data.user?.id,
-          plan: data.user?.plan || 'free'
+          id:               data.user?.id,
+          plan:             data.user?.plan             || 'free',
+          planType:         data.user?.planType         || null,
+          hasAnalyzed:      data.user?.hasAnalyzed      || false,
+          reportsUsed:      data.user?.reportsUsed      || 0,
+          subscriptionEndsAt: data.user?.subscriptionEndsAt || null,
         }))
       } catch {}
 

@@ -57,7 +57,9 @@ export default function UploadPage() {
       setUserPlan(storedUser?.plan || 'free')
       const _plan   = storedUser?.plan || 'free'
       const _endsAt = storedUser?.subscriptionEndsAt
+      const _hasId  = !!storedUser?.id
       setIsPro(
+        _hasId &&
         (_plan === 'paid' || _plan === 'pro') &&
         (!_endsAt || new Date(_endsAt) > new Date())
       )
@@ -126,12 +128,30 @@ export default function UploadPage() {
   const analyze = async () => {
     if (!file) return
 
-    // Client-side anon gate — instant, no API call needed
-    // Server-side enforces the same rule as hard gate
     const isSampleFile = SAMPLE_NAMES.includes(file.name?.toLowerCase())
-    if (!isSampleFile && isGuest && getUploadCount() >= 1) {
+
+    // ── Guest gate — NO API call, instant block ──
+    if (!isSampleFile && isGuest) {
       setError('Login karo — pehli report bilkul FREE! 🔓')
       setErrorType('anon_gate')
+      return
+    }
+
+    // ── Free user limit — check client side, NO API call ──
+    const storedUserCheck = (() => {
+      try { return JSON.parse(localStorage.getItem('s24_user') || 'null') } catch { return null }
+    })()
+    const hasAnalyzed = storedUserCheck?.hasAnalyzed || false
+    const reportsUsed = storedUserCheck?.reportsUsed || 0
+    const isProCheck  =
+      !!storedUserCheck?.id &&
+      (storedUserCheck?.plan === 'paid' || storedUserCheck?.plan === 'pro') &&
+      (!storedUserCheck?.subscriptionEndsAt ||
+        new Date(storedUserCheck.subscriptionEndsAt) > new Date())
+
+    if (!isSampleFile && !isProCheck && (hasAnalyzed || reportsUsed >= 1)) {
+      setError('free_limit')
+      setErrorType('limit')
       return
     }
 
@@ -190,55 +210,105 @@ export default function UploadPage() {
       }
       incrementUploadCount()
       requestPushPermission().catch(console.error)
+      // Update localStorage — free limit used
+      try {
+        const _u = JSON.parse(localStorage.getItem('s24_user') || 'null')
+        if (_u?.id) {
+          _u.hasAnalyzed = true
+          _u.reportsUsed = (_u.reportsUsed || 0) + 1
+          localStorage.setItem('s24_user', JSON.stringify(_u))
+        }
+      } catch {}
       router.push(`/results/${data.reportId}`)
     } catch (err) {
       if (err.message?.includes('timeout') || err.message?.includes('ETIMEDOUT')) {
-        setError('Server busy hai — thodi der baad try karo 🙏')
-        setErrorType('rate_limit')
+        setError('Report analyze hone mein time lag raha hai ⏳ — dobara try karo')
+        setErrorType('timeout')
       } else if (err.message?.includes('fetch') || err.message?.includes('network')) {
-        setError('Internet connection check karo aur dobara try karo 🙏')
+        setError('Internet slow lag raha hai 📶 — connection check karo aur dobara try karo')
         setErrorType('network')
       } else {
-        setError('Kuch problem aayi — report dobara upload karo 🙏')
+        setError('Report analyze nahi ho payi 😕 — dobara try karo. Baar baar ho raha hai toh WhatsApp karo 👇')
         setErrorType('generic')
       }
       setLoading(false)
     }
   }
 
-  // Map raw API error strings → user-friendly Hinglish messages
   function mapError(apiError, data) {
-    if (!apiError) return { msg: 'Kuch problem aayi 😕 — dobara try karo', type: 'generic' }
-    if (data?.isTruncated) return { msg: 'Yeh report thodi badi hai! 📋', type: 'report_too_large' }
+    if (!apiError) return {
+      msg: 'Report analyze nahi ho payi 😕 — dobara try karo. Baar baar ho raha hai toh WhatsApp karo 👇',
+      type: 'generic'
+    }
+
+    if (data?.isTruncated) return {
+      msg: 'Yeh report thodi badi hai! 📋 Pro mein unlimited pages milte hain',
+      type: 'report_too_large'
+    }
+
     const e = apiError.toLowerCase()
-    // timeout / network first — prevents "dobara try karo" matching parse_error
-    if (e.includes('timeout') || e.includes('server busy') || e.includes('thodi der baad'))
-      return { msg: 'Server busy hai — dobara try karo 🙏', type: 'timeout' }
-    if (e.includes('internet') || e.includes('connection') || e.includes('econnreset') || e.includes('fetch'))
-      return { msg: 'Internet check karo 📶 — connection theek karo aur dobara try karo', type: 'network' }
-    if (e.includes('bahut zyada') || e.includes('ek minute') || e.includes('1 minute'))
-      return { msg: '1 minute baad dobara try karo — server busy hai ⏳', type: 'rate_limit' }
-    if (data?.isNonMedical || e.includes('medical report nahi lagti') || e.includes('medical lab report'))
-      return { msg: 'Yeh medical report nahi lagti 🩺 — CBC, blood test ya thyroid report upload karo', type: 'non_medical' }
-    if (e.includes('lock laga hai') || e.includes('password') || e.includes('lock hatao'))
-      return { msg: 'PDF pe lock laga hai 🔒 — iLovePDF.com se password hataao, phir upload karo', type: 'password' }
-    // Fix 1: low_quality removed — no server message ever matched its strings
+
+    if (e.includes('timeout') || e.includes('server busy') || e.includes('thodi der baad') || e.includes('time lag raha'))
+      return {
+        msg: 'Report analyze hone mein time lag raha hai ⏳ — dobara try karo. Bada PDF hai toh iLovePDF.com se compress karo',
+        type: 'timeout'
+      }
+
+    if (e.includes('internet') || e.includes('connection') || e.includes('econnreset') || e.includes('fetch') || e.includes('slow lag'))
+      return {
+        msg: 'Internet slow lag raha hai 📶 — connection check karo aur dobara try karo',
+        type: 'network'
+      }
+
+    if (e.includes('bahut zyada') || e.includes('ek minute') || e.includes('1 minute') || e.includes('bahut requests'))
+      return {
+        msg: 'Abhi bahut requests aa rahi hain — 1-2 minute baad try karo ⏳',
+        type: 'rate_limit'
+      }
+
+    if (data?.isNonMedical || e.includes('medical report nahi lagti'))
+      return {
+        msg: 'Yeh medical report nahi lagti 🩺 — CBC, blood test, thyroid ya sugar report upload karo',
+        type: 'non_medical'
+      }
+
+    if (e.includes('lock laga hai') || e.includes('password'))
+      return {
+        msg: 'PDF pe lock laga hai 🔒 — iLovePDF.com pe jao → Security → Remove Password → phir upload karo',
+        type: 'password'
+      }
+
     if (e.includes('bahut chhoti') || e.includes('original lab report'))
-      return { msg: 'File bahut chhoti hai 😕 — original lab report ka clear photo lo', type: 'too_small' }
-    // Fix 4: "Could not process" / "padh nahi paaye" — pass server message directly
-    if (e.includes('padh nahi paaye') || e.includes('could not process'))
-      return { msg: apiError, type: 'parse_error' }
-    if (e.includes('clearly nahi dikhi') || e.includes('samajh nahi'))
-      return { msg: 'Report samajh nahi aayi 😕 — PDF format mein try karo ya achhi roshni mein photo lo', type: 'parse_error' }
-    // Fix 6: Pro user >15MB — must come before too_large check
-    if (e.includes('compress karke try karo'))
-      return { msg: apiError, type: 'file_size_pro' }
-    // Fix 2: too_large — dynamic message from server, no hardcoded "5MB"
+      return {
+        msg: 'File bahut chhoti hai 😕 — original report ka clear photo lo, screenshot mat bhejo',
+        type: 'too_small'
+      }
+
+    if (e.includes('padh nahi paaye') || e.includes('could not process') || e.includes('clearly nahi dikhi') || e.includes('samajh nahi'))
+      return {
+        msg: 'Report clearly nahi dikhi 😕 — PDF format mein try karo ya achhi roshni mein flat surface pe rakh ke photo lo',
+        type: 'parse_error'
+      }
+
+    if (e.includes('sahi nahi hai') || e.includes('corrupt') || e.includes('repair'))
+      return {
+        msg: 'PDF file sahi nahi hai 😕 — iLovePDF.com se repair karo ya doosri file try karo',
+        type: 'corrupted'
+      }
+
     if (e.includes('badi hai') || e.includes('compress karke') || e.includes('bada hai'))
       return { msg: apiError, type: 'too_large' }
-    if (e.includes('"type":"error"') || e.includes('invalid_request_error'))
-      return { msg: 'Kuch technical problem aayi 🙏 — dobara try karo ya WhatsApp pe contact karo', type: 'api_error' }
-    return { msg: 'Kuch problem aayi 😕 — dobara try karo', type: 'generic' }
+
+    if (e.includes('"type":"error"') || e.includes('invalid_request_error') || e.includes('technical'))
+      return {
+        msg: 'Kuch technical issue hua 😕 — dobara try karo. Baar baar ho raha hai toh WhatsApp karo 👇',
+        type: 'api_error'
+      }
+
+    return {
+      msg: 'Report analyze nahi ho payi 😕 — dobara try karo. Baar baar ho raha hai toh WhatsApp karo 👇',
+      type: 'generic'
+    }
   }
 
   const resetUpload = () => { setError(''); setErrorType('') }
@@ -773,16 +843,11 @@ export default function UploadPage() {
               💡 Screenshot ya thumbnail mat bhejo — original report ka pura photo lo.
             </p>
           )}
-          {errorType === 'file_size_pro' && (
-            <p style={{ fontSize: 12, color: '#64748b', lineHeight: 1.6, margin: '0 16px 10px' }}>
-              💡 Dobara try karo — clear photo ya PDF use karo{' '}
-              <a href="https://ilovepdf.com" target="_blank" rel="noopener noreferrer"
-                 style={{ color: '#0d9488' }}>
-                Compress karo →
-              </a>
+          {errorType === 'corrupted' && (
+            <p style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.6, margin: '0 16px 10px' }}>
+              💡 PDF file corrupt ho sakti hai — iLovePDF.com se repair karo ya doosra PDF try karo
             </p>
           )}
-
           {errorType === 'too_large' && !isPro && (
             <div style={{ padding: '0 16px 8px' }}>
               <a href="/upgrade" style={{
@@ -878,32 +943,6 @@ export default function UploadPage() {
             </div>
           )}
 
-          {/* Guest login prompt — shown when not logged in */}
-          {isGuest && errorType !== 'limit' && errorType !== 'login' && (
-            <div style={{
-              margin: '0 16px 14px',
-              background: 'linear-gradient(135deg,#f0fdfa,#ecfdf5)',
-              border: '1.5px solid #0d9488', borderRadius: 12, padding: '14px',
-            }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#0d9488', marginBottom: 4 }}>
-                📱 Login karo aur report save karo — dobara analyze karte hain free mein!
-              </p>
-              <p style={{ fontSize: 11, color: '#134e4a', lineHeight: 1.55, marginBottom: 10 }}>
-                Login ke baad report history, abnormal alerts aur AI chat bhi milega.
-              </p>
-              <button
-                onClick={handleLoginForRetry}
-                style={{
-                  width: '100%', padding: '11px',
-                  background: '#0d9488', color: 'white',
-                  border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700,
-                  cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                📱 OTP se Login Karo
-              </button>
-            </div>
-          )}
         </div>
       )}
 

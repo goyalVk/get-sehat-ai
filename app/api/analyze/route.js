@@ -496,8 +496,6 @@ export async function POST(req) {
 
         // Report classification — copy from original
         reportType:     cachedByHash.reportType     || null,
-        reportCategory: cachedByHash.reportCategory || 'other',
-
         // AI result — copy from original
         result:         cachedByHash.result         || null,
         analysisResult: cachedByHash.analysisResult || null,
@@ -630,7 +628,6 @@ export async function POST(req) {
         firstUploadedAt: now,
         lastUploadedAt:  now,
         reportType:      interpretation.report_type     || null,
-        reportCategory:  interpretation.report_category || 'other',
         parameters:      normalizeParameters(interpretation.parameters),
         urgentFlags:     interpretation.urgent_flags    || [],
         patient:         interpretation.patient         || {},
@@ -906,17 +903,24 @@ export async function POST(req) {
       msg.includes('529') ||
       err?.error?.type === 'overloaded_error'
 
-    const userMessage = err.isParseError || msg.includes('bahut badi') || msg.includes('bahut bada')
-      ? msg
-      : msg.includes('Could not process')
-      ? 'Photo padh nahi paaye 😕 — dobara clear photo lo ya PDF try karo'
+    const userMessage =
+      err.isParseError
+        ? 'Report clearly nahi dikhi 😕 — PDF format mein try karo ya achhi roshni mein photo lo'
+      : msg.includes('bahut badi') || msg.includes('bahut bada')
+        ? msg
+      : msg.includes('Could not process') || msg.includes('padh nahi paaye')
+        ? 'Report padh nahi paaye 😕 — clear photo lo ya PDF try karo. WhatsApp pe bhi bhej sakte ho'
       : msg.includes('timeout') || msg.includes('ETIMEDOUT')
-      ? 'Server busy hai — thodi der baad try karo 🙏'
+        ? 'Report analyze hone mein time lag raha hai ⏳ — dobara try karo. Bada PDF hai toh iLovePDF.com se compress karo'
       : msg.includes('ECONNRESET') || msg.includes('fetch failed')
-      ? 'Internet connection check karo aur dobara try karo 🙏'
-      : isOverload
-      ? 'Server thoda busy hai — 2-3 minute baad dobara try karo 🙏'
-      : 'Kuch problem aayi — report dobara upload karo 🙏'
+        ? 'Internet slow lag raha hai 📶 — connection check karo aur dobara try karo'
+      : msg.includes('overloaded') || isOverload
+        ? 'Abhi bahut requests aa rahi hain 😕 — 2-3 minute baad try karo'
+      : msg.includes('Invalid PDF') || msg.includes('corrupt')
+        ? 'PDF file sahi nahi hai 😕 — doosri file try karo ya iLovePDF.com se repair karo'
+      : msg.includes('processing conflict')
+        ? 'Ek baar phir se report upload karo — pichli baar processing mein issue tha'
+      : 'Report analyze nahi ho payi 😕 — dobara try karo. Baar baar ho raha hai toh WhatsApp karo 👇'
 
     return NextResponse.json(
       { error: userMessage },

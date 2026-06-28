@@ -40,7 +40,7 @@ export async function GET() {
       status: 'completed'  // ← only completed
     })
       .sort({ 'lab.collectedAt': -1, createdAt: -1 })
-      .select('fileName reportType reportCategory parameters urgentFlags result patient lab createdAt status')
+      .select('fileName reportType parameters urgentFlags result patient lab createdAt status')
       .lean()
 
     return NextResponse.json({ reports })

@@ -304,7 +304,7 @@ export async function POST(req) {
     // Guest users = no chat — v4 paid model
     if (!resolvedUserId) {
       return NextResponse.json({
-        reply: 'Chat use karne ke liye login karein — pehli report bhi free milegi! 🔓',
+        reply: 'Chat ke liye login karo 🔓 — pehli report free hai, phir Pro plan ₹199/month mein unlimited chat milega!',
         requiresLogin: true
       }, { status: 401 })
     }

@@ -161,7 +161,7 @@ function ChatContent() {
         if (err.requiresLogin) {
           setMessages(prev => [...prev, {
             role: 'assistant',
-            text: '🔓 Chat ke liye login karein — pehli report bhi free milegi!'
+            text: '🔓 Chat ke liye login karo! Pehli report free hai — sehat24.com/auth/login'
           }])
           return
         }
