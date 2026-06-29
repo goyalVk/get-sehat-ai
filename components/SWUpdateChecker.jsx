@@ -46,7 +46,9 @@ export default function SWUpdateChecker() {
     // Also check SW updates every 60s
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.location.reload()
+        if (!window.location.pathname.includes('/auth/')) {
+          window.location.reload()
+        }
       })
     }
   }, [])
