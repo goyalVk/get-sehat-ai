@@ -13,7 +13,24 @@ export default function Navbar() {
   useEffect(() => {
     fetch('/api/auth/me')
       .then(r => r.json())
-      .then(data => { if (data.id) setUser(data) })
+      .then(data => {
+        if (data.id) {
+          setUser(data)
+          try {
+            const existing = JSON.parse(localStorage.getItem('s24_user') || 'null')
+            if (existing?.id === data.id) {
+              localStorage.setItem('s24_user', JSON.stringify({
+                id:                 data.id,
+                plan:               data.plan               || 'free',
+                planType:           data.planType           || null,
+                hasAnalyzed:        data.hasAnalyzed        || false,
+                reportsUsed:        data.reportsUsed        || 0,
+                subscriptionEndsAt: data.subscriptionEndsAt || null,
+              }))
+            }
+          } catch {}
+        }
+      })
       .catch(() => {})
       .finally(() => setChecked(true))
   }, [pathname])
