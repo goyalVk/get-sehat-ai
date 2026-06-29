@@ -30,8 +30,10 @@ export default function SWUpdateChecker() {
             await Promise.all(cacheKeys.map(key => caches.delete(key)))
           }
 
-          // Step 4 — Hard reload
-          window.location.reload(true)
+          // Step 4 — Hard reload — but not during auth flow
+          if (!window.location.pathname.includes('/auth/')) {
+            window.location.reload(true)
+          }
         }
       } catch (e) {
         // Silent fail

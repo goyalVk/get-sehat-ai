@@ -150,7 +150,9 @@ function LoginForm() {
         }
       } catch {}
 
-      await requestPushPermission()
+      // Push permission — fire and forget, don't await
+      // Awaiting causes page interruption on some browsers
+      requestPushPermission().catch(() => {})
       router.push(redirectTo)
 
     } catch {
