@@ -71,8 +71,14 @@ function DashboardContent() {
 
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
-    try { localStorage.removeItem('s24_user') } catch {}
-    router.push('/auth/login')
+    try {
+      localStorage.removeItem('s24_user')
+      localStorage.removeItem('s24_push_token')
+      localStorage.removeItem('s24_login_nudge_dismissed')
+      localStorage.removeItem('s24_retry_upload')
+      localStorage.removeItem('s24_retry_upload_name')
+    } catch {}
+    window.location.href = '/auth/login'
   }
 
   if (loading) {

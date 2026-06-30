@@ -1,27 +1,34 @@
-// ── Cache version — v4 paid model launch ──
-// Bump this string on every major deploy to force all PWA clients to update
-const CACHE_VERSION = 'v4-paid-20260626'
+// ── Cache version — bump on every deploy ──
+const CACHE_VERSION = 'v4-paid-20260701'
 
-// Force new SW to activate immediately — don't wait for old tabs to close
+// IMPORTANT: This SW is for Firebase push notifications ONLY.
+// It does NOT cache any HTML, JS, or page assets.
+// scope: '/' is required by Firebase but this SW never intercepts fetch.
+
 self.addEventListener('install', (event) => {
   self.skipWaiting()
 })
 
-// Take control of all clients + clear old caches
 self.addEventListener('activate', (event) => {
+  // Only delete caches that belong to THIS SW (prefixed with CACHE_VERSION).
+  // Do NOT delete all caches — that destroys Next.js internal caches and
+  // causes stale-chunk errors on old tabs after a deploy.
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          console.log('[SW] Deleting old cache:', cacheName)
-          return caches.delete(cacheName)
-        })
+        cacheNames
+          .filter(name => name.startsWith('s24-') && name !== CACHE_VERSION)
+          .map(name => caches.delete(name))
       )
-    }).then(() => {
-      console.log('[SW] v4-paid activated — all old caches cleared')
-      return self.clients.claim()
-    })
+    }).then(() => self.clients.claim())
   )
+})
+
+// ── Explicit fetch pass-through — NEVER cache anything ──
+// Without this, some browsers let the SW intercept navigations by default.
+self.addEventListener('fetch', (event) => {
+  // Pass ALL requests straight to network — no caching, no interception.
+  event.respondWith(fetch(event.request))
 })
 
 // ── Firebase imports ──

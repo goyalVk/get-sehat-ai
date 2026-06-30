@@ -187,9 +187,11 @@ async function compressImage(buffer) {
 }
 
 export async function POST(req) {
-  let reportId = null
-  let userId   = null
-  let anonId   = null
+  let reportId    = null
+  let userId      = null
+  let anonId      = null
+  let isPro       = false  // hoisted — needed in catch for compensating decrement
+  let slotClaimed = false  // true once atomic findOneAndUpdate succeeds
 
   const userAgent = req.headers.get('user-agent') || null
 
@@ -204,6 +206,10 @@ export async function POST(req) {
     const { deviceType, os, browser }  = parseDeviceInfo(userAgent || '')
     const { uploadHour, uploadDay }    = getUploadTime()
     const referralSource               = formData.get('ref') || 'direct'
+    // earlyUserId — used ONLY for spam/honeypot logging before auth is resolved.
+    // NEVER used for authentication — trusting client-provided userId as auth
+    // allows any client to claim any account (the original source of the
+    // "guest upload attributed to last logged-in user" bug).
     const rawUserId   = formData.get('userId')
     const earlyUserId = (rawUserId && rawUserId !== 'undefined' && rawUserId !== 'null')
       ? rawUserId
@@ -327,12 +333,13 @@ export async function POST(req) {
     const authHeader   = req.headers.get('authorization')
     const headerUserId = authHeader?.replace('Bearer ', '').trim() || null
 
-    // earlyUserId fallback — from formData (handles cookie missing cases)
-    const resolvedUserId = cookieUserId || headerUserId || earlyUserId || null
+    // Auth resolution — cookie and Authorization header ONLY.
+    // earlyUserId (formData) is intentionally excluded here: trusting a
+    // client-supplied userId as auth lets any client impersonate any user.
+    const resolvedUserId = cookieUserId || headerUserId || null
     userId               = resolvedUserId
 
-    let user  = null
-    let isPro = false
+    let user = null
 
     if (userId) {
       user  = await User.findById(userId).catch(() => null)
@@ -342,9 +349,8 @@ export async function POST(req) {
     }
 
     // ── Per-plan limits ───────────────────────────────
-    const isGuestUser     = !userId
-    // v4: No file size limits — only compression threshold
-    const compressThreshold = isPro ? 10 * 1024 * 1024 : 3 * 1024 * 1024
+    const isGuestUser        = !userId
+    const compressThreshold  = isPro ? 10 * 1024 * 1024 : 3 * 1024 * 1024
 
     // ── Model selection ───────────────────────────────
     // Pro → Sonnet, Free first report → Sonnet (WOW moment), Guest → Haiku
@@ -352,15 +358,43 @@ export async function POST(req) {
       ? SONNET_MODEL
       : HAIKU_MODEL
 
-    // ── Free user report limit check ──────────────────
+    // ── Atomic slot claim — check + increment in one DB op ───────────────
+    // Replaces the old check-then-increment two-step pattern.
+    // For free users: only succeeds if reportsUsed < 1 AND hasAnalyzed != true.
+    // For pro users: always succeeds. Prevents race conditions from parallel
+    // uploads (multi-tab, double-tap) since MongoDB guarantees atomicity here.
     if (user) {
-      if (!isPro && (user.reportsUsed >= 1 || user.hasAnalyzed)) {
+      const claimedUser = await User.findOneAndUpdate(
+        {
+          _id: user._id,
+          $or: [
+            // Pro with active subscription — always allow
+            {
+              plan: { $in: ['pro', 'paid'] },
+              $or: [
+                { subscriptionEndsAt: null },
+                { subscriptionEndsAt: { $exists: false } },
+                { subscriptionEndsAt: { $gt: new Date() } }
+              ]
+            },
+            // Free user who has not yet used their 1 free report
+            {
+              reportsUsed:  { $lt: 1 },
+              hasAnalyzed:  { $ne: true }
+            }
+          ]
+        },
+        { $inc: { reportsUsed: 1 }, $set: { hasAnalyzed: true } },
+        { new: true }
+      )
+      if (!claimedUser) {
         return NextResponse.json({
           error: 'Aapki free report use ho gayi 😊 Unlimited reports ke liye Pro lo!',
           limitReached: true,
           upgradeUrl: '/upgrade'
         }, { status: 403 })
       }
+      slotClaimed = true
     }
 
     // ── Bot detection — anonId 10+ uploads today ─────
@@ -465,17 +499,8 @@ export async function POST(req) {
     const cachedByHash = await Report.findOne({ reportHash, status: 'completed' })
 
     if (cachedByHash?.analysisResult?.report_type) {
-      // Check free limit
-      if (user && !isPro && (user.reportsUsed >= 1 || user.hasAnalyzed)) {
-        return NextResponse.json({
-          error: 'Aapki free report use ho gayi 😊 Unlimited reports ke liye Pro lo!',
-          limitReached: true,
-          upgradeUrl: '/upgrade'
-        }, { status: 403 })
-      }
-
-      // Create new report entry for this user
-      // So it appears in their dashboard/history
+      // Slot already claimed atomically above — no duplicate limit check needed.
+      // Create new report entry for this user so it appears in their history.
       const newReport = await Report.create({
         // User identity
         userId:         userId || null,
@@ -516,14 +541,7 @@ export async function POST(req) {
         lastUploadedAt: new Date()
       })
 
-      // Update user reportsUsed
-      if (user) {
-        await User.findByIdAndUpdate(user._id, {
-          $inc: { reportsUsed: 1 },
-          $set: { hasAnalyzed: true }
-        })
-      }
-
+      // reportsUsed already incremented atomically above via findOneAndUpdate
       return NextResponse.json({
         success:   true,
         reportId:  newReport._id.toString(),
@@ -666,13 +684,7 @@ export async function POST(req) {
       )
     }
 
-    // ── Increment usage ───────────────────────────────
-    if (userId && savedReport) {
-      await User.findByIdAndUpdate(userId, {
-        $inc: { reportsUsed: 1 },
-        $set: { hasAnalyzed: true }
-      })
-    }
+    // reportsUsed already incremented atomically at slot-claim above
 
     // ── Upgrade nudge — free limit reached / pre-upgrade ─
     let isAtLimit = false
@@ -838,6 +850,16 @@ export async function POST(req) {
   } catch (err) {
     const msg = err?.message || ''
     console.error('Analysis error:', msg)
+
+    // Compensating decrement — refund the slot if AI analysis failed after
+    // the atomic claim succeeded. Only for free users (Pro has no limit).
+    // Condition: reportsUsed > 0 prevents decrement below zero.
+    if (slotClaimed && !isPro && userId) {
+      User.findOneAndUpdate(
+        { _id: userId, reportsUsed: { $gt: 0 } },
+        { $inc: { reportsUsed: -1 }, $set: { hasAnalyzed: false } }
+      ).catch(e => console.error('Compensating decrement failed:', e.message))
+    }
 
     if (reportId) {
       const isCorrupted =

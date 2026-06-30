@@ -138,6 +138,28 @@ export default function RootLayout({ children }) {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }} />
+
+        {/* SW staleness guard — unregisters any SW that is NOT firebase-messaging-sw.js
+            and reloads once. Prevents old Workbox/next-pwa SW remnants from serving
+            stale cached HTML to returning users. sessionStorage flag prevents reload loop. */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            if (!('serviceWorker' in navigator)) return;
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              var stale = regs.filter(function(r) {
+                var url = (r.active || r.installing || r.waiting || {}).scriptURL || '';
+                return url && !url.includes('firebase-messaging-sw.js');
+              });
+              if (stale.length === 0) return;
+              Promise.all(stale.map(function(r) { return r.unregister(); })).then(function() {
+                if (!sessionStorage.getItem('sw_unregister_reload')) {
+                  sessionStorage.setItem('sw_unregister_reload', '1');
+                  window.location.reload();
+                }
+              });
+            }).catch(function(){});
+          })();
+        `}} />
       </head>
 
       <body style={{ margin: 0, padding: 0, overflowX: 'hidden' }}>

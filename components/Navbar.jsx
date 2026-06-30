@@ -37,8 +37,19 @@ export default function Navbar() {
 
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
+    // Clear all user-tied localStorage keys so stale userId never gets
+    // re-sent in upload formData after cookie is cleared server-side.
+    try {
+      localStorage.removeItem('s24_user')
+      localStorage.removeItem('s24_push_token')
+      localStorage.removeItem('s24_login_nudge_dismissed')
+      localStorage.removeItem('s24_retry_upload')
+      localStorage.removeItem('s24_retry_upload_name')
+    } catch {}
     setUser(null)
-    router.push('/')
+    // Full reload — forces all client components to remount and re-read
+    // the now-cleared cookie, so no stale isGuest/isPro state lingers.
+    window.location.href = '/'
   }
 
   const firstName    = user?.firstName || user?.phone?.slice(-4) || ''
