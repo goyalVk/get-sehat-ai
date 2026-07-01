@@ -21,13 +21,13 @@ export default function NotificationBanner() {
   if (!show) return null
 
   const handleEnable = async () => {
-    localStorage.setItem('s24_notif_asked', 'true')
+    try { localStorage.setItem('s24_notif_asked', 'true') } catch {}
     setShow(false)
     await requestPushPermission()
   }
 
   const handleClose = () => {
-    localStorage.setItem('s24_notif_asked', 'true')
+    try { localStorage.setItem('s24_notif_asked', 'true') } catch {}
     setShow(false)
   }
 

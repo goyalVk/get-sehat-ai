@@ -31,32 +31,50 @@ export function getAnonId() {
 
 export function isReturningUser() {
   if (typeof window === 'undefined') return false
-  return !!localStorage.getItem(LAST_KEY)
+  try {
+    return !!localStorage.getItem(LAST_KEY)
+  } catch {
+    return false
+  }
 }
 
 export function incrementUploadCount() {
   if (typeof window === 'undefined') return
-  const current = parseInt(localStorage.getItem(COUNT_KEY) || '0', 10)
-  localStorage.setItem(COUNT_KEY, String(current + 1))
-  localStorage.setItem(LAST_KEY, new Date().toISOString())
+  try {
+    const current = parseInt(localStorage.getItem(COUNT_KEY) || '0', 10)
+    localStorage.setItem(COUNT_KEY, String(current + 1))
+    localStorage.setItem(LAST_KEY, new Date().toISOString())
+  } catch {}
 }
 
 export function getUploadCount() {
   if (typeof window === 'undefined') return 0
-  return parseInt(localStorage.getItem(COUNT_KEY) || '0', 10)
+  try {
+    return parseInt(localStorage.getItem(COUNT_KEY) || '0', 10)
+  } catch {
+    return 0
+  }
 }
 
 export function trackVisit() {
   if (typeof window === 'undefined') return 0
-  getAnonId() // ensure anonId exists
-  const current = parseInt(localStorage.getItem(VISIT_KEY) || '0', 10)
-  const next = current + 1
-  localStorage.setItem(VISIT_KEY, String(next))
-  localStorage.setItem(VISIT_TS, new Date().toISOString())
-  return next
+  try {
+    getAnonId() // ensure anonId exists
+    const current = parseInt(localStorage.getItem(VISIT_KEY) || '0', 10)
+    const next = current + 1
+    localStorage.setItem(VISIT_KEY, String(next))
+    localStorage.setItem(VISIT_TS, new Date().toISOString())
+    return next
+  } catch {
+    return 0
+  }
 }
 
 export function getVisitCount() {
   if (typeof window === 'undefined') return 0
-  return parseInt(localStorage.getItem(VISIT_KEY) || '0', 10)
+  try {
+    return parseInt(localStorage.getItem(VISIT_KEY) || '0', 10)
+  } catch {
+    return 0
+  }
 }

@@ -107,8 +107,10 @@ function LoginForm() {
       } catch {}
 
       // Save consent for ALL users — new + existing
-      localStorage.setItem('sehat24_consent_v1', 'true')
-      localStorage.setItem('sehat24_consent_date', new Date().toISOString())
+      try {
+        localStorage.setItem('sehat24_consent_v1', 'true')
+        localStorage.setItem('sehat24_consent_date', new Date().toISOString())
+      } catch {}
       fetch('/api/consent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

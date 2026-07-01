@@ -10,7 +10,8 @@ export default function PWAInstallPrompt() {
       e.preventDefault()
       setDeferredPrompt(e)
 
-      const dismissed = localStorage.getItem('s24_pwa_dismissed')
+      let dismissed = false
+      try { dismissed = !!localStorage.getItem('s24_pwa_dismissed') } catch {}
       if (!dismissed) {
         setTimeout(() => setShow(true), 10000)
       }
@@ -26,14 +27,14 @@ export default function PWAInstallPrompt() {
     const { outcome } = await deferredPrompt.userChoice
 
     if (outcome === 'accepted') {
-      localStorage.setItem('s24_pwa_installed', 'true')
+      try { localStorage.setItem('s24_pwa_installed', 'true') } catch {}
     }
     setShow(false)
     setDeferredPrompt(null)
   }
 
   const handleDismiss = () => {
-    localStorage.setItem('s24_pwa_dismissed', 'true')
+    try { localStorage.setItem('s24_pwa_dismissed', 'true') } catch {}
     setShow(false)
   }
 

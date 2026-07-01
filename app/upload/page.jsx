@@ -458,7 +458,7 @@ export default function UploadPage() {
               fontSize: 12, fontWeight: 700, textDecoration: 'none'
             }}>Login Karo</a>
             <button onClick={() => {
-              localStorage.setItem('s24_login_nudge_dismissed', 'true')
+              try { localStorage.setItem('s24_login_nudge_dismissed', 'true') } catch {}
               setShowLoginNudge(false)
             }} style={{
               background: 'transparent', border: 'none',
