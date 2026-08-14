@@ -72,7 +72,7 @@ export async function POST(req) {
                 fcmOptions: { link: 'https://sehat24.com/upload' },
                 data: {
                   title: '👋 Sehat24 mein swagat hai!',
-                  body:  'Apni reports upload karo — Hindi mein sab explain hoga. Free 🇮🇳',
+                  body:  'Apni reports upload karo — Hindi mein sab explain hoga 🇮🇳',
                   url:   'https://sehat24.com/upload',
                   icon:  'https://sehat24.com/icon-192x192.png'
                 }

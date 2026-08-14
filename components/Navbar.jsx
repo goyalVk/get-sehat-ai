@@ -232,7 +232,7 @@ export default function Navbar() {
                   borderRadius: 10, whiteSpace: 'nowrap', flexShrink: 0
                 }}>
                   <span className="nav-link-icon">📋</span>
-                  <span className="nav-link-label">Try Free →</span>
+                  <span className="nav-link-label">Upload Report →</span>
                 </Link>
               </>
             )}

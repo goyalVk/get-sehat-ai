@@ -53,13 +53,13 @@ export async function GET(req) {
         tokens: batch,
         notification: {
           title: '📋 Sehat24 yaad hai?',
-          body:  'Nayi report upload karo — Free 🇮🇳',
+          body:  'Nayi report upload karo 🇮🇳',
         },
         webpush: {
           fcmOptions: { link: 'https://sehat24.com/upload' },
           data: {
             title: '📋 Sehat24 yaad hai?',
-            body:  'Nayi report upload karo — Free 🇮🇳',
+            body:  'Nayi report upload karo 🇮🇳',
             url:   'https://sehat24.com/upload',
             icon:  'https://sehat24.com/icon-192x192.png'
           }

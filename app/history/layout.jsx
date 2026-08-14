@@ -1,6 +1,6 @@
 export const metadata = {
   title: 'Report History & Health Trends — Sehat24',
-  description: 'Apni saari lab reports ek jagah dekho. CBC, Thyroid, HbA1c trends track karo. Hindi mein health journey samjho. Free.',
+  description: 'Apni saari lab reports ek jagah dekho. CBC, Thyroid, HbA1c trends track karo. Hindi mein health journey samjho.',
   keywords: [
     'medical report history hindi',
     'lab report trends india',

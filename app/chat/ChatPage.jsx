@@ -155,11 +155,11 @@ function ChatContent() {
           return
         }
 
-        // Free limit reached
+        // Pro required
         if (err.limitReached) {
           setMessages(prev => [...prev, {
             role: 'assistant',
-            text: '10 free messages complete ho gaye 🙏\n\n₹999 → ₹499/month (Save 50%)\n✅ Unlimited chat\n✅ Unlimited reports\n✅ PDF + Voice'
+            text: 'Chat sirf Pro users ke liye available hai 🔒\n\n₹999 → ₹499/month (Save 50%)\n✅ Unlimited chat\n✅ Unlimited reports\n✅ PDF + Voice'
           }])
           return
         }

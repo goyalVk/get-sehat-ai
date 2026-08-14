@@ -466,7 +466,7 @@ export default async function ResultsPage({ params }) {
                 <p style={{ fontSize: 22, marginBottom: 8 }}>🤖</p>
                 <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Aapki report bahut detailed hai!</p>
                 <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.7, marginBottom: 6 }}>
-                  Main free mein itna hi kar sakta hoon — aapki report meri free limit se badi hai.{' '}
+                  Meri basic analysis itni hi ho payi hai — aapki report meri limit se badi hai.{' '}
                   <strong>Neeche saare parameters dikh rahe hain.</strong>
                 </p>
                 <p style={{ fontSize: 13, color: '#0d9488', fontWeight: 600, marginBottom: 16 }}>
@@ -492,14 +492,14 @@ export default async function ResultsPage({ params }) {
                 Yeh report save karna hai?
               </p>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginBottom: 16, lineHeight: 1.5 }}>
-                Login karo — history mein hamesha milegi. Bilkul free 🇮🇳
+                Login karo — history mein hamesha milegi 🇮🇳
               </p>
               <a href="/auth/login" style={{
                 display: 'block', background: 'white', color: '#0d9488',
                 padding: 12, borderRadius: 12, fontWeight: 700,
                 fontSize: 14, textDecoration: 'none'
               }}>
-                🔓 Login Karo — Free →
+                🔓 Login Karo →
               </a>
             </div>
           )}
@@ -737,7 +737,7 @@ export default async function ResultsPage({ params }) {
                     textAlign: 'center',
                   }}
                 >
-                  🔓 Login Karo — Free
+                  🔓 Login Karo
                 </a>
               </div>
             )}
@@ -823,7 +823,7 @@ export default async function ResultsPage({ params }) {
               {/* WhatsApp Share Button */}
               {(() => {
                 const shareText = encodeURIComponent(
-                  `Maine apni ${result?.report_type || 'lab report'} Sehat24 pe analyze ki — Hindi mein results dekho! 🇮🕳\n👉 sehat24.com/results/${id}\nSehat24 — Free medical report analyzer for India`
+                  `Maine apni ${result?.report_type || 'lab report'} Sehat24 pe analyze ki — Hindi mein results dekho! 🇮🕳\n👉 sehat24.com/results/${id}\nSehat24 — AI medical report analyzer for India`
                 )
                 return (
                   <a

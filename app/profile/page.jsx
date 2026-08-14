@@ -134,7 +134,7 @@ export default function ProfilePage() {
             <div>
               <p style={{ fontSize: 11, color: '#94a3b8', margin: '0 0 4px' }}>Current Plan</p>
               <p style={{ fontSize: 18, fontWeight: 700, color: isPro ? '#0d9488' : '#1e293b', margin: 0 }}>
-                {isPro ? '✓ Pro Plan' : 'Free Plan'}
+                {isPro ? '✓ Pro Plan' : 'Basic Plan'}
               </p>
               <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
                 {isPro

@@ -617,7 +617,7 @@ export default function UploadPage() {
                 marginBottom: 10
               }}
             >
-              🔓 Login Karo — Free Mein
+              🔓 Login Karo
             </a>
             <p style={{
               fontSize: 11,
@@ -651,7 +651,7 @@ export default function UploadPage() {
             </p>
             <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6, margin: '0 0 16px' }}>
               ✅ Unlimited pages &nbsp; ✅ Deep analysis<br/>
-              ✅ PDF download &nbsp; ✅ ₹499 mein poora mahina — jitni bhi reports karo, sab free! ☕<br/>
+              ✅ PDF download &nbsp; ✅ ₹499 mein poora mahina — jitni bhi reports karo, unlimited! ☕<br/>
               <span style={{ fontSize: 12 }}>1,200+ log already use kar rahe hain 🇮🇳</span>
             </p>
             <button

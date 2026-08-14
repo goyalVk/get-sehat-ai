@@ -19,16 +19,16 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-XXXXXXXXXX'
 export const metadata = {
   metadataBase: new URL('https://www.sehat24.com'),
   title: {
-    default:  'Sehat24™ — Medical Report Hindi Mein Samjho | Free AI Health',
+    default:  'Sehat24™ — Medical Report Hindi Mein Samjho | AI Health',
     template: '%s | Sehat24'
   },
-  description: "Sehat24™ is India's free AI health report analyzer. Blood test, MRI, X-Ray — koi bhi report upload karo. 30 seconds mein Hindi mein sab explain. Ayurvedic herbs, medicine info, report history — bilkul free.",
+  description: "Sehat24™ is India's AI health report analyzer. Blood test, MRI, X-Ray — koi bhi report upload karo. 30 seconds mein Hindi mein sab explain. Ayurvedic herbs, medicine info, report history.",
   keywords: [
     'blood test hindi mein', 'medical report explain',
     'lab report samjhna', 'sehat24',
     'health report analyzer india', 'CBC report hindi',
     'MRI report explain hindi', 'medicine side effects hindi',
-    'ayurvedic herbs india', 'free health ai india',
+    'ayurvedic herbs india', 'ai health app india',
   ],
   authors:   [{ name: 'Sehat24', url: 'https://www.sehat24.com' }],
   creator:   'Sehat24',
@@ -46,15 +46,15 @@ export const metadata = {
     type: 'website', locale: 'hi_IN',
     url: 'https://www.sehat24.com',
     siteName: 'Sehat24',
-    title: 'Sehat24 — Medical Report Hindi Mein Samjho | Free',
-    description: 'Blood test, MRI, X-Ray — koi bhi report upload karo. 30 seconds mein Hindi mein sab explain. Bilkul free.',
+    title: 'Sehat24 — Medical Report Hindi Mein Samjho',
+    description: 'Blood test, MRI, X-Ray — koi bhi report upload karo. 30 seconds mein Hindi mein sab explain.',
     images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Sehat24 — India ka AI Health Companion' }],
   },
   twitter: {
     card: 'summary_large_image',
     site: '@sehat24ai', creator: '@sehat24ai',
     title: 'Sehat24 — Medical Report Hindi Mein Samjho',
-    description: 'Blood test, MRI, X-Ray — 30 seconds mein Hindi mein explain. Free.',
+    description: 'Blood test, MRI, X-Ray — 30 seconds mein Hindi mein explain.',
     images: ['/og-image.png'],
   },
   alternates: { canonical: 'https://www.sehat24.com' },
@@ -100,7 +100,7 @@ const organizationSchema = {
 const websiteSchema = {
   '@context': 'https://schema.org', '@type': 'WebSite',
   name: 'Sehat24', url: 'https://www.sehat24.com',
-  description: 'Free AI medical report analyzer for India — Hindi mein explanation.',
+  description: 'AI medical report analyzer for India — Hindi mein explanation.',
   inLanguage: ['hi', 'en'],
   potentialAction: { '@type': 'SearchAction', target: 'https://www.sehat24.com/chat?q={search_term_string}', 'query-input': 'required name=search_term_string' }
 }
@@ -109,7 +109,7 @@ const softwareAppSchema = {
   '@context': 'https://schema.org', '@type': 'SoftwareApplication',
   name: 'Sehat24', applicationCategory: 'HealthApplication',
   operatingSystem: 'Web, iOS, Android',
-  offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
+  offers: { '@type': 'Offer', price: '499', priceCurrency: 'INR' },
   description: 'AI-powered medical report analyzer for Indian patients.',
   url: 'https://www.sehat24.com',
 }

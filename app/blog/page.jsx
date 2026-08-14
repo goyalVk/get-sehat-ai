@@ -128,14 +128,14 @@ export default function BlogPage() {
               Apni report samajhni hai?
             </p>
             <p style={{ fontSize: 14, color: '#64748b', marginBottom: 20, lineHeight: 1.6 }}>
-              Blood test report upload karo — AI Hindi mein poori report explain karega. Free hai.
+              Blood test report upload karo — AI Hindi mein poori report explain karega.
             </p>
             <Link href="/upload" style={{
               display: 'inline-block', background: '#0d9488', color: 'white',
               padding: '13px 24px', borderRadius: 12, textDecoration: 'none',
               fontSize: 15, fontWeight: 700,
             }}>
-              Free Mein Upload Karo →
+              Abhi Upload Karo →
             </Link>
           </div>
         </div>

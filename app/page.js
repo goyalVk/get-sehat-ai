@@ -3,19 +3,19 @@ import LiveCounter from '@/components/LiveCounter'
 import FAQSection from '@/components/FAQSection'
 
 export const metadata = {
-  title: 'Sehat24 — Free Medical Report Analyzer in Hindi | Lab Report Samjho',
+  title: 'Sehat24 — AI Medical Report Analyzer in Hindi | Lab Report Samjho',
   description: 'Koi bhi lab report Hindi mein samjho — CBC, Thyroid, HbA1c, Vitamin D. 12,000+ reports analyzed. SRL, Lal PathLabs, Apollo, Thyrocare sab supported.',
   keywords: [
     'medical report hindi mein','lab report analyzer hindi',
     'blood test report hindi','CBC report hindi mein samjho',
     'thyroid report hindi','HbA1c kya hota hai',
     'vitamin d deficiency hindi','hemoglobin kam hona',
-    'free health report analyzer india','sehat24',
+    'ai health report analyzer india','sehat24',
     'lab report kaise samjhe','medical report translate hindi',
   ],
   openGraph: {
     title: 'Sehat24 — Apni Report Hindi Mein Samjho',
-    description: '8000+ reports analyzed. Free. 30 seconds. Hindi mein.',
+    description: '8000+ reports analyzed. 30 seconds. Hindi mein.',
     url: 'https://sehat24.com',
     siteName: 'Sehat24',
     locale: 'hi_IN',
@@ -23,8 +23,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sehat24 — Free Medical Report Analyzer in Hindi',
-    description: '8000+ reports analyzed. Free. 30 seconds.',
+    title: 'Sehat24 — AI Medical Report Analyzer in Hindi',
+    description: '8000+ reports analyzed. 30 seconds.',
   },
   alternates: { canonical: 'https://sehat24.com' },
 }
@@ -44,7 +44,7 @@ const faqSchema = {
 const medicalSchema = {
   '@context': 'https://schema.org',
   '@type': 'MedicalWebPage',
-  name: 'Sehat24 — Free Medical Report Analyzer',
+  name: 'Sehat24 — AI Medical Report Analyzer',
   description: 'AI-powered medical report analyzer in Hindi',
   url: 'https://sehat24.com',
   inLanguage: ['hi', 'en'],
@@ -56,7 +56,7 @@ const row1Testimonials = [
   { text: 'Doctor ne bola tha isliye dekha — bahut helpful lagi', city: 'Delhi' },
   { text: '2 minute mein sab clear ho gaya', city: 'Lucknow' },
   { text: 'Pehli baar samajh aaya report', city: 'Patna' },
-  { text: 'Amazing — bilkul free', city: 'Kanpur' },
+  { text: 'Amazing — bahut helpful hai', city: 'Kanpur' },
   { text: 'Lab technician ne recommend kiya', city: 'Delhi' },
 ]
 const row2Testimonials = [
@@ -212,7 +212,7 @@ export default function Home() {
       `}</style>
 
       <div className="sticky-cta" role="navigation" aria-label="Quick actions">
-        <Link href="/upload" className="sticky-primary">📋 Report Upload Karo — Free</Link>
+        <Link href="/upload" className="sticky-primary">📋 Report Upload Karo →</Link>
         <Link href="/chat" className="sticky-ghost">💊 Medicine Chat</Link>
       </div>
 
@@ -249,7 +249,7 @@ export default function Home() {
             <p className="a3 hero-subtext" style={{ fontFamily:'var(--font-body)', fontSize:17, color:'rgba(255,255,255,0.5)', lineHeight:1.75, maxWidth:480, margin:'0 auto 36px', fontWeight:400 }}>
               Koi bhi report upload karo.{' '}
               <span style={{ color:'var(--teal-400)', fontWeight:600 }}>30 seconds</span>{' '}
-              mein Hindi mein sab explain. Bilkul free.
+              mein Hindi mein sab explain — AI ke saath.
             </p>
 
             {/* Stat strip */}
@@ -258,7 +258,7 @@ export default function Home() {
                 { num:'8,000+', label:'Reports Analysed' },
                 { num:'1,200+',  label:'Indians Ka Bharosa 🇮🇳' },
                 { num:'4.8⭐',  label:'Average Rating' },
-                { num:'Free',    label:'Pehli Report — Abhi Try Karo!' },
+                { num:'₹499/mo', label:'Unlimited Reports — Pro' },
               ].map((s, i) => (
                 <div key={i} className="stat-card" style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:16, padding:'14px 20px', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', textAlign:'center', minWidth:110 }}>
                   <p style={{ fontFamily:'var(--font-display)', fontSize:26, fontWeight:400, color:'var(--teal-400)', margin:'0 0 2px', lineHeight:1 }}>{s.num}</p>
@@ -268,7 +268,7 @@ export default function Home() {
             </div>
 
             <div className="a4 hero-cta-btns" style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap', marginBottom:16 }}>
-              <Link href="/upload" className="btn-primary">📋 Report Analyze Karo — Free</Link>
+              <Link href="/upload" className="btn-primary">📋 Report Analyze Karo →</Link>
               <Link href="/chat" className="btn-ghost">💊 Medicine Chat</Link>
             </div>
 
@@ -280,7 +280,7 @@ export default function Home() {
             </div>
 
             <div className="a4" style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, flexWrap:'wrap', marginBottom:44 }}>
-              {['✅ No signup needed','·','🆓 Free forever','·','⚡ 30 seconds','·','🔒 Privacy first'].map((item,i) => (
+              {['🤖 AI-Powered','·','🇮🇳 Hindi mein','·','⚡ 30 seconds','·','🔒 Privacy first'].map((item,i) => (
                 <span key={i} style={{ fontFamily:'var(--font-body)', fontSize:12, fontWeight:item==='·'?400:600, color:item==='·'?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.5)' }}>{item}</span>
               ))}
             </div>
@@ -428,7 +428,7 @@ export default function Home() {
 
             <div style={{ textAlign:'center', marginTop:36 }}>
               <Link href="/upload" style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'15px 36px', borderRadius:'var(--radius-md)', background:'linear-gradient(135deg,#ec4899,#db2777)', color:'white', fontFamily:'var(--font-body)', fontSize:15, fontWeight:700, textDecoration:'none', boxShadow:'0 8px 24px rgba(219,39,119,0.3)', transition:'all .2s' }}>
-                Apni report abhi upload karo — Free 🇮🇳
+                Apni report abhi upload karo 🇮🇳
               </Link>
             </div>
             <p style={{ textAlign:'center', fontFamily:'var(--font-body)', fontSize:11, color:'#9d174d', marginTop:16, opacity:.7 }}>
@@ -579,7 +579,7 @@ export default function Home() {
             </div>
 
             <div style={{ textAlign:'center', marginTop:28 }}>
-              <Link href="/upload" className="btn-primary" style={{ fontSize:15, padding:'15px 36px' }}>📋 Apni Report Upload Karo — Free</Link>
+              <Link href="/upload" className="btn-primary" style={{ fontSize:15, padding:'15px 36px' }}>📋 Apni Report Upload Karo →</Link>
             </div>
           </div>
         </section>
@@ -614,7 +614,7 @@ export default function Home() {
                   </div>
                 ))}
                 <div style={{ marginTop:8 }}>
-                  <Link href="/upload" className="btn-primary">📋 Free mein try karo →</Link>
+                  <Link href="/upload" className="btn-primary">📋 Abhi try karo →</Link>
                 </div>
               </div>
 
@@ -897,7 +897,7 @@ export default function Home() {
               </div>
             </div>
             <div style={{ textAlign:'center', marginTop:40 }}>
-              <Link href="/upload" className="btn-primary" style={{ padding:'15px 36px', fontSize:15 }}>📋 Apni Journey Shuru Karo — Free</Link>
+              <Link href="/upload" className="btn-primary" style={{ padding:'15px 36px', fontSize:15 }}>📋 Apni Journey Shuru Karo →</Link>
             </div>
           </div>
         </section>
@@ -952,7 +952,7 @@ export default function Home() {
                       </div>
                     ))}
                   </div>
-                  <Link href="/chat" className="btn-primary">💊 Free mein poochho →</Link>
+                  <Link href="/chat" className="btn-primary">💊 Abhi poochho →</Link>
                 </div>
                 <div className="r-hide" style={{ width:252, flexShrink:0 }}>
                   <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'16px', backdropFilter:'blur(12px)' }}>
@@ -979,7 +979,7 @@ export default function Home() {
         <section className="r-pad" style={{ padding:'72px 24px', background:'var(--surface)' }}>
           <div style={{ maxWidth:860, margin:'0 auto' }}>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }} className="r-col-2">
-              {[{n:'500M+',l:'Indians get medical reports yearly',i:'🇮🇳'},{n:'30 sec',l:'Average analysis time',i:'⚡'},{n:'Free',l:'Pehli report — koi card nahi',i:'💯'},{n:'22+',l:'Indian languages — coming soon',i:'🗣️'}].map((s,i) => (
+              {[{n:'500M+',l:'Indians get medical reports yearly',i:'🇮🇳'},{n:'30 sec',l:'Average analysis time',i:'⚡'},{n:'100%',l:'Hindi mein — samajh aasan',i:'💯'},{n:'22+',l:'Indian languages — coming soon',i:'🗣️'}].map((s,i) => (
                 <div key={i} className="card" style={{ padding:'24px 16px', textAlign:'center' }}>
                   <div style={{ fontSize:24, marginBottom:10 }}>{s.i}</div>
                   <p style={{ fontFamily:'var(--font-display)', fontSize:28, fontWeight:400, color:'var(--teal-600)', marginBottom:4, lineHeight:1 }}>{s.n}</p>
@@ -1003,7 +1003,7 @@ export default function Home() {
               {[
                 {n:'ChatGPT Health',items:['US only','No Hindi','No Indian labs','No history'],hl:false},
                 {n:'Practo / 1mg', items:['Doctor booking','Pharmacy only','Zero AI','No reports'],hl:false},
-                {n:'Sehat24 ✅',   items:['Built for India','Indian labs + Hindi','History + trends','Completely free'],hl:true},
+                {n:'Sehat24 ✅',   items:['Built for India','Indian labs + Hindi','History + trends','Affordable — ₹499/month'],hl:true},
               ].map((c,i) => (
                 <div key={i} style={{ background:c.hl?'linear-gradient(135deg,var(--teal-600),#0891b2)':'rgba(255,255,255,0.04)', border:`1px solid ${c.hl?'transparent':'rgba(255,255,255,0.07)'}`, borderRadius:'var(--radius-lg)', padding:'24px 20px', textAlign:'left' }}>
                   <p style={{ fontFamily:'var(--font-body)', fontSize:14, fontWeight:700, color:c.hl?'white':'rgba(255,255,255,0.35)', marginBottom:14 }}>{c.n}</p>
@@ -1099,13 +1099,13 @@ export default function Home() {
           <div style={{ maxWidth:540, margin:'0 auto' }}>
             <div style={{ fontSize:52, marginBottom:24 }} aria-label="Hospital">🏥</div>
             <h2 className="cta-h2" style={{ fontFamily:'var(--font-display)', fontSize:48, fontWeight:300, color:'var(--ink)', marginBottom:16, lineHeight:1.12 }}>
-              Abhi try karo.<br /><em style={{ fontStyle:'italic', color:'var(--teal-600)' }}>Bilkul free hai.</em>
+              Abhi try karo.<br /><em style={{ fontStyle:'italic', color:'var(--teal-600)' }}>Hindi mein samjho.</em>
             </h2>
             <p style={{ fontFamily:'var(--font-body)', fontSize:15, color:'var(--ink-ghost)', marginBottom:44, lineHeight:1.75 }}>
-              Koi signup nahi. Koi credit card nahi.<br />Bas report upload karo — aur samjho.
+              Login karo, Pro lo.<br />Bas report upload karo — aur samjho.
             </p>
             <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap', marginBottom:24 }}>
-              <Link href="/upload" className="btn-primary" style={{ padding:'16px 36px', fontSize:15 }}>📋 Report Upload Karo — Free →</Link>
+              <Link href="/upload" className="btn-primary" style={{ padding:'16px 36px', fontSize:15 }}>📋 Report Upload Karo →</Link>
               <Link href="/chat" className="btn-outline" style={{ padding:'16px 28px', fontSize:15 }}>💊 Medicine Chat</Link>
             </div>
             <p style={{ fontFamily:'var(--font-body)', fontSize:12, color:'var(--ink-ghost)' }}>Works on mobile &nbsp;•&nbsp; No app download &nbsp;•&nbsp; Every Indian lab</p>

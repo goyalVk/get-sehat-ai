@@ -830,12 +830,12 @@ export default function DiabetesBlog() {
 
           {/* CTA */}
           <div style={{ background:'linear-gradient(135deg,#0d9488,#0891b2)', borderRadius:20, padding:'28px 24px', textAlign:'center' }}>
-            <p style={{ fontSize:20, fontWeight:800, color:'white', marginBottom:8 }}>Apni Report Free Mein Analyze Karo</p>
+            <p style={{ fontSize:20, fontWeight:800, color:'white', marginBottom:8 }}>Apni Report Abhi Analyze Karo</p>
             <p style={{ fontSize:14, color:'rgba(255,255,255,0.85)', marginBottom:22, lineHeight:1.6 }}>
               HbA1c, fasting sugar, CBC — koi bhi report upload karo. AI turant Hindi mein explain karega.
             </p>
             <Link href="/upload" style={{ display:'inline-block', background:'white', color:'#0d9488', padding:'14px 32px', borderRadius:12, textDecoration:'none', fontSize:15, fontWeight:800 }}>
-              Free Mein Upload Karo →
+              Abhi Upload Karo →
             </Link>
           </div>
 

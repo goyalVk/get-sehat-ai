@@ -2,7 +2,7 @@
   "name": "Sehat24 — Health Report Analyzer",
   "version": "4.0.0",
   "short_name": "Sehat24",
-  "description": "Apni lab report Hindi mein samjho — Free",
+  "description": "Apni lab report Hindi mein samjho",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0d1a1a",

@@ -76,7 +76,7 @@ export default function PWAInstallPrompt() {
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {['⚡ Fast', '🔔 Notifications', '📱 App jaisa', '🆓 Free'].map((f, i) => (
+          {['⚡ Fast', '🔔 Notifications', '📱 App jaisa', '🔒 Secure'].map((f, i) => (
             <span key={i} style={{
               background: '#f0fdfa',
               border: '1px solid #99f6e4',

@@ -132,7 +132,7 @@ export default function LoginWallModal({ reportId }) {
             boxShadow: '0 4px 20px rgba(13,148,136,0.32)',
           }}
         >
-          🔓 Login Karo — Free Mein
+          🔓 Login Karo
         </a>
 
         {/* Skip */}

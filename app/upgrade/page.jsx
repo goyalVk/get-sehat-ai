@@ -180,12 +180,12 @@ export default function UpgradePage() {
             borderRadius: 14,
             padding: '14px 16px',
           }}>
-            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>FREE</div>
+            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>BASIC</div>
             <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.8 }}>
               <div>⚪ Koi report nahi</div>
-              <div>⚪ Basic analysis</div>
+              <div>⚪ No analysis</div>
               <div>⚪ No PDF, No Voice</div>
-              <div>⚪ 10 chat messages</div>
+              <div>⚪ No chat</div>
             </div>
           </div>
           <div style={{
@@ -326,7 +326,7 @@ export default function UpgradePage() {
             {/* Annual monthly breakdown */}
             {plan === 'annual' && (
               <p style={{ fontSize: 12, color: '#0d9488', marginTop: 4, fontWeight: 600 }}>
-                = ₹166/month effective — 2 mahine free! 🎉
+                = ₹166/month effective — Save {annualSavePct}%! 🎉
               </p>
             )}
 

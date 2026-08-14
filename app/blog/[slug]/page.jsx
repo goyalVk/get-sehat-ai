@@ -162,17 +162,16 @@ export default async function BlogPost({ params }) {
         {/* CTA */}
         <div className="post-cta-wrap">
           <div className="post-cta">
-            <p className="post-cta-h">Apni Report Free Mein Analyze Karo</p>
+            <p className="post-cta-h">Apni Report Abhi Analyze Karo</p>
             <p className="post-cta-p">
               Blood test report upload karo — AI turant Hindi mein poori report explain karega.
-              Bilkul free, koi registration nahi.
             </p>
             <Link href="/upload" style={{
               display: 'inline-block', background: 'white', color: '#0d9488',
               padding: '13px 28px', borderRadius: 12, textDecoration: 'none',
               fontSize: 15, fontWeight: 700,
             }}>
-              Free Mein Upload Karo →
+              Abhi Upload Karo →
             </Link>
           </div>
 

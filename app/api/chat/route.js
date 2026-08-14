@@ -214,7 +214,7 @@ App kab aayegi:
 Say: "Sehat24 ka dedicated mobile app jald aa raha hai! Abhi ke liye sehat24.com ko home screen pe add karo — same experience milega. 🚀"
 
 Sehat24 kya hai:
-Say: "Sehat24 ek free AI-powered medical report analyzer hai — aapki lab reports Hindi mein explain karta hai. Upload karo, samjho, healthy raho! 🇮🇳"
+Say: "Sehat24 ek AI-powered medical report analyzer hai — aapki lab reports Hindi mein explain karta hai. Upload karo, samjho, healthy raho! 🇮🇳"
 
 Sehat24 features:
 Say: "Sehat24 pe yeh sab milta hai:

@@ -61,7 +61,7 @@ export async function GET(req) {
         tokens: reengageList,
         notification: {
           title: '😊 Bahut din ho gaye!',
-          body: 'Family ki report bhi check karo — Free 🇮🕳'
+          body: 'Family ki report bhi check karo 🇮🕳'
         },
         webpush: {
           fcmOptions: { link: 'https://sehat24.com/upload' }

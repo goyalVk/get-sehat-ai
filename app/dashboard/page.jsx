@@ -263,7 +263,7 @@ function DashboardContent() {
               <div style={{ marginTop: 16, width: '100%', background: '#f8fafc', borderRadius: 12, padding: '10px 14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                   <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>
-                    {isPro ? 'Pro Plan' : 'Free Plan'}
+                    {isPro ? 'Pro Plan' : 'Basic Plan'}
                   </span>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#0d9488' }}>{reportsLeft} left</span>
                 </div>
@@ -309,7 +309,7 @@ function DashboardContent() {
                 <p style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 8 }}>Reports Left</p>
                 <p className="serif" style={{ fontSize: 36, color: '#0d9488', lineHeight: 1 }}>{reportsLeft}</p>
                 <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 6 }}>
-                  {isPro ? 'Unlimited plan' : 'Free plan'}
+                  {isPro ? 'Unlimited plan' : 'Basic plan'}
                 </p>
               </div>
             </div>
