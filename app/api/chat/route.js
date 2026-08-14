@@ -217,11 +217,11 @@ Sehat24 kya hai:
 Say: "Sehat24 ek free AI-powered medical report analyzer hai — aapki lab reports Hindi mein explain karta hai. Upload karo, samjho, healthy raho! 🇮🇳"
 
 Sehat24 features:
-Say: "Sehat24 pe yeh sab free milta hai:
+Say: "Sehat24 pe yeh sab milta hai:
 ✅ Lab reports analyze karo — Hindi mein explanation
 ✅ Medicine chat — photo upload karke puchho
-✅ 5 free reports — registered users ke liye
-✅ Pro plan mein unlimited — sirf ₹499/month"
+✅ Reports analyze karne ke liye Pro plan chahiye — sirf ₹499/month
+✅ Pro plan mein unlimited reports"
 
 Sehat24 Pro plan:
 Say: "Sehat24 Pro — sirf ₹499/month:
@@ -304,7 +304,7 @@ export async function POST(req) {
     // Guest users = no chat — v4 paid model
     if (!resolvedUserId) {
       return NextResponse.json({
-        reply: 'Chat ke liye login karo 🔓 — pehli report free hai, phir Pro plan ₹499/month mein unlimited chat milega!',
+        reply: 'Chat ke liye login karo 🔓 — phir Pro plan ₹499/month mein unlimited chat milega!',
         requiresLogin: true
       }, { status: 401 })
     }
@@ -313,8 +313,7 @@ export async function POST(req) {
     const ip         = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
     const identifier = resolvedUserId || ip
 
-    // Pro users = unlimited chat
-    // Free users = 10 messages total (DB based)
+    // Chat is a Pro-only feature — no free messages for logged-in users
     const userDoc = resolvedUserId
       ? await User.findById(resolvedUserId).lean()
       : null
@@ -325,19 +324,11 @@ export async function POST(req) {
         userDoc.subscriptionEndsAt > new Date())
 
     if (!isPro) {
-      // DB se actual count nikalo
-      const chatCount = await ChatLog.countDocuments({
-        userId: userDoc?._id,
-        role: 'user'
-      })
-
-      if (chatCount >= 10) {
-        return NextResponse.json({
-          reply: `Chat limit ho gayi 🙏\n\n₹999 → ₹499/month (Save 50%)\nUnlimited chat + sab features\nSirf ₹6.6/din ☕\n\n👉 sehat24.com/upgrade`,
-          limitReached: true,
-          upgradeUrl: '/upgrade'
-        }, { status: 429 })
-      }
+      return NextResponse.json({
+        reply: `Chat sirf Pro users ke liye available hai 🔒\n\n₹999 → ₹499/month (Save 50%)\nUnlimited chat + sab features\nSirf ₹6.6/din ☕\n\n👉 sehat24.com/upgrade`,
+        limitReached: true,
+        upgradeUrl: '/upgrade'
+      }, { status: 403 })
     }
 
     // Keep existing rate limit for abuse prevention

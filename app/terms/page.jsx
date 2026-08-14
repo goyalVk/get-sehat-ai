@@ -72,7 +72,7 @@ export default function TermsPage() {
 
       <h2>4. Free vs Pro Plan</h2>
       <ul>
-        <li><strong>Free Plan:</strong> 1 report analyze karne ka free mein — sirf pehli baar</li>
+        <li><strong>Free Plan:</strong> Reports analyze karne ke liye Pro subscription chahiye</li>
         <li><strong>Pro Plan:</strong> ₹499/month ya ₹1,999/year — unlimited reports</li>
         <li>Payment Razorpay ke through hoti hai — secure aur encrypted</li>
         <li>Subscription automatic renew nahi hota — manual payment required</li>

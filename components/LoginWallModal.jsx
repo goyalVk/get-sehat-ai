@@ -92,7 +92,7 @@ export default function LoginWallModal({ reportId }) {
               marginBottom: 10, lineHeight: 1.35,
             }}
           >
-            Apni pehli report FREE analyze karo! 🔓
+            Login karo, report analyze karo! 🔓
           </p>
           <p style={{
             fontSize: 14, color: '#64748b',
@@ -111,7 +111,7 @@ export default function LoginWallModal({ reportId }) {
             fontWeight: 700,
             color: '#0d9488',
           }}>
-            Pehli report bilkul free — koi card nahi
+            Pro subscription se unlimited reports
           </div>
         </div>
 

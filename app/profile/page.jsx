@@ -141,9 +141,7 @@ export default function ProfilePage() {
                   ? `Unlimited reports${user?.subscriptionEndsAt
                       ? ' — Valid till ' + new Date(user.subscriptionEndsAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
                       : ''}`
-                  : user?.hasAnalyzed
-                    ? '1/1 free report used — Upgrade karo'
-                    : '0/1 free report available'
+                  : 'Reports analyze karne ke liye Pro chahiye'
                 }
               </p>
             </div>

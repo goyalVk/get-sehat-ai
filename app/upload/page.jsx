@@ -10,7 +10,7 @@ import { requestPushPermission } from '@/lib/pushNotification'
 const STATS_CHIPS = [
   { icon: '⚡', label: '30 seconds' },
   { icon: '🔒', label: 'Private'    },
-  { icon: '🆓', label: 'Pehli Report Free' },
+  { icon: '⭐', label: '4.8/5 Rating' },
   { icon: '🏥', label: 'Har Indian Lab' },
 ]
 
@@ -132,24 +132,22 @@ export default function UploadPage() {
 
     // ── Guest gate — NO API call, instant block ──
     if (!isSampleFile && isGuest) {
-      setError('Login karo — pehli report bilkul FREE! 🔓')
+      setError('Report analyze karne ke liye login karo 🔓')
       setErrorType('anon_gate')
       return
     }
 
-    // ── Free user limit — check client side, NO API call ──
+    // ── Non-Pro users — no free report, check client side, NO API call ──
     const storedUserCheck = (() => {
       try { return JSON.parse(localStorage.getItem('s24_user') || 'null') } catch { return null }
     })()
-    const hasAnalyzed = storedUserCheck?.hasAnalyzed || false
-    const reportsUsed = storedUserCheck?.reportsUsed || 0
     const isProCheck  =
       !!storedUserCheck?.id &&
       (storedUserCheck?.plan === 'paid' || storedUserCheck?.plan === 'pro') &&
       (!storedUserCheck?.subscriptionEndsAt ||
         new Date(storedUserCheck.subscriptionEndsAt) > new Date())
 
-    if (!isSampleFile && !isProCheck && (hasAnalyzed || reportsUsed >= 1)) {
+    if (!isSampleFile && !isProCheck) {
       setError('free_limit')
       setErrorType('limit')
       return
@@ -183,13 +181,13 @@ export default function UploadPage() {
           return
         }
         if (data.requiresLogin) {
-          setError('Login karo — pehli report bilkul FREE! 🔓')
+          setError('Report analyze karne ke liye login karo 🔓')
           setErrorType('anon_gate')
           setLoading(false)
           return
         }
         if (data.loginRequired) {
-          setError('Login karo — pehli report bilkul FREE! 🔓')
+          setError('Report analyze karne ke liye login karo 🔓')
           setErrorType('anon_gate')
           setLoading(false)
           return
@@ -587,7 +585,7 @@ export default function UploadPage() {
                 color: '#134e4a',
                 margin: 0
               }}>
-                Pehli report bilkul FREE!
+                Login karo, report analyze karo!
               </p>
             </div>
             <p style={{
@@ -599,7 +597,7 @@ export default function UploadPage() {
               Login karo aur apni medical report Hindi mein samjho 🇮🇳
               <br/>
               <span style={{ fontSize: 12, color: '#64748b' }}>
-                Koi credit card nahi • Koi hidden charges nahi
+                Reports analyze karne ke liye Pro subscription chahiye
               </span>
             </p>
             <a
@@ -705,7 +703,7 @@ export default function UploadPage() {
                   color: '#92400e',
                   margin: 0
                 }}>
-                  Free report use ho gayi! 😊
+                  Reports analyze karne ke liye Pro chahiye 😊
                 </p>
                 <p style={{
                   fontSize: 12,
@@ -713,7 +711,7 @@ export default function UploadPage() {
                   margin: 0,
                   marginTop: 2
                 }}>
-                  Aur reports ke liye Pro lo
+                  Subscription lo aur unlimited reports analyze karo
                 </p>
               </div>
             </div>

@@ -106,7 +106,7 @@ function DashboardContent() {
     isPro: isPro
   })
 
-  const FREE_REPORT_LIMIT = 1
+  const FREE_REPORT_LIMIT = 0
   const reportsLeft = isPro
     ? 'Unlimited'
     : Math.max(0, FREE_REPORT_LIMIT - (user?.reportsUsed || 0))

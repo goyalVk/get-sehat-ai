@@ -78,10 +78,9 @@ function ChatContent() {
   const [image, setImage]               = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [loading, setLoading]           = useState(false)
-  const [msgsSent, setMsgsSent]         = useState(0)
   const [isPro, setIsPro]           = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [totalChatUsed, setTotalChatUsed] = useState(0)
+  const [authLoaded, setAuthLoaded] = useState(false)
 
   // Scroll only on new messages, NOT on mount
   useEffect(() => {
@@ -95,7 +94,7 @@ function ChatContent() {
   useEffect(() => {
     fetch('/api/auth/me')
       .then(r => r.json())
-      .then(async data => {
+      .then(data => {
         if (data?.id) {
           setIsLoggedIn(true)
           const plan   = data.plan
@@ -103,34 +102,25 @@ function ChatContent() {
           const proActive = (plan === 'paid' || plan === 'pro') &&
             (!endsAt || new Date(endsAt) > new Date())
           setIsPro(proActive)
-
-          // Free user = DB se actual chat count lo
-          if (!proActive) {
-            try {
-              const countRes  = await fetch('/api/chat/count')
-              const countData = await countRes.json()
-              if (countData?.count !== undefined) {
-                setMsgsSent(countData.count)
-              }
-            } catch {}
-          }
         }
       })
       .catch(() => {})
+      .finally(() => setAuthLoaded(true))
   }, [])
 
   const handleImage = useCallback((f) => {
-    if (!f || !f.type.startsWith('image/')) return
+    if (!f || !f.type.startsWith('image/') || !isPro) return
     if (f.size > 5 * 1024 * 1024) { alert('5MB se chhoti image upload karo'); return }
     setImage(f)
     setImagePreview(URL.createObjectURL(f))
     inputRef.current?.focus()
-  }, [])
+  }, [isPro])
 
   const sendMessage = useCallback(async (overrideText) => {
     const text = (overrideText !== undefined ? overrideText : input).trim()
-    if ((!text && !image) || loading) return
+    if ((!text && !image) || loading || !isPro) return
 
+    const isFirstMessage = !messages.some(m => m.role === 'user')
     const displayText = text || 'Is medicine ke baare mein batao'
     setMessages(prev => [...prev, { role: 'user', text: displayText, imagePreview }])
     setInput('')
@@ -138,10 +128,9 @@ function ChatContent() {
     setImage(null)
     setImagePreview(null)
     setLoading(true)
-    if (msgsSent === 0 && typeof window !== 'undefined' && window.gtag) {
+    if (isFirstMessage && typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'medicine_chat_used')
     }
-    setMsgsSent(c => c + 1)
 
     try {
       const history = messages.slice(-6).map(m => ({ role: m.role, content: m.text }))
@@ -161,7 +150,7 @@ function ChatContent() {
         if (err.requiresLogin) {
           setMessages(prev => [...prev, {
             role: 'assistant',
-            text: '🔓 Chat ke liye login karo! Pehli report free hai — sehat24.com/auth/login'
+            text: '🔓 Chat ke liye login karo, phir Pro plan se unlimited chat milega — sehat24.com/auth/login'
           }])
           return
         }
@@ -202,16 +191,17 @@ function ChatContent() {
     } finally {
       setLoading(false)
     }
-  }, [input, image, imagePreview, loading, messages])
+  }, [input, image, imagePreview, loading, messages, isPro])
 
   const handleDrop = useCallback((e) => {
     e.preventDefault()
     handleImage(e.dataTransfer.files[0])
   }, [handleImage])
 
-  const isActive = (input.trim().length > 0 || !!image) && !loading
-  const showQuickCards = messages.length === 1
-  const showSuggestions = messages.length > 1 && messages.length < 5 && !loading
+  const isActive = (input.trim().length > 0 || !!image) && !loading && isPro
+  const showQuickCards = isPro && messages.length === 1
+  const showSuggestions = isPro && messages.length > 1 && messages.length < 5 && !loading
+  const showUpgradeGate = authLoaded && !isPro
 
   return (
     <>
@@ -526,7 +516,7 @@ function ChatContent() {
             </div>
           </div>
           <div className="c-badge" suppressHydrationWarning>
-            {isPro ? '✨ Unlimited' : `${Math.max(0, 10 - msgsSent)} msgs left`}
+            {isPro ? '✨ Unlimited' : '🔒 Pro required'}
           </div>
         </div>
 
@@ -636,62 +626,88 @@ function ChatContent() {
           </div>
         )}
 
-        {/* ── Input ── */}
-        <div className="c-input-panel">
-          <div className="c-input-row">
+        {/* ── Input / Upgrade gate ── */}
+        {showUpgradeGate ? (
+          <div className="c-input-panel" style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#92400e', margin: '0 0 10px' }}>
+              {isLoggedIn
+                ? 'Medicine chat sirf Pro users ke liye — 🔒'
+                : 'Medicine chat ke liye pehle login karo 🔓'}
+            </p>
+            <a
+              href={isLoggedIn ? '/upgrade' : '/auth/login'}
+              style={{
+                display: 'inline-block',
+                padding: '12px 28px',
+                background: 'linear-gradient(135deg, #0d9488, #0891b2)',
+                color: 'white',
+                borderRadius: 14,
+                fontSize: 14,
+                fontWeight: 800,
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(13,148,136,.35)',
+              }}
+            >
+              {isLoggedIn ? '🔓 Pro lo — ₹499/month' : '🔓 Login Karo'}
+            </a>
+          </div>
+        ) : (
+          <div className="c-input-panel">
+            <div className="c-input-row">
 
-            {/* Camera button */}
-            <label className="c-photo-btn" title="Medicine photo upload karo">
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={e => handleImage(e.target.files[0])}
-              />
-              📷
-            </label>
+              {/* Camera button */}
+              <label className="c-photo-btn" title="Medicine photo upload karo">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={e => handleImage(e.target.files[0])}
+                />
+                📷
+              </label>
 
-            {/* Textarea */}
-            <div className="c-textarea-wrap">
-              <textarea
-                ref={inputRef}
-                className="c-textarea"
-                value={input}
-                onChange={e => {
-                  setInput(e.target.value)
-                  // Auto grow
-                  e.target.style.height = 'auto'
-                  e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'
-                }}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    sendMessage()
-                  }
-                }}
-                placeholder="Bimari, medicine ya health sawaal likhein..."
-                rows={2}
-              />
+              {/* Textarea */}
+              <div className="c-textarea-wrap">
+                <textarea
+                  ref={inputRef}
+                  className="c-textarea"
+                  value={input}
+                  onChange={e => {
+                    setInput(e.target.value)
+                    // Auto grow
+                    e.target.style.height = 'auto'
+                    e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      sendMessage()
+                    }
+                  }}
+                  placeholder="Bimari, medicine ya health sawaal likhein..."
+                  rows={2}
+                />
+              </div>
+
+              {/* Send button */}
+              <button
+                className={`c-send-btn ${isActive ? 'on' : 'off'}`}
+                onClick={() => sendMessage()}
+                disabled={!isActive}
+              >
+                {loading
+                  ? <div style={{ width: 18, height: 18, border: '2.5px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin .7s linear infinite' }} />
+                  : '↑'
+                }
+              </button>
             </div>
 
-            {/* Send button */}
-            <button
-              className={`c-send-btn ${isActive ? 'on' : 'off'}`}
-              onClick={() => sendMessage()}
-              disabled={!isActive}
-            >
-              {loading
-                ? <div style={{ width: 18, height: 18, border: '2.5px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin .7s linear infinite' }} />
-                : '↑'
-              }
-            </button>
+            <div className="c-hint">
+              📷 Medicine photo drag &amp; drop karo · Shift+Enter for new line
+            </div>
           </div>
-
-          <div className="c-hint">
-            📷 Medicine photo drag &amp; drop karo · Shift+Enter for new line
-          </div>
-        </div>
+        )}
 
         {/* ── Disclaimer ── */}
         <div className="c-disclaimer">

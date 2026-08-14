@@ -41,6 +41,9 @@ export default function ChatWidget() {
   const [imagePreview, setImagePreview] = useState(null)
   const [loading, setLoading]   = useState(false)
   const [unread, setUnread]     = useState(0)
+  const [isPro, setIsPro]           = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [authLoaded, setAuthLoaded] = useState(false)
   const bottomRef               = useRef(null)
   const inputRef                = useRef(null)
   const fileInputRef            = useRef(null)
@@ -72,17 +75,32 @@ export default function ChatWidget() {
     }
   }, [messages.length])
 
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(data => {
+        if (data?.id) {
+          setIsLoggedIn(true)
+          const proActive = (data.plan === 'paid' || data.plan === 'pro') &&
+            (!data.subscriptionEndsAt || new Date(data.subscriptionEndsAt) > new Date())
+          setIsPro(proActive)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setAuthLoaded(true))
+  }, [])
+
   const handleImage = useCallback((f) => {
-    if (!f || !f.type.startsWith('image/')) return
+    if (!f || !f.type.startsWith('image/') || !isPro) return
     if (f.size > 5 * 1024 * 1024) { alert('5MB se chhoti image upload karo'); return }
     setImage(f)
     setImagePreview(URL.createObjectURL(f))
     inputRef.current?.focus()
-  }, [])
+  }, [isPro])
 
   const send = useCallback(async (overrideText) => {
     const text = (overrideText !== undefined ? overrideText : input).trim()
-    if ((!text && !image) || loading) return
+    if ((!text && !image) || loading || !isPro) return
 
     const displayText = text || 'Is medicine ke baare mein batao'
     setMessages(prev => [...prev, { role: 'user', text: displayText, imagePreview }])
@@ -126,9 +144,10 @@ export default function ChatWidget() {
     } finally {
       setLoading(false)
     }
-  }, [input, image, imagePreview, loading, messages])
+  }, [input, image, imagePreview, loading, messages, isPro])
 
-  const isActive = (input.trim().length > 0 || !!image) && !loading
+  const isActive = (input.trim().length > 0 || !!image) && !loading && isPro
+  const showUpgradeGate = authLoaded && !isPro
 
   return (
     <>
@@ -263,7 +282,7 @@ export default function ChatWidget() {
             )}
 
             {/* Suggestions */}
-            {messages.length === 1 && !loading && (
+            {isPro && messages.length === 1 && !loading && (
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
                 {SUGGESTIONS.map((s, i) => (
                   <button key={i} className="wchip" onClick={() => send(s)}
@@ -287,68 +306,87 @@ export default function ChatWidget() {
             </div>
           )}
 
-          {/* Input */}
-          <div style={{ padding: '10px 12px', borderTop: '1px solid #e8f5f3', background: 'white', flexShrink: 0 }}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-
-              {/* Camera button — div with onClick */}
-              <div
-                className="wcam"
-                onClick={() => fileInputRef.current?.click()}
-                title="Medicine photo upload karo"
+          {/* Input / Upgrade gate */}
+          {showUpgradeGate ? (
+            <div style={{ padding: '14px 12px', borderTop: '1px solid #e8f5f3', background: 'white', flexShrink: 0, textAlign: 'center' }}>
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#92400e', margin: '0 0 8px' }}>
+                {isLoggedIn ? 'Chat sirf Pro users ke liye — 🔒' : 'Chat ke liye pehle login karo 🔓'}
+              </p>
+              <a
+                href={isLoggedIn ? '/upgrade' : '/auth/login'}
                 style={{
-                  width: 38, height: 38, borderRadius: 10,
-                  border: '1.5px solid #e2eeec', background: 'white',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 18, cursor: 'pointer', flexShrink: 0,
-                  transition: 'all .18s', userSelect: 'none',
+                  display: 'inline-block', padding: '9px 20px',
+                  background: 'linear-gradient(135deg, #0d9488, #0891b2)',
+                  color: 'white', borderRadius: 11, fontSize: 12.5, fontWeight: 800,
+                  textDecoration: 'none',
                 }}
               >
-                📷
+                {isLoggedIn ? '🔓 Pro lo — ₹499/month' : '🔓 Login Karo'}
+              </a>
+            </div>
+          ) : (
+            <div style={{ padding: '10px 12px', borderTop: '1px solid #e8f5f3', background: 'white', flexShrink: 0 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+
+                {/* Camera button — div with onClick */}
+                <div
+                  className="wcam"
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Medicine photo upload karo"
+                  style={{
+                    width: 38, height: 38, borderRadius: 10,
+                    border: '1.5px solid #e2eeec', background: 'white',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 18, cursor: 'pointer', flexShrink: 0,
+                    transition: 'all .18s', userSelect: 'none',
+                  }}
+                >
+                  📷
+                </div>
+
+                <input
+                  ref={inputRef}
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); send() } }}
+                  placeholder="Medicine ya health sawaal..."
+                  style={{
+                    flex: 1, border: '1.5px solid #dde8e6', borderRadius: 12,
+                    padding: '10px 13px', fontSize: 13, fontWeight: 500,
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    background: '#fafefe', color: '#1e293b',
+                    transition: 'all .18s', outline: 'none',
+                  }}
+                  onFocus={e => { e.target.style.borderColor = '#0d9488'; e.target.style.boxShadow = '0 0 0 3px rgba(13,148,136,.08)'; e.target.style.background = 'white' }}
+                  onBlur={e => { e.target.style.borderColor = '#dde8e6'; e.target.style.boxShadow = 'none'; e.target.style.background = '#fafefe' }}
+                />
+
+                <div
+                  className={isActive ? 'wsend-on' : ''}
+                  onClick={() => { if (isActive) send() }}
+                  style={{
+                    width: 38, height: 38, borderRadius: 11,
+                    background: isActive ? 'linear-gradient(135deg, #0d9488, #0891b2)' : '#f1f5f9',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 15, fontWeight: 800, flexShrink: 0,
+                    cursor: isActive ? 'pointer' : 'not-allowed',
+                    color: isActive ? 'white' : '#cbd5e1',
+                    transition: 'all .18s',
+                    boxShadow: isActive ? '0 3px 10px rgba(13,148,136,.3)' : 'none',
+                    userSelect: 'none',
+                  }}
+                >
+                  {loading
+                    ? <div style={{ width: 14, height: 14, border: '2.5px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'wSpin .7s linear infinite' }} />
+                    : '↑'
+                  }
+                </div>
               </div>
-
-              <input
-                ref={inputRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); send() } }}
-                placeholder="Medicine ya health sawaal..."
-                style={{
-                  flex: 1, border: '1.5px solid #dde8e6', borderRadius: 12,
-                  padding: '10px 13px', fontSize: 13, fontWeight: 500,
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  background: '#fafefe', color: '#1e293b',
-                  transition: 'all .18s', outline: 'none',
-                }}
-                onFocus={e => { e.target.style.borderColor = '#0d9488'; e.target.style.boxShadow = '0 0 0 3px rgba(13,148,136,.08)'; e.target.style.background = 'white' }}
-                onBlur={e => { e.target.style.borderColor = '#dde8e6'; e.target.style.boxShadow = 'none'; e.target.style.background = '#fafefe' }}
-              />
-
-              <div
-                className={isActive ? 'wsend-on' : ''}
-                onClick={() => { if (isActive) send() }}
-                style={{
-                  width: 38, height: 38, borderRadius: 11,
-                  background: isActive ? 'linear-gradient(135deg, #0d9488, #0891b2)' : '#f1f5f9',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 15, fontWeight: 800, flexShrink: 0,
-                  cursor: isActive ? 'pointer' : 'not-allowed',
-                  color: isActive ? 'white' : '#cbd5e1',
-                  transition: 'all .18s',
-                  boxShadow: isActive ? '0 3px 10px rgba(13,148,136,.3)' : 'none',
-                  userSelect: 'none',
-                }}
-              >
-                {loading
-                  ? <div style={{ width: 14, height: 14, border: '2.5px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'wSpin .7s linear infinite' }} />
-                  : '↑'
-                }
+              <div style={{ textAlign: 'center', marginTop: 6 }}>
+                <span style={{ fontSize: 10, color: '#b0c4c0', fontWeight: 500 }}>⚕️ Educational only · Doctor se zaroor milein</span>
               </div>
             </div>
-            <div style={{ textAlign: 'center', marginTop: 6 }}>
-              <span style={{ fontSize: 10, color: '#b0c4c0', fontWeight: 500 }}>⚕️ Educational only · Doctor se zaroor milein</span>
-            </div>
-          </div>
+          )}
         </div>
       )}
     </>

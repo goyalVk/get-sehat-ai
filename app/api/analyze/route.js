@@ -359,29 +359,18 @@ export async function POST(req) {
       : HAIKU_MODEL
 
     // ── Atomic slot claim — check + increment in one DB op ───────────────
-    // Replaces the old check-then-increment two-step pattern.
-    // For free users: only succeeds if reportsUsed < 1 AND hasAnalyzed != true.
-    // For pro users: always succeeds. Prevents race conditions from parallel
+    // No free report for logged-in users — only an active Pro/paid
+    // subscription can claim a slot. Prevents race conditions from parallel
     // uploads (multi-tab, double-tap) since MongoDB guarantees atomicity here.
     if (user) {
       const claimedUser = await User.findOneAndUpdate(
         {
           _id: user._id,
+          plan: { $in: ['pro', 'paid'] },
           $or: [
-            // Pro with active subscription — always allow
-            {
-              plan: { $in: ['pro', 'paid'] },
-              $or: [
-                { subscriptionEndsAt: null },
-                { subscriptionEndsAt: { $exists: false } },
-                { subscriptionEndsAt: { $gt: new Date() } }
-              ]
-            },
-            // Free user who has not yet used their 1 free report
-            {
-              reportsUsed:  { $lt: 1 },
-              hasAnalyzed:  { $ne: true }
-            }
+            { subscriptionEndsAt: null },
+            { subscriptionEndsAt: { $exists: false } },
+            { subscriptionEndsAt: { $gt: new Date() } }
           ]
         },
         { $inc: { reportsUsed: 1 }, $set: { hasAnalyzed: true } },
@@ -389,7 +378,7 @@ export async function POST(req) {
       )
       if (!claimedUser) {
         return NextResponse.json({
-          error: 'Aapki free report use ho gayi 😊 Unlimited reports ke liye Pro lo!',
+          error: 'Reports analyze karne ke liye Pro subscription chahiye 😊',
           limitReached: true,
           upgradeUrl: '/upgrade'
         }, { status: 403 })
@@ -417,7 +406,7 @@ export async function POST(req) {
       return NextResponse.json(
         {
           loginRequired: true,
-          error: 'Report analyze karne ke liye login karein — pehli report bilkul free! 🔓'
+          error: 'Report analyze karne ke liye login karein 🔓'
         },
         { status: 403 }
       )

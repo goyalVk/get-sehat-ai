@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm uninstall *)",
+      "Bash(npx eslint *)",
+      "PowerShell(npx eslint \"app/upload/page.jsx\" \"app/api/analyze/route.js\" \"app/api/chat/route.js\" \"app/upgrade/page.jsx\" \"app/dashboard/page.jsx\" \"app/history/page.jsx\" \"app/profile/page.jsx\" \"app/results/[id]/page.jsx\" \"app/page.js\" \"app/layout.js\" \"app/global-error.jsx\" \"app/terms/page.jsx\" \"components/FAQSection.jsx\" \"components/LoginWallModal.jsx\" \"app/chat/ChatPage.jsx\" \"next.config.js\")",
+      "PowerShell(npm run build 2>&1)"
+    ]
+  }
+}

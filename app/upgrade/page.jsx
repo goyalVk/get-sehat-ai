@@ -182,7 +182,7 @@ export default function UpgradePage() {
           }}>
             <div style={{ fontSize: 12, color: '#64748b', fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>FREE</div>
             <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.8 }}>
-              <div>⚪ Sirf 1 report</div>
+              <div>⚪ Koi report nahi</div>
               <div>⚪ Basic analysis</div>
               <div>⚪ No PDF, No Voice</div>
               <div>⚪ 10 chat messages</div>
