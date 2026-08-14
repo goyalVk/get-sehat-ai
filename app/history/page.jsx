@@ -334,7 +334,7 @@ export default function HistoryPage() {
             }}>
               <div>
                 <p style={{ fontSize: 13, fontWeight: 700, color: '#0d9488', margin: '0 0 2px' }}>
-                  ⚡ ₹199 mein poora mahina — unlimited reports!
+                  ⚡ ₹499 mein poora mahina — unlimited reports!
                 </p>
                 <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
                   Jitni bhi reports ho — sab analyze karo + PDF download karo
@@ -351,7 +351,7 @@ export default function HistoryPage() {
                 whiteSpace: 'nowrap',
                 flexShrink: 0
               }}>
-                🔓 Pro lo — Sirf ₹199
+                🔓 Pro lo — Sirf ₹499
               </a>
             </div>
           )}

@@ -653,7 +653,7 @@ export default function UploadPage() {
             </p>
             <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6, margin: '0 0 16px' }}>
               ✅ Unlimited pages &nbsp; ✅ Deep analysis<br/>
-              ✅ PDF download &nbsp; ✅ ₹199 mein poora mahina — jitni bhi reports karo, sab free! ☕<br/>
+              ✅ PDF download &nbsp; ✅ ₹499 mein poora mahina — jitni bhi reports karo, sab free! ☕<br/>
               <span style={{ fontSize: 12 }}>1,200+ log already use kar rahe hain 🇮🇳</span>
             </p>
             <button
@@ -665,7 +665,7 @@ export default function UploadPage() {
                 cursor: 'pointer', fontFamily: 'inherit', marginBottom: 8,
               }}
             >
-              ⚡ ⚡ ₹199 mein poora mahina — unlimited reports!
+              ⚡ ⚡ ₹499 mein poora mahina — unlimited reports!
             </button>
             <button
               onClick={() => { resetUpload(); router.push('/upload') }}
@@ -747,14 +747,14 @@ export default function UploadPage() {
                 textDecoration: 'line-through',
                 marginRight: 8
               }}>
-                ₹599/month
+                ₹999/month
               </span>
               <span style={{
                 fontSize: 13,
                 fontWeight: 700,
                 color: '#92400e'
               }}>
-                ₹199/month
+                ₹499/month
               </span>
               <span style={{
                 display: 'inline-block',
@@ -766,7 +766,7 @@ export default function UploadPage() {
                 borderRadius: 100,
                 marginLeft: 8
               }}>
-                Save 67%
+                Save 50%
               </span>
               <p style={{
                 fontSize: 11,
@@ -793,7 +793,7 @@ export default function UploadPage() {
                 marginBottom: 10
               }}
             >
-              🔓 Pro lo — ₹199/month
+              🔓 Pro lo — ₹499/month
             </a>
             <p style={{
               fontSize: 11,

@@ -33,7 +33,7 @@ const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: [
-    { '@type':'Question', name:'Kya Sehat24 bilkul free hai?',             acceptedAnswer:{ '@type':'Answer', text:'Pehli report bilkul free hai — koi credit card nahi, koi hidden charge nahi. Unlimited reports ke liye Pro plan available hai ₹199/month mein.' } },
+    { '@type':'Question', name:'Kya Sehat24 bilkul free hai?',             acceptedAnswer:{ '@type':'Answer', text:'Pehli report bilkul free hai — koi credit card nahi, koi hidden charge nahi. Unlimited reports ke liye Pro plan available hai ₹499/month mein.' } },
     { '@type':'Question', name:'Mera data safe hai?',                       acceptedAnswer:{ '@type':'Answer', text:'Aapki report sirf analysis ke liye process hoti hai. Hum aapka data bina permission ke store nahi karte. Privacy hamari priority hai.' } },
     { '@type':'Question', name:'Kaunse reports supported hain?',            acceptedAnswer:{ '@type':'Answer', text:'Blood test CBC, LFT, KFT, HbA1c, Lipid Profile, Thyroid, MRI, CT Scan, X-Ray, Ultrasound, Pathology — kisi bhi Indian lab ki report. SRL, Lal PathLabs, Apollo, Metropolis, Thyrocare sab chalte hain.' } },
     { '@type':'Question', name:'Kya yeh doctor ka replacement hai?',        acceptedAnswer:{ '@type':'Answer', text:'Bilkul nahi. Sehat24 educational information deta hai — doctor ka substitute nahi. Koi bhi health decision doctor ki salah ke baad lein.' } },

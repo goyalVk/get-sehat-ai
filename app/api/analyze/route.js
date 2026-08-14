@@ -476,7 +476,7 @@ export async function POST(req) {
         return NextResponse.json({
           limitReached: true,
           upgradeUrl: '/upgrade',
-          error: `${pageCount} page ki report ke liye Pro chahiye 😊 ₹599 → ₹199/month (Save 67%)`
+          error: `${pageCount} page ki report ke liye Pro chahiye 😊 ₹999 → ₹499/month (Save 50%)`
         }, { status: 403 })
       }
     }
@@ -716,7 +716,7 @@ export async function POST(req) {
                   fcmOptions: { link: 'https://sehat24.com/upgrade' },
                   data: {
                     title: '📄 Free limit khatam ho gayi!',
-                    body:  'Pro lo — Unlimited reports + History + PDF. Sirf ₹199/month',
+                    body:  'Pro lo — Unlimited reports + History + PDF. Sirf ₹499/month',
                     url:   'https://sehat24.com/upgrade',
                     icon:  'https://sehat24.com/icon-192x192.png'
                   }
@@ -976,7 +976,7 @@ async function analyzeWithPDF(base64, model = HAIKU_MODEL, fileSize = 0, isPro =
   const response = await anthropic.messages.create(params)
 
   if (response.stop_reason === 'max_tokens') {
-    const err = new Error('Aapki report bahut badi hai 😕 Pro mein unlimited pages + deep analysis + PDF download — ₹199/month. sehat24.com/upgrade')
+    const err = new Error('Aapki report bahut badi hai 😕 Pro mein unlimited pages + deep analysis + PDF download — ₹499/month. sehat24.com/upgrade')
     err.isTruncated = true
     throw err
   }
@@ -1011,7 +1011,7 @@ async function analyzeWithVision(base64, mediaType, model = HAIKU_MODEL, fileSiz
   const response = await anthropic.messages.create(params)
 
   if (response.stop_reason === 'max_tokens') {
-    const err = new Error('Aapki report bahut badi hai 😕 Pro mein unlimited pages + deep analysis + PDF download — ₹199/month. sehat24.com/upgrade')
+    const err = new Error('Aapki report bahut badi hai 😕 Pro mein unlimited pages + deep analysis + PDF download — ₹499/month. sehat24.com/upgrade')
     err.isTruncated = true
     throw err
   }

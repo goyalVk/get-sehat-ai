@@ -39,9 +39,9 @@ const testimonials = [
 export default function UpgradePage() {
   const [plan, setPlan] = useState('monthly')
 
-  const monthlyPrice    = 199
+  const monthlyPrice    = 499
   const annualPrice     = 1999
-  const monthlyOriginal = 599
+  const monthlyOriginal = 999
   const annualOriginal  = 7188
   const monthlySavePct  = Math.round((1 - monthlyPrice / monthlyOriginal) * 100)
   const annualSavePct   = Math.round((1 - annualPrice / annualOriginal) * 100)
@@ -385,7 +385,7 @@ export default function UpgradePage() {
             }}
           >
             {plan === 'monthly'
-              ? '🔓 Pro lo — ₹199/month'
+              ? '🔓 Pro lo — ₹499/month'
               : '🔥 Pro lo — ₹1,999/year (Save 72%)'}
           </a>
 

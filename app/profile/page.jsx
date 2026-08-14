@@ -154,7 +154,7 @@ export default function ProfilePage() {
                 fontSize: 13, fontWeight: 600,
                 textDecoration: 'none'
               }}>
-                <s>₹599</s> → ₹199 <span style={{background:'#dc2626',color:'white',fontSize:10,fontWeight:800,padding:'2px 8px',borderRadius:100,marginLeft:6}}>Save 67%</span>
+                <s>₹999</s> → ₹499 <span style={{background:'#dc2626',color:'white',fontSize:10,fontWeight:800,padding:'2px 8px',borderRadius:100,marginLeft:6}}>Save 50%</span>
               </Link>
             )}
           </div>

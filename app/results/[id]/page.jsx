@@ -409,7 +409,7 @@ export default async function ResultsPage({ params }) {
                     marginLeft: 6,
                     textDecoration: 'underline'
                   }}>
-                    <s>₹599</s> → ₹199/month <span style={{background:'#dc2626',color:'white',fontSize:10,fontWeight:800,padding:'2px 8px',borderRadius:100,marginLeft:4}}>Save 67%</span>
+                    <s>₹999</s> → ₹499/month <span style={{background:'#dc2626',color:'white',fontSize:10,fontWeight:800,padding:'2px 8px',borderRadius:100,marginLeft:4}}>Save 50%</span>
                   </a>
                 </p>
               )}
@@ -450,7 +450,7 @@ export default async function ResultsPage({ params }) {
                 textDecoration: 'none',
                 whiteSpace: 'nowrap'
               }}>
-                <s>₹599</s> → ₹199
+                <s>₹999</s> → ₹499
               </a>
             </div>
           )}
@@ -473,7 +473,7 @@ export default async function ResultsPage({ params }) {
                   Pro mein meri limit badh jaati hai — wahan aapko poori summary, lifestyle tips aur ayurvedic suggestions bhi dunga 😊
                 </p>
                 <a href="/upgrade" style={{ display: 'inline-block', background: '#0d9488', color: 'white', padding: '12px 28px', borderRadius: 12, textDecoration: 'none', fontSize: 14, fontWeight: 700 }}>
-                  🔓 Pro lo — Sirf ₹199
+                  🔓 Pro lo — Sirf ₹499
                 </a>
               </div>
             )}
@@ -515,7 +515,7 @@ export default async function ResultsPage({ params }) {
             }}>
               <div style={{ fontSize: 28, marginBottom: 8 }}>⚡</div>
               <p style={{ fontSize: 15, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
-                ⚡ ₹199 mein poora mahina — unlimited reports!
+                ⚡ ₹499 mein poora mahina — unlimited reports!
               </p>
               <p style={{ fontSize: 13, color: '#78350f', marginBottom: 16, lineHeight: 1.5 }}>
                 Jitni bhi reports ho — sab analyze karo + PDF download karo
@@ -526,7 +526,7 @@ export default async function ResultsPage({ params }) {
                 color: 'white', padding: 12, borderRadius: 12,
                 fontWeight: 700, fontSize: 14, textDecoration: 'none'
               }}>
-                🔓 Pro lo — Sirf ₹199
+                🔓 Pro lo — Sirf ₹499
               </a>
             </div>
           )}
@@ -706,7 +706,7 @@ export default async function ResultsPage({ params }) {
                       fontWeight: 700,
                       textDecoration: 'underline'
                     }}>
-                      <s>₹599</s> → ₹199/month
+                      <s>₹999</s> → ₹499/month
                     </a>
                   </p>
                 )}
@@ -803,7 +803,7 @@ export default async function ResultsPage({ params }) {
                 <p style={{ fontSize: 13, color: '#0d9488', lineHeight: 1.6 }}>
                   {isPro
                     ? 'Thyroid, HbA1c, Vitamin D, Liver — koi bhi report upload karo. 30 seconds mein Hindi mein results.'
-                    : 'Unlimited reports + PDF + Voice + History — sirf ₹199/month'}
+                    : 'Unlimited reports + PDF + Voice + History — sirf ₹499/month'}
                 </p>
               </div>
             </div>
@@ -812,7 +812,7 @@ export default async function ResultsPage({ params }) {
                 href={isPro ? '/upload' : '/upgrade'}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 20px', background: '#0d9488', color: 'white', borderRadius: 12, textDecoration: 'none', fontSize: 14, fontWeight: 700, flex: 1, minWidth: 180, justifyContent: 'center' }}
               >
-                {isPro ? '📤 Naya Report Upload Karo →' : '⚡ Pro lo — ₹199/month'}
+                {isPro ? '📤 Naya Report Upload Karo →' : '⚡ Pro lo — ₹499/month'}
               </Link>
               <Link
                 href="/dashboard"

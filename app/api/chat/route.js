@@ -221,10 +221,10 @@ Say: "Sehat24 pe yeh sab free milta hai:
 ✅ Lab reports analyze karo — Hindi mein explanation
 ✅ Medicine chat — photo upload karke puchho
 ✅ 5 free reports — registered users ke liye
-✅ Pro plan mein unlimited — sirf ₹199/month"
+✅ Pro plan mein unlimited — sirf ₹499/month"
 
 Sehat24 Pro plan:
-Say: "Sehat24 Pro — sirf ₹199/month:
+Say: "Sehat24 Pro — sirf ₹499/month:
 ✅ Unlimited reports
 ✅ PDF download
 ✅ Deep analysis
@@ -304,7 +304,7 @@ export async function POST(req) {
     // Guest users = no chat — v4 paid model
     if (!resolvedUserId) {
       return NextResponse.json({
-        reply: 'Chat ke liye login karo 🔓 — pehli report free hai, phir Pro plan ₹199/month mein unlimited chat milega!',
+        reply: 'Chat ke liye login karo 🔓 — pehli report free hai, phir Pro plan ₹499/month mein unlimited chat milega!',
         requiresLogin: true
       }, { status: 401 })
     }
@@ -333,7 +333,7 @@ export async function POST(req) {
 
       if (chatCount >= 10) {
         return NextResponse.json({
-          reply: `Chat limit ho gayi 🙏\n\n₹599 → ₹199/month (Save 67%)\nUnlimited chat + sab features\nSirf ₹6.6/din ☕\n\n👉 sehat24.com/upgrade`,
+          reply: `Chat limit ho gayi 🙏\n\n₹999 → ₹499/month (Save 50%)\nUnlimited chat + sab features\nSirf ₹6.6/din ☕\n\n👉 sehat24.com/upgrade`,
           limitReached: true,
           upgradeUrl: '/upgrade'
         }, { status: 429 })
